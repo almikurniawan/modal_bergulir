@@ -21,6 +21,7 @@ class Grid{
 
     public function __construct()
     {
+        $this->response = service('response');
     }
     
     public function configure($config)
@@ -45,7 +46,8 @@ class Grid{
             ),
             'action'        => array(),
             'toolbar'       => array(),
-            'download_url'  => base_url(uri_string()) . '?download&' . get_query_string()
+            'download_url'  => base_url(uri_string()) . '?download&' . get_query_string(),
+            'label_add'     => 'Add Item'
         );
         foreach ($config as $key => $value) {
             $this->config[$key] = $value;
@@ -80,6 +82,12 @@ class Grid{
         return $this;
     }
 
+    public function set_label_add($label)
+    {
+        $this->config['label_add'] = $label;
+        return $this;
+    }
+
     public function set_sort($sort)
     {
         $this->sort = $sort;
@@ -108,11 +116,11 @@ class Grid{
     public function output()
     {
         if(isset($_GET['datasource'])){
-            $this->get_datasource();
+            return $this->get_datasource();
         }
 
         if(isset($_GET['download'])){
-            $this->download();
+            return $this->download();
         }
         $columns = array();
         
@@ -136,8 +144,6 @@ class Grid{
         }
 
         $this->config['grid_columns'] = $columns;
-        // print_r($this->config);
-        // die();
         return view($this->template, $this->config);
     }
 
@@ -160,7 +166,8 @@ class Grid{
                 }
             }
         }
-        die(json_encode($data));
+        
+        return $this->response->setJSON($data);
     }
 
     public function download()

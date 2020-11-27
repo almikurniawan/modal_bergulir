@@ -1,28 +1,21 @@
-<div class="row mb-2">
-    <div class="col-sm-6">
-        <?php
-        if(!empty($head_left)){
-            foreach($head_left as $key=> $value){
-                if($key=='add')
-                    echo '<a class="btn btn-sm btn-primary" href="'.$value.'"><i class="k-icon k-i-plus"></i> Add Item</a>';
-                
-            }
+<?php
+$toolbarComponent = '';
+if(!empty($head_left)){
+    foreach($head_left as $key=> $value){
+        if($key=='add'){
+            $toolbarComponent .= ' <a class="btn btn-sm  btn-raised btn-primary float-right mr-1" href="'.$value.'"><i class="k-icon k-i-plus"></i> '.$label_add.'</a> ';
         }
-        ?>
-    </div>
-    <div class="col-sm-6">
-        <?php
-        if(!empty($toolbar)){
-            foreach($toolbar as $key=> $value){
-                if($key=='download'){
-                    echo '<a target="_blank" class="btn btn-sm btn-success float-right" href="'.$download_url.'"><i class="k-icon k-i-download"></i> Download</a>';
-                }
-                
-            }
+    }
+}
+
+if(!empty($toolbar)){
+    foreach($toolbar as $key=> $value){
+        if($key=='download'){
+            $toolbarComponent .= ' <a target="_blank" class="btn btn-sm btn-raised btn-success float-right mr-1" href="'.$download_url.'"><i class="k-icon k-i-download"></i> Download</a> ';
         }
-        ?>
-    </div>
-</div>
+    }
+}
+?>
 <div class="row">
     <div class="col-sm-12">
         <div id="grid_<?= $grid_name?>"></div>
@@ -104,7 +97,7 @@ $columns = preg_replace($re, '"template":kendo.template$1,', $columns);
         // height: "<?= $grid_height?>",
         scrollable : false,
         groupable: false,
-        // toolbar: '<input type="checkbox" />',
+        toolbar: '<?= $toolbarComponent?>',
         sortable: {
             mode: "multiple",
             allowUnsort: true,

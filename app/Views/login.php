@@ -8,139 +8,525 @@
 	<meta name="author" content="Hartsimagineering.com">
 	<link rel="icon" href="./images/favicon/favicon-16x16.png">
 
-	<title>SURVEY PASAR</title>
-	<link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
-	<script src="./assets/kendo2020/js/jquery.min.js"></script>
-	<script src="./bootstrap4/js/bootstrap.min.js"></script>
+	<title>MODAL BERGILIR</title>
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<style>
-		:root {
-			--input-padding-x: 1.5rem;
-			--input-padding-y: .75rem;
-		}
-
 		body {
-			background-image: url(./assets/images/bg.jpg);
-			background-position: center center;
-			background-repeat: no-repeat;
-			background-size: cover;
-			background-attachment: fixed;
+			background: #e9e9e9;
+			color: #666666;
+			font-family: 'RobotoDraft', 'Roboto', sans-serif;
+			font-size: 14px;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
 		}
 
-		.card-signin {
-			border: 0;
-			border-radius: 1rem;
-			box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
+		/* Pen Title */
+		.pen-title {
+			padding: 20px 0;
+			text-align: center;
+			letter-spacing: 2px;
 		}
 
-		.card-signin .card-title {
-			margin-bottom: 2rem;
+		.pen-title h1 {
+			margin: 0 0 20px;
+			font-size: 40px;
 			font-weight: 300;
-			font-size: 1.5rem;
 		}
 
-		.card-signin .card-body {
-			padding: 2rem;
+		.pen-title span {
+			font-size: 12px;
 		}
 
-		.form-signin {
-			width: 100%;
+		.pen-title span .fa {
+			color: #ed2553;
 		}
 
-		.form-signin .btn {
-			font-size: 80%;
-			border-radius: 5rem;
-			letter-spacing: .1rem;
-			font-weight: bold;
-			padding: 1rem;
-			transition: all 0.2s;
+		.pen-title span a {
+			color: #ed2553;
+			font-weight: 600;
+			text-decoration: none;
 		}
 
-		.form-label-group {
+		/* Rerun */
+		.rerun {
+			margin: 0 0 30px;
+			text-align: center;
+		}
+
+		.rerun a {
+			cursor: pointer;
+			display: inline-block;
+			background: #ed2553;
+			border-radius: 3px;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+			padding: 10px 20px;
+			color: #ffffff;
+			text-decoration: none;
+			-webkit-transition: 0.3s ease;
+			transition: 0.3s ease;
+		}
+
+		.rerun a:hover {
+			box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+		}
+
+		/* Scroll To Bottom */
+		#codepen,
+		#portfolio {
+			position: fixed;
+			bottom: 30px;
+			right: 30px;
+			background: #ec2652;
+			width: 56px;
+			height: 56px;
+			border-radius: 100%;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+			-webkit-transition: 0.3s ease;
+			transition: 0.3s ease;
+			color: #ffffff;
+			text-align: center;
+		}
+
+		#codepen i,
+		#portfolio i {
+			line-height: 56px;
+		}
+
+		#codepen:hover,
+		#portfolio:hover {
+			box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+		}
+
+		/* CodePen */
+		#portfolio {
+			bottom: 96px;
+			right: 36px;
+			background: #ec2652;
+			width: 44px;
+			height: 44px;
+			-webkit-animation: buttonFadeInUp 1s ease;
+			animation: buttonFadeInUp 1s ease;
+		}
+
+		#portfolio i {
+			line-height: 44px;
+		}
+
+		/* Container */
+		.container {
 			position: relative;
-			margin-bottom: 1rem;
+			max-width: 460px;
+			width: 100%;
+			margin: 0 auto 100px;
 		}
 
-		.form-label-group input {
+		.container.active .card:first-child {
+			background: #f2f2f2;
+			margin: 0 15px;
+		}
+
+		.container.active .card:nth-child(2) {
+			background: #fafafa;
+			margin: 0 10px;
+		}
+
+		.container.active .card.alt {
+			top: 20px;
+			right: 0;
+			width: 100%;
+			min-width: 100%;
 			height: auto;
-			border-radius: 2rem;
+			border-radius: 5px;
+			padding: 20px 0 40px;
+			overflow: hidden;
 		}
 
-		.form-label-group>input,
-		.form-label-group>label {
-			padding: var(--input-padding-y) var(--input-padding-x);
+		.container.active .card.alt .toggle {
+			position: absolute;
+			top: 40px;
+			right: -70px;
+			box-shadow: none;
+			-webkit-transform: scale(14);
+			transform: scale(15);
+			-webkit-transition: -webkit-transform .5s ease;
+			transition: -webkit-transform .5s ease;
+			transition: transform .5s ease;
+			transition: transform .5s ease, -webkit-transform .5s ease;
 		}
 
-		.form-label-group>label {
+		.container.active .card.alt .toggle:before {
+			content: '';
+		}
+
+		.container.active .card.alt .title,
+		.container.active .card.alt .input-container,
+		.container.active .card.alt .button-container {
+			left: 0;
+			opacity: 1;
+			visibility: visible;
+			-webkit-transition: .3s ease;
+			transition: .3s ease;
+		}
+
+		.container.active .card.alt .title {
+			-webkit-transition-delay: .3s;
+			transition-delay: .3s;
+		}
+
+		.container.active .card.alt .input-container {
+			-webkit-transition-delay: .4s;
+			transition-delay: .4s;
+		}
+
+		.container.active .card.alt .input-container:nth-child(2) {
+			-webkit-transition-delay: .5s;
+			transition-delay: .5s;
+		}
+
+		.container.active .card.alt .input-container:nth-child(3) {
+			-webkit-transition-delay: .6s;
+			transition-delay: .6s;
+		}
+
+		.container.active .card.alt .button-container {
+			-webkit-transition-delay: .7s;
+			transition-delay: .7s;
+		}
+
+		/* Card */
+		.card {
+			position: relative;
+			background: #ffffff;
+			border-radius: 5px;
+			padding: 20px 0 40px 0;
+			box-sizing: border-box;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+			-webkit-transition: .3s ease;
+			transition: .3s ease;
+			/* Title */
+			/* Inputs */
+			/* Button */
+			/* Footer */
+			/* Alt Card */
+		}
+
+		.card:first-child {
+			background: #fafafa;
+			height: 10px;
+			border-radius: 5px 5px 0 0;
+			margin: 0 10px;
+			padding: 0;
+		}
+
+		.card .title {
+			position: relative;
+			z-index: 1;
+			border-left: 5px solid #ec2652;
+			margin: 0 0 35px;
+			padding: 10px 0 10px 50px;
+			color: #ec2652;
+			font-size: 32px;
+			font-weight: 600;
+			text-transform: uppercase;
+		}
+
+		.card .input-container {
+			position: relative;
+			margin: 0 60px 50px;
+		}
+
+		.card .input-container input {
+			outline: none;
+			z-index: 1;
+			position: relative;
+			background: none;
+			width: 100%;
+			height: 54px;
+			border: 0;
+			color: #212121;
+			font-size: 20px;
+			font-weight: 400;
+		}
+
+		.card .input-container input:focus~label {
+			color: #9d9d9d;
+			-webkit-transform: translate(-12%, -50%) scale(0.75);
+			transform: translate(-12%, -50%) scale(0.75);
+		}
+
+		.card .input-container input:focus~.bar:before,
+		.card .input-container input:focus~.bar:after {
+			width: 50%;
+		}
+
+		.card .input-container input:valid~label {
+			color: #9d9d9d;
+			-webkit-transform: translate(-12%, -50%) scale(0.75);
+			transform: translate(-12%, -50%) scale(0.75);
+		}
+
+		.card .input-container label {
 			position: absolute;
 			top: 0;
 			left: 0;
-			display: block;
+			color: #757575;
+			font-size: 24px;
+			font-weight: 300;
+			line-height: 60px;
+			-webkit-transition: 0.2s ease;
+			transition: 0.2s ease;
+		}
+
+		.card .input-container .bar {
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			background: #757575;
 			width: 100%;
-			margin-bottom: 0;
-			/* Override default `<label>` margin */
-			line-height: 1.5;
-			color: #495057;
-			border: 1px solid transparent;
-			border-radius: .25rem;
-			transition: all .1s ease-in-out;
+			height: 1px;
 		}
 
-		.form-label-group input::-webkit-input-placeholder {
-			color: transparent;
+		.card .input-container .bar:before,
+		.card .input-container .bar:after {
+			content: '';
+			position: absolute;
+			background: #ec2652;
+			width: 0;
+			height: 2px;
+			-webkit-transition: .2s ease;
+			transition: .2s ease;
 		}
 
-		.form-label-group input:-ms-input-placeholder {
-			color: transparent;
+		.card .input-container .bar:before {
+			left: 50%;
 		}
 
-		.form-label-group input::-ms-input-placeholder {
-			color: transparent;
+		.card .input-container .bar:after {
+			right: 50%;
 		}
 
-		.form-label-group input::-moz-placeholder {
-			color: transparent;
+		.card .button-container {
+			margin: 0 60px;
+			text-align: center;
 		}
 
-		.form-label-group input::placeholder {
-			color: transparent;
+		.card .button-container button {
+			outline: 0;
+			cursor: pointer;
+			position: relative;
+			display: inline-block;
+			background: 0;
+			width: 240px;
+			border: 2px solid #e3e3e3;
+			padding: 20px 0;
+			font-size: 24px;
+			font-weight: 600;
+			line-height: 1;
+			text-transform: uppercase;
+			overflow: hidden;
+			-webkit-transition: .3s ease;
+			transition: .3s ease;
 		}
 
-		.form-label-group input:not(:placeholder-shown) {
-			padding-top: calc(var(--input-padding-y) + var(--input-padding-y) * (2 / 3));
-			padding-bottom: calc(var(--input-padding-y) / 3);
+		.card .button-container button span {
+			position: relative;
+			z-index: 1;
+			color: #ddd;
+			-webkit-transition: .3s ease;
+			transition: .3s ease;
 		}
 
-		.form-label-group input:not(:placeholder-shown)~label {
-			padding-top: calc(var(--input-padding-y) / 3);
-			padding-bottom: calc(var(--input-padding-y) / 3);
-			font-size: 12px;
-			color: #777;
+		.card .button-container button:before {
+			content: '';
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			display: block;
+			background: #ec2652;
+			width: 30px;
+			height: 30px;
+			border-radius: 100%;
+			margin: -15px 0 0 -15px;
+			opacity: 0;
+			-webkit-transition: .3s ease;
+			transition: .3s ease;
 		}
 
-		/* Fallback for Edge
--------------------------------------------------- */
+		.card .button-container button:hover,
+		.card .button-container button:active,
+		.card .button-container button:focus {
+			border-color: #ec2652;
+		}
 
-		@supports (-ms-ime-align: auto) {
-			.form-label-group>label {
-				display: none;
+		.card .button-container button:hover span,
+		.card .button-container button:active span,
+		.card .button-container button:focus span {
+			color: #ec2652;
+		}
+
+		.card .button-container button:active span,
+		.card .button-container button:focus span {
+			color: #ffffff;
+		}
+
+		.card .button-container button:active:before,
+		.card .button-container button:focus:before {
+			opacity: 1;
+			-webkit-transform: scale(10);
+			transform: scale(10);
+		}
+
+		.card .footer {
+			margin: 40px 0 0;
+			color: #d3d3d3;
+			font-size: 24px;
+			font-weight: 300;
+			text-align: center;
+		}
+
+		.card .footer a {
+			color: inherit;
+			text-decoration: none;
+			-webkit-transition: .3s ease;
+			transition: .3s ease;
+		}
+
+		.card .footer a:hover {
+			color: #bababa;
+		}
+
+		.card.alt {
+			position: absolute;
+			top: 40px;
+			right: -70px;
+			z-index: 10;
+			width: 100px;
+			height: 100px;
+			background: none;
+			border-radius: 100%;
+			box-shadow: none;
+			padding: 0;
+			-webkit-transition: .3s ease;
+			transition: .3s ease;
+			/* Toggle */
+			/* Title */
+			/* Input */
+			/* Button */
+		}
+
+		.card.alt .toggle {
+			position: relative;
+			background: #ec2652;
+			width: 100px;
+			height: 100px;
+			border-radius: 100%;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+			color: #ffffff;
+			font-size: 42px;
+			line-height: 100px;
+			text-align: center;
+			cursor: pointer;
+		}
+
+		.card.alt .toggle:before {
+			content: '\f067';
+			display: inline-block;
+			font: normal normal normal 14px/1 FontAwesome;
+			font-size: inherit;
+			text-rendering: auto;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
+			-webkit-transform: translate(0, 0);
+			transform: translate(0, 0);
+		}
+
+		.card.alt .title,
+		.card.alt .input-container,
+		.card.alt .button-container {
+			left: 100px;
+			opacity: 0;
+			visibility: hidden;
+		}
+
+		.card.alt .title {
+			position: relative;
+			border-color: #ffffff;
+			color: #ffffff;
+		}
+
+		.card.alt .title .close {
+			cursor: pointer;
+			position: absolute;
+			top: 0;
+			right: 60px;
+			display: inline;
+			color: #ffffff;
+			font-size: 58px;
+			font-weight: 400;
+		}
+
+		.card.alt .title .close:before {
+			content: '\00d7';
+		}
+
+		.card.alt .input-container input {
+			color: #ffffff;
+		}
+
+		.card.alt .input-container input:focus~label {
+			color: #ffffff;
+		}
+
+		.card.alt .input-container input:focus~.bar:before,
+		.card.alt .input-container input:focus~.bar:after {
+			background: #ffffff;
+		}
+
+		.card.alt .input-container input:valid~label {
+			color: #ffffff;
+		}
+
+		.card.alt .input-container label {
+			color: rgba(255, 255, 255, 0.8);
+		}
+
+		.card.alt .input-container .bar {
+			background: rgba(255, 255, 255, 0.8);
+		}
+
+		.card.alt .button-container button {
+			width: 100%;
+			background: #ffffff;
+			border-color: #ffffff;
+		}
+
+		.card.alt .button-container button span {
+			color: #ec2652;
+		}
+
+		.card.alt .button-container button:hover {
+			background: rgba(255, 255, 255, 0.9);
+		}
+
+		.card.alt .button-container button:active:before,
+		.card.alt .button-container button:focus:before {
+			display: none;
+		}
+
+		/* Keyframes */
+		@-webkit-keyframes buttonFadeInUp {
+			0% {
+				bottom: 30px;
+				opacity: 0;
 			}
-
-			.form-label-group input::-ms-input-placeholder {
-				color: #777;
-			}
 		}
 
-		/* Fallback for IE
--------------------------------------------------- */
-
-		@media all and (-ms-high-contrast: none),
-		(-ms-high-contrast: active) {
-			.form-label-group>label {
-				display: none;
-			}
-
-			.form-label-group input:-ms-input-placeholder {
-				color: #777;
+		@keyframes buttonFadeInUp {
+			0% {
+				bottom: 30px;
+				opacity: 0;
 			}
 		}
 	</style>
@@ -148,34 +534,35 @@
 
 <body class="text-center">
 	<div class="container">
-		<div class="container">
-			<div class="row">
-				<div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
-					<div class="card card-signin my-5">
-						<div class="card-body">
-							<div style="padding: 10px;">
-								<h1 class="h3 mb-3 font-weight-normal">
-									LOGIN SURVEY PASAR
-								</h1>
-							</div>
-							<form class="form-signin text-left" method="post" action="<?= base_url("login/auth")?>">
-								<div class="form-label-group">
-									<input type="username" id="inputEmail" class="form-control" placeholder="Username" name="username" required autofocus>
-									<label for="inputEmail">Username</label>
-								</div>
-
-								<div class="form-label-group">
-									<input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
-									<label for="inputPassword">Password</label>
-								</div>
-
-								<div class="custom-control custom-checkbox">
-									<input type="checkbox" class="custom-control-input" id="customCheck1">
-								</div>
-								<button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Login</button>
-							</form>
-
+		<div class="row mt-3">
+			<div class="container">
+				<center>
+					<h3>Dinas Koperasi Kota Kediri</h3>
+				</center>
+				<div class="card">
+					<center>
+						<img src="./assets/images/logo.svg" width="100"/>
+					</center>
+					<form class="form-signin text-left" method="post" action="<?= base_url("login/auth")?>">
+						<div class="input-container">
+							<input type="text" id="Username" name="username" required="required" />
+							<label for="Username">Username</label>
+							<div class="bar"></div>
 						</div>
+						<div class="input-container">
+							<input type="password" id="Password" name="password" required="required" />
+							<label for="Password">Password</label>
+							<div class="bar"></div>
+						</div>
+						<div class="button-container">
+							<button><span>Login</span></button>
+						</div>
+					</form>
+					<div class="button-container mt-3">
+						<p>Belum punya akun? bisa register dibawah</p>
+					</div>
+					<div class="button-container">
+						<a href="<?=base_url('login/vRegister')?>"><button class="bg-primary"><span>Register</span></button></a>
 					</div>
 				</div>
 			</div>
@@ -184,19 +571,16 @@
 </body>
 
 <script>
-	var htmlbutton = '<div class="row"><div class="col"><button type="button" class="btn btn-success" style="width:90%" onclick="goTelkom()">Via Jalur Telkom</button></div><div class="col"><button type="button" class="btn btn-success" style="width:90%" onclick="goBiznet()">Via Jalur Biznet</button></div></div>';
+	$(document).ready(function() {
+		$('.toggle').on('click', function() {
+			$('.container').stop().addClass('active');
+		});
 
-	function getButton() {
-		$("#akseslambat").html(htmlbutton);
-	}
+		$('.close').on('click', function() {
+			$('.container').stop().removeClass('active');
+		});
 
-	function goTelkom() {
-		window.location.href = 'https://oasis.iik.ac.id:7444/sbsdev/';
-	}
-
-	function goBiznet() {
-		window.location.href = 'http://srv1.iik.ac.id:2801/sbsdev/';
-	}
+	});
 </script>
 
 </html>

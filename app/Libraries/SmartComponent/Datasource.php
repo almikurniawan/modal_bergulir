@@ -28,7 +28,7 @@ class Datasource
             if ($value[1] != '') {
                 if (!isset($value[2])) {
                     array_push($whereClause, "lower(" . $value[0] . " ) like '%" . strtolower($value[1]) . "%'");
-                } else if (in_array(trim(strtolower($value[2])),array('not in', 'in'))) {
+                } else if (in_array(trim(strtolower($value[2])),array('not in', 'in','is'))) {
                     array_push($whereClause, $value[0] . " " . $value[2] . " " . $value[1] . "");
                 }else {
                     array_push($whereClause, $value[0] . " " . $value[2] . " '" . $value[1] . "'");

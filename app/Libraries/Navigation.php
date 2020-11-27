@@ -15,6 +15,7 @@ class Navigation
         $data['menu'] = $this->gen_menu();
         return view('template/menu', $data);
     }
+
     private function gen_menu()
     {
         $menu = '';
@@ -32,13 +33,14 @@ class Navigation
                 }
             }
         }
-        $menu .= '<li><a class="nav-link pl-0" href="' . base_url("login/logout") . '"><i class="k-icon k-i-logout"></i> Logout </a></li>';
+        // $menu .= '<li><a class="nav-link pl-0" href="' . base_url("login/logout") . '"><i class="k-icon k-i-logout"></i> Logout </a></li>';
 
         return $menu;
     }
 
     public function cek_akses($controller)
     {
+        return true;
         $data_ref_modul = $this->db->query("SELECT
                                             ref_modul_akses_label
                                         FROM
@@ -75,49 +77,34 @@ class Navigation
 
         $list_menu = array(
             array(
+                'label'         => 'Pengajuan',
+                'controller'    => 'admin/pengajuan',
+                'icon'          => 'fa-home',
+            ),
+            array(
+                'label'         => 'Verifikasi',
+                'controller'    => 'admin/verifikasi',
+                'icon'          => 'fa-home',
+            ),
+            array(
                 'label'         => 'Survey',
                 'controller'    => 'admin/survey',
-                'icon'          => 'fa-home'
+                'icon'          => 'fa-home',
             ),
             array(
-                'label'         => 'Notifikasi',
-                'controller'    => 'admin/notifikasi',
-                'icon'          => 'fa-home'
-            ),
-            array(
-                'label'         => 'Validasi',
-                'controller'    => 'admin/validasi',
-                'icon'          => 'fa-home'
-            ),
-            array(
-                'label'         => 'Rekap',
-                'controller'    => 'admin/rekap',
-                'icon'          => 'fa-home'
-            ),
-            array(
-                'label'         => 'Master Data',
-                'controller'    => '#referensi',
+                'label'         => 'Data Master',
+                'controller'    => '#master',
                 'icon'          => 'fa-home',
                 'child'         => array(
                     array(
-                        'label'     => 'Pasar',
-                        'controller' => 'admin/refPasar',
+                        'label'     => 'Member',
+                        'controller' => 'admin/member',
+                        'icon'          => 'fa-home',
                     ),
                     array(
-                        'label'     => 'Satuan',
-                        'controller' => 'admin/refProdukSatuan',
-                    ),
-                    array(
-                        'label'     => 'Kategori',
-                        'controller' => 'admin/refProduk',
-                    ),
-                    array(
-                        'label'     => 'Sub Kategori',
-                        'controller' => 'admin/refProdukVarian',
-                    ),
-                    array(
-                        'label'     => 'Pedagang',
-                        'controller' => 'admin/refSeller',
+                        'label'     => 'Karyawan',
+                        'controller' => 'admin/karyawan',
+                        'icon'          => 'fa-home',
                     ),
                 )
             ),

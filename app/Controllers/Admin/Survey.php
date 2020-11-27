@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
@@ -8,226 +7,440 @@ use App\Libraries\SmartComponent\Form;
 
 class Survey extends BaseController
 {
+
     public function index()
     {
-        $tanggal        = ($this->request->getGet('tanggal')=='' ? date("Y-m-d") : $this->request->getGet('tanggal'));
-        $data['grid']   = $this->gridSeller($tanggal);
-        $data['search'] = $this->searchSeller();
-        $data['notif']  = $this->getNotif($tanggal);
-        return view('admin/pickSeller', $data);
+        $data['grid']   = $this->grid_survey();
+        $data['search'] = $this->search();
+        $data['title']  = 'Survey';
+        $data['url_delete']  = '';
+
+        return view('global/list', $data);
     }
 
-    private function getNotif($tanggal)
+    public function grid_survey()
     {
-        $cek = $this->db->query("select count(*) as jumlah from ref_produk_varian where ref_produk_var_id not in (select survey_detail.survey_det_produk_var_id from survey_detail where survey_det_tanggal='".$tanggal."')")->getRowArray();
-        if($cek['jumlah']>0){
-            $url = base_url("admin/survey/belum/".$tanggal);
-            return '<div class="alert alert-warning" role="alert">Ada '.$cek['jumlah'].' produk yang belum disurvey ditanggal '.date_format(date_create($tanggal),'d F Y').'. lihat disini <a href="'.$url.'">Lihat</a></div>';
-        }
-        return '';
+        $SQL = "SELECT
+                    *,
+                    survey_id as id
+                from survey";
+        $action['detail'] = ['link'=> 'admin/survey/form/'];
+        $grid = new Grid();
+        return $grid->set_query($SQL,[
+            ['survey_nomor', $this->request->getGet('nomor')],
+            ['survey_tanggal', $this->request->getGet('tanggal'),'=']
+        ])
+            ->set_sort(array('id', 'desc'))
+            ->configure(
+                array(
+                    'datasouce_url' => base_url("admin/survey/grid_survey?datasource&" . get_query_string()),
+                    'grid_columns'  => array(
+                        array(
+                            'field' => 'survey_nomor_lengkap',
+                            'title' => 'Nomor Surat',
+                        ),
+                        array(
+                            'field' => 'survey_dasar',
+                            'title' => 'Dasar',
+                        ),
+                        array(
+                            'field' => 'survey_untuk',
+                            'title' => 'Untuk',
+                        ),
+                        array(
+                            'field' => 'survey_tanggal',
+                            'title' => 'Tanggal',
+                            'format'=> 'date',
+                        ),
+                    ),
+                    "action"    => $action,
+                    'head_left' => array('add' => base_url('/admin/survey/start'))
+                )
+            )
+            ->set_sort(['id','desc'])
+            ->output();
     }
 
-    public function pickSeller($tanggal)
+    public function start()
     {
-        $data['grid'] = $this->gridSeller($tanggal);
-        $data['search'] = $this->searchSeller();
-        return view('admin/pickSeller', $data);
-    }
+        $data['grid']   = $this->grid();
+        $data['search'] = '';
+        $data['title']  = 'Form Survey';
 
-    public function searchSeller()
+        return view('admin/survey/list', $data);
+    }
+    public function search()
     {
         $form = new Form();
         return $form->set_form_type('search')
-		->set_form_method('GET')
-        ->set_submit_label('Mulai Survey')
-        ->add('tanggal', 'Tanggal', 'date', false, $this->request->getGet('tanggal'), 'style="width:100%;" ')
-        ->add('seller', 'Pedagang', 'select', false, $this->request->getGet('seller'), 'style="width:100%;" ',
-            array(
-                'table' => 'seller left join ref_pasar on ref_pasar_id = seller_pasar_id',
-                'id' => 'seller_id',
-                'label' => "seller_nama||' - '||ref_pasar_label"
-            )
-        )->output();
+            ->set_form_method('GET')
+            ->set_submit_label('Cari')
+            ->add('nomor', 'Nomor', 'text', false, $this->request->getGet('nomor'), 'style="width:100%;" ')
+            ->add('tanggal', 'Tanggal', 'date', false, $this->request->getGet('tanggal'), 'style="width:100%;" ')
+            ->output();
     }
 
-    public function gridSeller($tanggal)
+    public function grid()
     {
-        $SQL = "select '<a href=\"".base_url("admin/survey/start/".$tanggal)."/'||seller_id||'\">'||seller_nama||'</a>' as seller_nama, ref_pasar_label, seller_id as id from seller left join ref_pasar on ref_pasar_id = seller_pasar_id";
+        $SQL = "SELECT
+                    peng_nominal,
+                    member_nama_lengkap,
+                    jns_pengajuan_label,
+                    peng_tanggal,
+                    case when peng_verif_reject_is is true then '<span class=\"badge badge-danger\">Rejected</span>' when peng_verif_is is true then '<span class=\"badge badge-success\">Verified</span>' else '<span class=\"badge badge-warning\">Waiting</span>' end as status,
+                    '<input value=\"'||peng_id||'\" name=\"peng[]\" type=\"checkbox\" style=\"width:25px; height:25px;\"/>' as action,
+                    peng_id AS ID 
+                FROM
+                    pengajuan
+                    left join member on member_id = peng_member_id
+                    left join ref_jenis_pengajuan on ref_jenis_pengajuan.jns_pengajuan_id = peng_jenis_pengajuan";
+
+        $filter = array(
+            ['member_nama_lengkap',$this->request->getGet('member')],
+            ['peng_tanggal',$this->request->getGet('tanggal'),'='],
+            ['peng_verif_is','true','is'],
+            ['peng_surv_is','false','is']
+        );
 
         $grid = new Grid();
-        return $grid->set_query($SQL,array(
-            array('seller_id', $this->request->getGet('seller'),'=')
-        ))
+        return $grid->set_query($SQL, $filter)
+            ->set_sort(array('id', 'desc'))
             ->configure(
                 array(
-                    'datasouce_url' => base_url("admin/survey/gridSeller/".$tanggal."?datasource&" . get_query_string()),
+                    'datasouce_url' => base_url("admin/survey/grid?datasource&" . get_query_string()),
                     'grid_columns'  => array(
                         array(
-                            'field' => 'seller_nama',
-                            'title' => 'Pedagang',
+                            'field' => 'member_nama_lengkap',
+                            'title' => 'Member',
+                        ),
+                        array(
+                            'field' => 'jns_pengajuan_label',
+                            'title' => 'Jenis',
+                        ),
+                        array(
+                            'field' => 'peng_tanggal',
+                            'title' => 'Tanggal',
+                            'format'=> 'date'
+                        ),
+                        array(
+                            'field' => 'peng_nominal',
+                            'title' => 'Jumlah Pinjaman',
+                            'format'=> 'number',
+                            'align' => 'right'
+                        ),
+                        array(
+                            'field' => 'status',
+                            'title' => 'Status',
                             'encoded'=> false
                         ),
                         array(
-                            'field' => 'ref_pasar_label',
-                            'title' => 'Pasar',
+                            'field' => 'action',
+                            'title' => 'Aksi',
+                            'encoded'=> false
                         )
-                    )
+                    ),
                 )
-            )->output();
+            )
+            ->set_sort(['status','desc'])
+            ->output();
     }
 
-    public function start($tanggal, $seller_id)
+    public function proses()
     {
-        //cek jika sudah ada
-        $cek = $this->db->query("select * from survey_header where survey_head_tanggal='".$tanggal."' and survey_head_seller_id=".$seller_id)->getRowArray();
-        if(empty($cek)){
-            $data['form'] = $this->formSurvey($tanggal, $seller_id);
-            return view('admin/surveyStart', $data);
-        }else{
-            if($cek['survey_head_approve_is']=='t'){
-                return view('admin/surveyApproved');
-            }
-            return redirect()->to(base_url("admin/survey/edit/".$cek['survey_head_id']));
-        }
-    }
+        $peng_id = explode(",",$this->request->getGet('id'));
+        $dataSurvey = array(
+            'survey_created_by'=> $this->user['user_id'],
+            'survey_created_at'=> date("Y-m-d H:i:s")
+        );
 
-    public function formSurvey($tanggal, $seller_id)
-    {
-        $produk_seller = $this->db->query("select ref_produk_var_id, ref_produk_var_label, '( '||ref_produk_satuan_label||' )' as ref_produk_satuan_label from seller_produk left join ref_produk_varian on seller_prod_produk_var_id = ref_produk_var_id left join ref_produk_satuan on ref_produk_satuan_id = ref_produk_varian.ref_produk_var_satuan_id where seller_prod_seller_id=".$seller_id)->getResult('array');
-        $form = new Form();
-        $form->set_attribute_form('class="form-horizontal"')
-        ->set_form_action(base_url("/admin/survey/formSurvey/".$tanggal."/".$seller_id));
-        foreach($produk_seller as $key => $value){
-            $form->add($value['ref_produk_var_id'], $value['ref_produk_var_label'].' '.$value['ref_produk_satuan_label'], 'number', false, '', 'style="width:100%;"');
-        }
+        $this->db->table("survey")->insert($dataSurvey);
+        $id = $this->db->insertId();
 
-		if ($form->formVerified()) {
-            $qb = $this->db->table('survey_header');
-            $data_header = array(
-                'survey_head_tanggal'   => $tanggal,
-                'survey_head_seller_id' => $seller_id,
-                'survey_head_created_by'=> $this->user['user_id']
+        foreach($peng_id as $val){
+            $dataTempat = array(
+                'survey_tem_head_id'=> $id,
+                'survey_tem_peng_id'=> $val
             );
-            $qb->insert($data_header);
-            $id_header = $this->db->insertID();
-            $data_detail = array();
-            foreach($_POST as $key => $value){
-                if($key!=='submit'){
-                    if($value>0){
-                        $data_detail[] = array(
-                            'survey_det_head_id'    => $id_header,
-                            'survey_det_tanggal'    => $tanggal,
-                            'survey_det_seller_id'  => $seller_id,
-                            'survey_det_produk_var_id'=> $key,
-                            'survey_det_harga'      => ($value=='' ? 0 : $value),
-                            'survey_det_created_by' => $this->user['user_id']
-                        );
-                    }
-                }
-            }
-            $qb = $this->db->table('survey_detail');
-            $qb->insertBatch($data_detail);
-            $this->session->setFlashdata('sukses','Sukses Survey');
-            return redirect()->to(base_url("admin/survey"));
-		} else {
-			return $form->output();
-		}
+            $this->db->table("survey_tempat")->insert($dataTempat);
+            $this->db->table("pengajuan")->where("peng_id", $val)->update([
+                'peng_surv_is'=> true,
+                'peng_surv_id'=> $id
+            ]);
+        }
+        return redirect()->to(base_url("admin/survey/form/".$id));
     }
 
-    public function edit($head_id)
+    public function form($surv_id)
     {
-        $data['form'] = $this->formSurveyEdit($head_id);
-        return view('admin/surveyStart', $data);
+        $data['form']   = $this->form_survey($surv_id);
+        $data['grid_tempat']   = $this->grid_tempat($surv_id);
+        $data['grid_petugas']   = $this->grid_petugas($surv_id);
+        $data['url_back']   = base_url("admin/survey");
+        $data['title']  = 'Survey Form';
+        $data['id'] = $surv_id;
+
+        return view('admin/survey/start', $data);
     }
 
-    public function formSurveyEdit($head_id)
+    public function form_survey($surv_id)
     {
-        $header = $this->db->query("select * from survey_header where survey_head_id=".$head_id)->getRowArray();
-        $seller_id = $header['survey_head_seller_id'];
-        $tanggal = $header['survey_head_tanggal'];
-        $produk_seller = $this->db->query("select ref_produk_var_id, ref_produk_var_label, survey_det_harga, '( '||ref_produk_satuan_label||' )' as ref_produk_satuan_label from seller_produk left join ref_produk_varian on seller_prod_produk_var_id = ref_produk_var_id left join ref_produk_satuan on ref_produk_satuan_id = ref_produk_varian.ref_produk_var_satuan_id left join survey_detail on survey_det_head_id = ".$head_id." and survey_det_produk_var_id = ref_produk_var_id where seller_prod_seller_id=".$seller_id)->getResult('array');
-
+        $data = $this->db->table("survey")->getWhere(['survey_id'=> $surv_id])->getRowArray();
         $form = new Form();
         $form->set_attribute_form('class="form-horizontal"')
-        ->set_form_action(base_url("/admin/survey/formSurveyEdit/".$head_id));
-        foreach($produk_seller as $key => $value){
-            $form->add($value['ref_produk_var_id'], $value['ref_produk_var_label'].' '.$value['ref_produk_satuan_label'], 'number', false, $value['survey_det_harga'], 'style="width:100%;"');
-        }
+            ->add('survey_dasar', 'Dasar', 'text', true, !empty($data) ? $data['survey_dasar'] : '', 'style="width:100%;"')
+            ->add('survey_untuk', 'Untuk', 'text', true, !empty($data) ? $data['survey_untuk'] : '', 'style="width:100%;"')
+            ->add('survey_keterangan', 'Keterangan', 'textArea', true, !empty($data) ? $data['survey_keterangan'] : '', 'style="width:100%;"')
+            ->add('survey_tanggal', 'Tanggal', 'date', true, !empty($data) ? $data['survey_tanggal'] : '', 'style="width:100%;"')
+            ;
 
-		if ($form->formVerified()) {
-            $data_detail = array();
-            foreach($_POST as $key => $value){
-                if($key!=='submit'){
-                    if($value>0){
-                        $data_detail[] = array(
-                            'survey_det_head_id'    => $head_id,
-                            'survey_det_tanggal'    => $tanggal,
-                            'survey_det_seller_id'  => $seller_id,
-                            'survey_det_produk_var_id'=> $key,
-                            'survey_det_harga'      => ($value=='' ? 0 : $value),
-                            'survey_det_created_by' => $this->user['user_id']
-                        );
-                    }
-                }
+        if ($form->formVerified()) {
+            $dataForm = $form->get_data();
+            if(!empty($data)){
+                $this->db->table("survey")->where('survey_id', $surv_id)->update($dataForm);
+            }else{
+                $this->db->table("survey")->insert($dataForm);
             }
-            $qb = $this->db->table('survey_detail');
-            $qb->delete(['survey_det_head_id'=> $head_id]);
-            $qb->insertBatch($data_detail);
-            $this->db->table('survey_header')->where('survey_head_id', $head_id)->update([
-                'survey_head_approve_is'=> null,
-                'survey_head_approve_at'=> null,
-                'survey_head_approve_by'=> null,
-                'survey_head_reject_is'=> null,
-                'survey_head_reject_at'=> null,
-                'survey_head_reject_by'=> null
-            ]);
-            $this->session->setFlashdata('sukses','Sukses Survey');
-            return redirect()->to(base_url("admin/survey"));
+            return $form->output();
         }else{
             return $form->output();
         }
     }
-
-    public function belum($tanggal)
-    {
-        $data['grid']   = $this->gridBelumSurvey($tanggal);
-        return view('admin/belumSurvey', $data);
-    }
-
-    public function gridBelumSurvey($tanggal)
+    
+    public function grid_tempat($surv_id)
     {
         $SQL = "SELECT
-                    ref_produk_var_label,
-                    ref_produk_label ,
-                    ref_produk_var_id as id
+                    peng_prof_alamat,
+                    peng_prof_nama_usaha,
+                    survey_tem_id as id
                 FROM
-                    ref_produk_varian
-                    LEFT JOIN ref_produk ON ref_produk_id = ref_produk_var_produk_id 
-                WHERE
-                    ref_produk_var_id NOT IN (
-                SELECT
-                    survey_detail.survey_det_produk_var_id 
-                FROM
-                    survey_detail 
-                WHERE
-                    survey_det_tanggal = '".$tanggal."')";
-
+                    survey_tempat
+                    left join pengajuan on survey_tempat.survey_tem_peng_id = peng_id";
+        $action['delete']     = array(
+            'jsf'          => 'deleteTempat'
+        );
         $grid = new Grid();
-        return $grid->set_query($SQL)
+        return $grid->set_query($SQL, [
+            ["survey_tem_head_id",$surv_id,'=']
+        ])
+            ->set_sort(array('id', 'desc'))
             ->configure(
                 array(
-                    'datasouce_url' => base_url("admin/survey/gridBelumSurvey/".$tanggal."?datasource&" . get_query_string()),
+                    'datasouce_url' => base_url("admin/survey/grid_tempat/".$surv_id."?datasource&" . get_query_string()),
+                    'gridReload'=>'gridReloadTempat()',
                     'grid_columns'  => array(
                         array(
-                            'field' => 'ref_produk_var_label',
-                            'title' => 'Nama Bahan Pokok',
+                            'field' => 'peng_prof_nama_usaha',
+                            'title' => 'Nama Tempat',
                         ),
                         array(
-                            'field' => 'ref_produk_label',
-                            'title' => 'GROUP',
-                        )
-                    )
+                            'field' => 'peng_prof_alamat',
+                            'title' => 'Alamat',
+                        ),
+                    ),
+                    'action'    => $action,
                 )
-            )->output();
+            )
+            ->set_sort(['id','desc'])
+            ->output();
+    }
+
+    public function grid_petugas($surv_id)
+    {
+        $SQL = "SELECT
+                    *,
+                    survey_det_id as id
+                FROM
+                    survey_detail
+                    LEFT JOIN karyawan ON kar_id = survey_det_kar_id";
+        $action['delete']     = array(
+            'jsf'          => 'deletePetugas'
+        );
+        $grid = new Grid();
+        return $grid->set_query($SQL, [
+            ['survey_detail.survey_det_head_id',$surv_id,'=']
+        ])
+            ->set_sort(array('id', 'desc'))
+            ->configure(
+                array(
+                    'datasouce_url' => base_url("admin/survey/grid_petugas/".$surv_id."?datasource&" . get_query_string()),
+                    'gridReload'=>'gridReloadPetugas()',
+                    'grid_columns'  => array(
+                        array(
+                            'field' => 'kar_nama',
+                            'title' => 'Karyawan',
+                        ),
+                        array(
+                            'field' => 'kar_nip',
+                            'title' => 'NIP',
+                        ),
+                        array(
+                            'field' => 'kar_pangkat',
+                            'title' => 'Pangkat',
+                        ),
+                        array(
+                            'field' => 'kar_jabatan',
+                            'title' => 'Jabatan',
+                        ),
+                    ),
+                    'action'    => $action,
+                )
+            )
+            ->set_sort(['id','desc'])
+            ->output();
+    }
+
+    public function deleteTempat()
+    {
+        $id = $this->request->getPost('id');
+        $this->db->table("survey_tempat")->where('survey_tem_id', $id)->delete();
+        return $this->response->setJSON([
+            'status'=>true,
+            'message'=>'Sukses delete lokasi survey'
+        ]);
+    }
+
+    public function deletePetugas()
+    {
+        $id = $this->request->getPost('id');
+        $this->db->table("survey_detail")->where('survey_det_id', $id)->delete();
+        return $this->response->setJSON([
+            'status'=>true,
+            'message'=>'Sukses delete petugas survey'
+        ]);
+    }
+
+    public function add_lokasi($surv_id)
+    {
+        $data['grid'] = $this->grid_lokasi_belum_survey($surv_id);
+        $data['title'] = 'Pilih Lokasi';
+        $data['id'] = $surv_id;
+        return view('admin/survey/add_tempat', $data);
+    }
+
+    public function proses_add_lokasi($surv_id)
+    {
+        $peng_id = $this->request->getPost('id');
+        $this->db->table("survey_tempat")->insert([
+            'survey_tem_head_id' => $surv_id,
+            'survey_tem_peng_id' => $peng_id
+        ]);
+        $this->db->table("pengajuan")->where('peng_id', $peng_id)->update([
+            'peng_surv_is' => true,
+            'peng_surv_id' => $surv_id
+        ]);
+        return $this->response->setJSON([
+            'status'=> true,
+            'message'=> 'Sukses menambah lokasi'
+        ]);
+    }
+
+    public function grid_lokasi_belum_survey($surv_id)
+    {
+        $SQL = "SELECT
+                    peng_prof_alamat,
+                    peng_prof_nama_usaha,
+                    peng_id as id,
+                    '<button onclick=\"pilih('||peng_id||')\" class=\"btn btn-sm btn-raised btn-success\"><i class=\"k-icon k-i-check\"></i> Pilih</button>' as action
+                FROM
+                    pengajuan";
+        $grid = new Grid();
+        return $grid->set_query($SQL,[
+            ['peng_surv_is','false','is'],
+            ['peng_verif_is','true','is']
+        ])
+            ->set_sort(array('id', 'desc'))
+            ->configure(
+                array(
+                    'datasouce_url' => base_url("admin/survey/grid_lokasi_belum_survey/".$surv_id."?datasource&" . get_query_string()),
+                    'grid_columns'  => array(
+                        array(
+                            'field' => 'peng_prof_nama_usaha',
+                            'title' => 'Nama Tempat',
+                        ),
+                        array(
+                            'field' => 'peng_prof_alamat',
+                            'title' => 'Alamat',
+                        ),
+                        array(
+                            'field' => 'action',
+                            'title' => 'Action',
+                            'width' => 100,
+                            'encoded'=> false
+                        ),
+                    ),
+                )
+            )
+            ->set_sort(['id','desc'])
+            ->output();
+    }
+
+    public function add_perugas($surv_id)
+    {
+        $data['grid'] = $this->grid_petugas_belum_survey($surv_id);
+        $data['title'] = 'Pilih Petugas';
+        $data['id'] = $surv_id;
+        return view('admin/survey/add_petugas', $data);
+    }
+
+    public function proses_add_petugas($surv_id)
+    {
+        $kar_id = $this->request->getPost('id');
+        $this->db->table("survey_detail")->insert([
+            'survey_det_head_id' => $surv_id,
+            'survey_det_kar_id' => $kar_id
+        ]);
+        return $this->response->setJSON([
+            'status'=> true,
+            'message'=> 'Sukses menambah petugas'
+        ]);
+    }
+
+    public function grid_petugas_belum_survey($surv_id)
+    {
+        $SQL = "SELECT
+                    *,
+                    kar_id as id,
+                    '<button onclick=\"pilih('||kar_id||')\" class=\"btn btn-sm btn-raised btn-success\"><i class=\"k-icon k-i-check\"></i> Pilih</button>' as action
+                from
+                    karyawan";
+        $action['delete']     = array(
+            'jsf'          => 'deletePetugas'
+        );
+        $grid = new Grid();
+        return $grid->set_query($SQL, [
+            ['kar_id','(select survey_det_kar_id from survey_detail where survey_detail.survey_det_head_id='.$surv_id.')','not in']
+        ])
+            ->set_sort(array('id', 'desc'))
+            ->configure(
+                array(
+                    'datasouce_url' => base_url("admin/survey/grid_petugas_belum_survey/".$surv_id."?datasource&" . get_query_string()),
+                    'grid_columns'  => array(
+                        array(
+                            'field' => 'kar_nama',
+                            'title' => 'Karyawan',
+                        ),
+                        array(
+                            'field' => 'kar_nip',
+                            'title' => 'NIP',
+                        ),
+                        array(
+                            'field' => 'kar_pangkat',
+                            'title' => 'Pangkat',
+                        ),
+                        array(
+                            'field' => 'kar_jabatan',
+                            'title' => 'Jabatan',
+                        ),
+                        array(
+                            'field' => 'action',
+                            'title' => 'Action',
+                            'width' => 100,
+                            'encoded'=> false
+                        ),
+                    ),
+                )
+            )
+            ->set_sort(['id','desc'])
+            ->output();
     }
 }

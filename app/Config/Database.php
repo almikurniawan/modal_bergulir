@@ -35,7 +35,7 @@ class Database extends \CodeIgniter\Database\Config
 		'hostname' => 'localhost',
 		'username' => 'postgres',
 		'password' => 'mtdev123',
-		'database' => 'disperindag',
+		'database' => 'dinkop',
 		'DBDriver' => 'Postgre',
 		'DBPrefix' => '',
 		'pConnect' => false,

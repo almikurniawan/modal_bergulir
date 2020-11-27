@@ -1,21 +1,25 @@
+<?php
+$session = service('session');
+
+?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-	<title>SURVEY PASAR</title>
+	<title>MODAL BERGILIR</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
+	<link rel="stylesheet" href="<?= base_url("/assets/bs-material.min.css"); ?>">
+
 	<link rel="stylesheet" href="<?= base_url("/assets/material.css"); ?>" />
 
 
 	<!-- <link rel="stylesheet" href="<?= base_url("/assets/kendo/styles/kendo.common.min.css") ?>" /> -->
-    <!-- <link rel="stylesheet" href="<?= base_url("/assets/kendo/styles/kendo.default.min.css") ?>" /> -->
-    <link rel="stylesheet" href="<?= base_url("/assets/kendo/styles/kendo.default.mobile.min.css") ?>" />
-    
+	<!-- <link rel="stylesheet" href="<?= base_url("/assets/kendo/styles/kendo.default.min.css") ?>" /> -->
+	<link rel="stylesheet" href="<?= base_url("/assets/kendo/styles/kendo.default.mobile.min.css") ?>" />
+
 	<script src="<?= base_url("/assets/kendo/js/jquery.min.js") ?>"></script>
-    <script src="<?= base_url("/assets/kendo/js/kendo.all.min.js") ?>"></script>
+	<script src="<?= base_url("/assets/kendo/js/kendo.all.min.js") ?>"></script>
 	<!-- <script src="<?= base_url("/assets/kendo/js/kendo.web.min.js") ?>"></script> -->
 	<script src="<?= base_url("/assets/kendo/js/cultures/kendo.culture.id-ID.min.js") ?>"></script>
 
@@ -32,14 +36,6 @@
 			}
 		}
 
-		// function formatNumber(num) {
-		// 	let number = num ? ? 0;
-		// 	if (isNaN(number)) {
-		// 		number = 0;
-		// 	}
-		// 	return number.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
-		// }
-
 		function showForm(setWidth, setHeight, windowName, URL) {
 
 			var w = window.screen.availWidth;
@@ -53,16 +49,8 @@
 	</script>
 
 	<style>
-		body {
-			background-image: url(<?= base_url('/assets/images/bg.jpg') ?>);
-			background-position: center center;
-			background-repeat: no-repeat;
-			background-size: cover;
-			background-attachment: fixed;
-		}
-
 		.bg-light {
-			background-color: #e91e63 !important;
+			background-color: #a031f5 !important;
 		}
 
 		.navbar-light .navbar-brand,
@@ -77,7 +65,7 @@
 
 		.dropdown-menu {
 			color: white !important;
-			background-color: #e91e63 !important;
+			background-color: #a031f5 !important;
 		}
 
 		.dropdown-item {
@@ -86,7 +74,7 @@
 
 		.dropdown-menu .dropdown-item.active,
 		.dropdown-menu .dropdown-item:active {
-			background-color: #e91e63 !important;
+			background-color: #a031f5 !important;
 		}
 
 		.material-icons {
@@ -112,19 +100,32 @@
 <body>
 	<navigation class="fixed-top">
 		<nav class="navbar navbar-expand-lg navbar-light bg-light">
-			<a class="navbar-brand ml-1" href="<?= base_url("admin") ?>"> SURVEY PASAR</a>
+			<!-- <a class="navbar-brand ml-1" href="<?= base_url("admin") ?>"> MODAL BERGILIR</a> -->
+			<a class="navbar-brand ml-1" href="<?= base_url("admin/pengajuan") ?>"><img src="<?= base_url("assets/images/logo.png")?>" width=30"/> MB</a>
 			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
 
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
 				<?= view_cell('\App\Libraries\Navigation::menu') ?>
+				<ul class="navbar-nav ml-auto nav-flex-icons">
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink-55" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="fas fa-user"></i> <?= $session->get('user')['user_namalengkap']?>
+							<img src="https://mdbootstrap.com/img/Photos/Avatars/avatar-2.jpg" width="30" class="rounded-circle z-depth-0" alt="avatar image">
+						</a>
+						<div class="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink-4">
+							<a class="dropdown-item" href="#">My account</a>
+							<a class="dropdown-item" href="<?= base_url('login/logout') ?>">Log out</a>
+						</div>
+					</li>
+				</ul>
 			</div>
 		</nav>
 		<nav id="breadcrumb"></nav>
 	</navigation>
 
-	<div class="container mt-5 pt-5 mb-3">
+	<div class="container-fluid mt-5 pt-5 mb-3">
 		<?= $this->renderSection('content') ?>
 	</div>
 </body>
