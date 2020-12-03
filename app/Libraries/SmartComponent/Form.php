@@ -31,6 +31,14 @@ class Form{
         $this->db = \Config\Database::connect();
     }
 
+    public function set_template_column($number)
+    {
+        if($number==2){
+            $this->template  = 'template/default_smart_form_two_column';
+        }
+        return $this;
+    }
+
     public function set_form_action($action)
     {
         $this->form_action = $action;
@@ -281,10 +289,6 @@ class Form{
             $field = $this->tag_start_resume . $value . $this->tag_end_resume;
         }else if($type='slider'){
             $field = $this->tag_start_resume . number_format($value,0,'',',' ) . $this->tag_end_resume;
-        }
-        
-        if($required){
-            $title .= ' <i class="k-icon k-i-warning"></i>';
         }
 
         $this->fields[$name]= array('title'=>$title, 'field'=>$field, 'required'=> $required, 'class'=>'' ,'type'=> $type);

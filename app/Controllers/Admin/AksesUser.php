@@ -20,10 +20,10 @@ class AksesUser extends BaseController
     public function grid()
     {
         $SQL = "SELECT
-        user_id AS ID,user_name,
-        ARRAY_TO_STRING(( SELECT ARRAY_AGG(ref_group_akses_label) FROM ref_user_akses left join ref_group_akses on ref_group_akses_id = ref_user_akses_group_id where ref_user_akses_user_id = user_id ),', ') as group
-    FROM
-        PUBLIC.USER";
+                    user_id AS ID,user_name,
+                    ARRAY_TO_STRING(( SELECT ARRAY_AGG(ref_group_akses_label) FROM ref_user_akses left join ref_group_akses on ref_group_akses_id = ref_user_akses_group_id where ref_user_akses_user_id = user_id ),', ') as group
+                FROM
+                    PUBLIC.USER";
 
         $action['edit']     = array(
             'link'          => 'admin/aksesUser/edit/'
@@ -34,9 +34,13 @@ class AksesUser extends BaseController
 
         $grid = new Grid();
         return $grid->set_query($SQL, array(
-            array('user_name', $this->request->getGet('user'))
-        ))
+                array('user_name', $this->request->getGet('user'))
+            ))
             ->set_sort(array('id', 'desc'))
+            // ->set_snippet(function($id, $data){
+            //     $data['user_name'] = $data['user_name'];
+            //     return $data;
+            // })
             ->configure(
                 array(
                     'datasouce_url' => base_url("admin/aksesUser/grid?datasource&" . get_query_string()),
@@ -52,10 +56,16 @@ class AksesUser extends BaseController
                         ),
                     ),
                     'action'    => $action,
-                    'head_left'        => array('add' => base_url('/admin/aksesUser/add'))
                 )
-            )->output();
+            )
+            ->set_toolbar(function($toolbar){
+                $toolbar->addHtml('<a href="" class="btn">Tambah User Bos</a>')
+                ->add('add', ['label'=>'Tambah User', 'url'=> base_url("admin/aksesUser/add")])
+                ->add('download');
+            })
+            ->output();
     }
+
     public function search()
     {
         $form = new Form();
@@ -63,6 +73,11 @@ class AksesUser extends BaseController
             ->set_form_method('GET')
             ->set_submit_label('Cari')
             ->add('user', 'Username', 'text', false, $this->request->getGet('user'), 'style="width:100%;" ')
+            ->add('peng_member_id', 'Nama Member', 'select', false, 1, 'style="width:100%;"', array(
+                'table' => 'member',
+                'id' => 'member_id',
+                'label' => 'member_nama_lengkap'
+            ))
             ->output();
     }
 

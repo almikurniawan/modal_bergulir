@@ -34,7 +34,7 @@ class Verifikasi extends BaseController
                     jns_pengajuan_label,
                     peng_tanggal,
                     case when peng_verif_reject_is is true then '<span class=\"badge badge-danger\">Rejected</span>' when peng_verif_is is true then '<span class=\"badge badge-success\">Verified</span>' else '<span class=\"badge badge-warning\">Waiting</span>' end as status,
-                    '<button onclick=\"view('||peng_id||')\" class=\"btn btn-primary bmd-btn-fab-sm bmd-btn-fab\"><i class=\"k-icon k-i-preview\"></i> </button> '
+                    '<button onclick=\"view('||peng_id||','||peng_jenis_pengajuan||')\" class=\"btn btn-primary bmd-btn-fab-sm bmd-btn-fab\"><i class=\"k-icon k-i-preview\"></i> </button> '
                     ||
                     case when peng_verif_reject_is is true then '' when peng_verif_is is true then '' else '<button onclick=\"verifikasi('||peng_id||')\" class=\"btn btn-success bmd-btn-fab-sm bmd-btn-fab\"><i class=\"k-icon k-i-check\"></i> </button> <button onclick=\"reject('||peng_id||')\" class=\"btn btn-danger bmd-btn-fab-sm bmd-btn-fab\"><i class=\"k-icon k-i-close\"></i> </button>' end as verifikasi,
                     peng_id AS ID 

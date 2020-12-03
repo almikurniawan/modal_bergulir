@@ -97,7 +97,7 @@ $columns = preg_replace($re, '"template":kendo.template$1,', $columns);
         // height: "<?= $grid_height?>",
         scrollable : false,
         groupable: false,
-        toolbar: '<?= $toolbarComponent?>',
+        toolbar: '<?= $toolbarComponent . $toolbarHtml?>',
         sortable: {
             mode: "multiple",
             allowUnsort: true,

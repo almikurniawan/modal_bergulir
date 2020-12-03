@@ -3,6 +3,7 @@ namespace App\Libraries\SmartComponent;
 
 use App\Libraries\SmartComponent\Datasource;
 use App\Libraries\SmartComponent\Report;
+use App\Libraries\SmartComponent\Toolbar;
 class Grid{
     protected $response;
     protected $template     = 'template/default_smart_grid';
@@ -46,6 +47,7 @@ class Grid{
             ),
             'action'        => array(),
             'toolbar'       => array(),
+            'toolbarHtml'   => '',
             'download_url'  => base_url(uri_string()) . '?download&' . get_query_string(),
             'label_add'     => 'Add Item'
         );
@@ -79,6 +81,12 @@ class Grid{
             'media'     => '(max-width: 450px)'
         );
         $this->config['fields'] = $fields;
+        return $this;
+    }
+
+    public function set_snippet($callback)
+    {
+        $this->snippet_function = $callback;
         return $this;
     }
 
@@ -147,12 +155,27 @@ class Grid{
         return view($this->template, $this->config);
     }
 
+    public function set_toolbar($function_toolbar)
+    {
+        $toolbar = new Toolbar($this->config['download_url']);
+        call_user_func_array($function_toolbar, [$toolbar]);
+
+        $this->config['toolbarHtml'] = $toolbar->output();
+        return $this;
+    }
+
     private function get_datasource()
     {
         $datasource = new Datasource();
         $datasource->set_query($this->SQL, $this->whereClause);
         $datasource->set_sort($this->sort);
         $data = $datasource->run();
+
+        if(isset($this->snippet_function)){
+            foreach ($data['result'] as $key => $value) {
+                $data['result'][$key] = call_user_func_array($this->snippet_function, [$value['id'], $value]);
+            }
+        }
 
         if(!empty($this->config['action'])){
             foreach($this->config['action'] as $key => $value){

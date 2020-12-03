@@ -44,8 +44,8 @@
         })
     }
 
-    function view(id){
-        
+    function view(id, jenis){
+        window.open("<?= base_url();?>/admin/cetak"+jenis+"/profil/"+id);
     }
 </script>
 <?= $this->endSection() ?>

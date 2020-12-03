@@ -92,6 +92,21 @@ class Navigation
                 'icon'          => 'fa-home',
             ),
             array(
+                'label'         => 'ACC Survey',
+                'controller'    => 'admin/accSurvey',
+                'icon'          => 'fa-home',
+            ),
+            array(
+                'label'         => 'Persetujuan',
+                'controller'    => 'admin/persetujuan',
+                'icon'          => 'fa-home',
+            ),
+            array(
+                'label'         => 'Pembayaran',
+                'controller'    => 'admin/pembayaran',
+                'icon'          => 'fa-home',
+            ),
+            array(
                 'label'         => 'Data Master',
                 'controller'    => '#master',
                 'icon'          => 'fa-home',
