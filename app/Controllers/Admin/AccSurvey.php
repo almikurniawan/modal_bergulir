@@ -112,7 +112,7 @@ class AccSurvey extends BaseController
         $data['url_approve']  = base_url('admin/accSurvey/approve');
         $data['url_reject']  = base_url('admin/accSurvey/reject');
 
-        return view('admin/accSurvey/form', $data);
+        return view('admin/accsurvey/form', $data);
     }
 
     public function form_survey($id, $peng_id)
