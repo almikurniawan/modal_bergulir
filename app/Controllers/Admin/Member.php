@@ -12,7 +12,7 @@ class Member extends BaseController
     {
         $data['grid']   = $this->grid();
         $data['search'] = $this->search();
-        $data['title']  = 'Member';
+        $data['title']  = 'Pemohon';
         $data['url_delete'] = 'admin/member/delete';
 
         return view('global/list', $data);
@@ -72,7 +72,9 @@ class Member extends BaseController
                     'head_left' => array('add' => base_url('/admin/member/add')),
                     'toolbar'   => ['download']
                 )
-            )->output();
+            )
+            ->set_label_add('Tambah Pemohon')
+            ->output();
     }
     public function search()
     {
@@ -86,7 +88,7 @@ class Member extends BaseController
 
     public function add()
     {
-        $data['title']  = 'Tambah Member';
+        $data['title']  = 'Tambah Pemohon';
         $data['form']   = $this->form();
         $data['url_back'] = base_url('admin/member');
         return view('global/form', $data);
@@ -123,6 +125,8 @@ class Member extends BaseController
                 'member_alamat' => '',
                 'member_no_telp' => '',
                 'member_kelurahan' => '',
+                'member_no_ktp' => '',
+                'member_pekerjaan' => '',
                 'user_name' => '',
                 'user_password' => ''
             );
@@ -133,7 +137,13 @@ class Member extends BaseController
             ->add('member_nama_lengkap', 'Nama Lengkap', 'text', true, ($data) ? $data['member_nama_lengkap'] : '', 'style="width:100%;"')
             ->add('member_alamat', 'Alamat', 'text', true, ($data) ? $data['member_alamat'] : '', 'style="width:100%;"')
             ->add('member_no_telp', 'No Telp', 'text', true, ($data) ? $data['member_no_telp'] : '', 'style="width:100%;"')
-            ->add('member_kelurahan', 'Kelurahan', 'text', true, ($data) ? $data['member_kelurahan'] : '', 'style="width:100%;"')
+            ->add('member_kelurahan', 'Kelurahan', 'select', true, ($data) ? $data['member_kelurahan'] : '', 'style="width:100%;"', [
+                'table'=> 'ref_kelurahan left join ref_kecamatan on ref_kel_kec_id = ref_kec_id',
+                'id'=>'ref_kel_id',
+                'label'=>"ref_kel_label || ' - '|| ref_kec_label"
+            ])
+            ->add('member_no_ktp', 'No KTP', 'text', true, ($data) ? $data['member_no_ktp'] : '', 'style="width:100%;"')
+            ->add('member_pekerjaan', 'Pekerjaan', 'text', true, ($data) ? $data['member_pekerjaan'] : '', 'style="width:100%;"')
             ->add('user_name', 'Username', 'text', true, ($data) ? $data['user_name'] : '', 'style="width:100%;"')
             ->add('user_password', 'Password', 'password', true, ($data) ? '***' : '', 'style="width:100%;"');
 
@@ -144,6 +154,8 @@ class Member extends BaseController
                     'member_alamat'         => $this->request->getPost('member_alamat'),
                     'member_no_telp'         => $this->request->getPost('member_no_telp'),
                     'member_kelurahan'         => $this->request->getPost('member_kelurahan'),
+                    'member_no_ktp'         => $this->request->getPost('member_no_ktp'),
+                    'member_pekerjaan'         => $this->request->getPost('member_pekerjaan'),
                     'member_created_at'        => 'now()',
                 );
                 $this->db->table('public.member')->where('member_id', $id)->update($member_update);
@@ -172,6 +184,8 @@ class Member extends BaseController
                     'member_alamat'         => $this->request->getPost('member_alamat'),
                     'member_no_telp'         => $this->request->getPost('member_no_telp'),
                     'member_kelurahan'         => $this->request->getPost('member_kelurahan'),
+                    'member_no_ktp'         => $this->request->getPost('member_no_ktp'),
+                    'member_pekerjaan'         => $this->request->getPost('member_pekerjaan'),
                     'member_created_at'        => 'now()',
                 );
                 $this->db->table('public.member')->insert($member_insert);

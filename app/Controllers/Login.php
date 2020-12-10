@@ -26,9 +26,20 @@ class Login extends BaseController
 	public function vRegister($id = null)
 	{
 		$data = [];
+		$kelSelected = '';
 		if ($id != null) {
 			$data = $this->db->table('member')->select('*')->join('public.user', 'user_member_id=member_id')->getWhere(['member_id' => $id])->getRowArray();
+			$kelSelected = $data['member_kelurahan'];
 		}
+		$data_kel = $this->db->table('ref_kelurahan')->select('*')->get()->getResultArray();
+		$opsi = '<option>Kelurahan</option>';
+		foreach ($data_kel as $key => $value) {
+			if ($value['ref_kel_id'] == $kelSelected) {
+				$opsi .= ' <option value="' . $value['ref_kel_id'] . '" selected>' . $value['ref_kel_label'] . '</option>';
+			}
+			$opsi .= ' <option value="' . $value['ref_kel_id'] . '" >' . $value['ref_kel_label'] . '</option>';
+		}
+		$data['opsi'] = $opsi;
 		return view('register', $data);
 	}
 	public function register()
@@ -42,10 +53,10 @@ class Login extends BaseController
 		);
 		$this->db->table('public.member')->insert($member_insert);
 		$id_member = $this->db->insertID();
-		
+
 		$cekUser = $this->db->table('user')->getWhere(['user_name' => $this->request->getPost('user_name')])->getRowArray();
-		if(!empty($cekUser)){
-			$this->session->setFlashdata('danger', 'username = '.strtoupper($this->request->getPost('user_name')).' sudah ada! Silahkan buat username yang baru');
+		if (!empty($cekUser)) {
+			$this->session->setFlashdata('danger', 'username = ' . strtoupper($this->request->getPost('user_name')) . ' sudah ada! Silahkan buat username yang baru');
 			return redirect()->to(base_url("login/vRegister"));
 		}
 		$user_insert = array(
@@ -58,7 +69,7 @@ class Login extends BaseController
 			$user_insert['user_password'] = sha1($this->request->getPost('user_password'));
 		}
 		$this->db->table('public.user')->insert($user_insert);
-		$this->session->setFlashdata('success', 'Registrasi username = '.strtoupper($this->request->getPost('user_name')).' berhasil! Silahkan login untuk melanjutkan');
+		$this->session->setFlashdata('success', 'Registrasi username = ' . strtoupper($this->request->getPost('user_name')) . ' berhasil! Silahkan login untuk melanjutkan');
 		return redirect()->to(base_url("login/vRegister/" . $id_member));
 	}
 	public function logout()

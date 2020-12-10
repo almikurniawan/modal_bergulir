@@ -464,7 +464,7 @@ class Cetak3 extends BaseController
 			</tr>
 			<tr>
 				<td width="20%">Nama</td>
-				<td width="80%">: ' . $data['peng_prof_pimpinan'] . '</td>
+				<td width="80%">: ' . $data['peng_ketua'] . '</td>
 			</tr>
 			<tr>
 				<td width="20%">Alamat</td>
@@ -553,7 +553,7 @@ class Cetak3 extends BaseController
 						<td width="10%"></td>
 						<td width="45%"></td>
 						<td width="5%"></td>
-						<td width="45%" align="center"><b>[' . $data['peng_prof_pimpinan'] . ']</b></td>
+						<td width="45%" align="center"><b>[' . $data['peng_ketua'] . ']</b></td>
 					</tr>
 				</table>';
 		return $html;
@@ -589,24 +589,24 @@ class Cetak3 extends BaseController
 				<td width="50%"></td>
 			</tr>
 			<tr>
-				<td width="20%">Nama</td>
-				<td width="80%">: ' . $data['peng_prof_pimpinan'] . '</td>
+				<td width="25%">Nama</td>
+				<td width="75%">: ' . $data['peng_ketua'] . '</td>
 			</tr>
 			<tr>
-				<td width="20%">Tempat Tanggal Lahir</td>
-				<td width="80%">: kosong</td>
+				<td width="25%">Tempat Tanggal Lahir</td>
+				<td width="75%">: </td>
 			</tr>
 			<tr>
-				<td width="20%">Alamat</td>
-				<td width="80%">: ' . $data['peng_prof_alamat'] . '</td>
+				<td width="25%">Alamat</td>
+				<td width="75%">: ' . $data['peng_prof_alamat'] . '</td>
 			</tr>
 			<tr>
-				<td width="20%">Pemegang KTP No</td>
-				<td width="80%">: ' . $data['peng_jam_pemegang_ktp_no'] . '</td>
+				<td width="25%">Pemegang KTP No</td>
+				<td width="75%">: ' . $data['peng_jam_pemegang_ktp_no'] . '</td>
 			</tr>
 			<tr>
-				<td width="20%">Pekerjaan</td>
-				<td width="80%">: ' . $data['peng_jam_pekerjaan'] . '</td>
+				<td width="25%">Pekerjaan</td>
+				<td width="75%">: ' . $data['peng_jam_pekerjaan'] . '</td>
 			</tr>
 		</table>
 		<p align="justify" style="text-indent: 0.5in;">
@@ -843,12 +843,12 @@ class Cetak3 extends BaseController
 		$html .= '
 		<table>
 			<tr>
-				<td width="50%">Yang bertanda tangan dibawah ini pengurus koperasi:</td>
-				<td width="50%"></td>
+				<td width="90%">Yang bertanda tangan dibawah ini pengurus koperasi:</td>
+				<td width="10%"></td>
 			</tr>
 			<tr>
 				<td width="20%">Nama Koperasi</td>
-				<td width="80%">: ' . $data['peng_prof_pimpinan'] . '</td>
+				<td width="80%">: ' . $data['peng_prof_nama_usaha'] . '</td>
 			</tr>
 			<tr>
 				<td width="20%">Badan Hukum</td>
@@ -1166,7 +1166,7 @@ class Cetak3 extends BaseController
 					</tr>
 					<tr>
 						<td width="20%">Nama Koperasi</td>
-						<td width="80%">: ' . $data['peng_prof_pimpinan'] . '</td>
+						<td width="80%">: ' . $data['peng_prof_nama_usaha'] . '</td>
 					</tr>
 					<tr>
 						<td width="20%">Badan Hukum</td>

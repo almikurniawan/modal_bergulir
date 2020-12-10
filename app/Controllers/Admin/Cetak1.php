@@ -276,19 +276,19 @@ class Cetak1 extends BaseController
 						<td width="5%"></td>
 						<td width="5%">1.</td>
 						<td width="30%">Pendapatan / penjualan</td>
-						<td width="40%">: Rp. ' . ($data['peng_prof_pendapatan_penjualan'] ? $data['peng_prof_pendapatan_penjualan'] : '-') . '</td>
+						<td width="40%">: Rp. ' . ($data['peng_prof_pendapatan_penjualan'] ? number_format($data['peng_prof_pendapatan_penjualan'], 2, ",", ".") : '-') . '</td>
 					</tr>
 					<tr>
 						<td width="5%"></td>
 						<td width="5%">2.</td>
 						<td width="30%">Beban penjualan</td>
-						<td width="40%">: ' . ($data['peng_prof_beban_penjualan'] ? $data['peng_prof_beban_penjualan'] : '') . '</td>
+						<td width="40%">: Rp. ' . ($data['peng_prof_beban_penjualan'] ? number_format($data['peng_prof_beban_penjualan'], 2, ",", ".") : '') . '</td>
 					</tr>
 					<tr>
 						<td width="5%"></td>
 						<td width="5%">3.</td>
 						<td width="30%">Laba per bulan</td>
-						<td width="40%">: ' . ($data['peng_prof_laba_per_bulan'] ? $data['peng_prof_laba_per_bulan'] : '') . '</td>
+						<td width="40%">: Rp. ' . ($data['peng_prof_laba_per_bulan'] ? number_format($data['peng_prof_laba_per_bulan'], 2, ",", ".") : '') . '</td>
 					</tr>
 					<tr>
 						<td width="10%"></td>
@@ -384,11 +384,11 @@ class Cetak1 extends BaseController
 			</tr>
 			<tr>
 				<td width="20%">Pemegang KTP No</td>
-				<td width="80%">: ' . $data['peng_jam_pemegang_ktp_no'] . '</td>
+				<td width="80%">: ' . $data['peng_uji_kel_no_ktp'] . '</td>
 			</tr>
 			<tr>
 				<td width="20%">Pekerjaan</td>
-				<td width="80%">: ' . $data['peng_jam_pekerjaan'] . '</td>
+				<td width="80%">: ' . $data['peng_uji_kel_pekerjaan'] . '</td>
 			</tr>
 		</table>
 		<p align="justify" style="text-indent: 0.5in;">
@@ -421,7 +421,7 @@ class Cetak1 extends BaseController
 	}
 	public function profil5($id)
 	{
-		$data = $this->db->table('pengajuan')->select('*')->getWhere(['peng_id' => $id])->getRowArray();
+		$data = $this->db->query("select * from pengajuan left join ref_kecamatan on peng_sk_kecamatan = ref_kec_id where peng_id=".$id)->getRowArray();
 
 		$html = '
 				<table>
@@ -457,7 +457,7 @@ class Cetak1 extends BaseController
 			</tr>
 			<tr>
 				<td width="20%">Kecamatan</td>
-				<td width="80%">: ' . $data['peng_sk_kecamatan'] . '</td>
+				<td width="80%">: ' . $data['ref_kec_label'] . '</td>
 			</tr>
 			<tr>
 				<td width="20%">Kota</td>
@@ -669,14 +669,14 @@ class Cetak1 extends BaseController
 		$pdf->addPage();
 		$pdf->writeHTML($this->profil4($id), true, false, true, false, '');
 
-		$pdf->addPage();
-		$pdf->writeHTML($this->profil5($id), true, false, true, false, '');
+		// $pdf->addPage();
+		// $pdf->writeHTML($this->profil5($id), true, false, true, false, '');
 		
-		$pdf->addPage();
-		$pdf->writeHTML($this->profil8($id), true, false, true, false, '');
+		// $pdf->addPage();
+		// $pdf->writeHTML($this->profil8($id), true, false, true, false, '');
 
-		$pdf->addPage();
-		$pdf->writeHTML($this->profil8_($id), true, false, true, false, '');
+		// $pdf->addPage();
+		// $pdf->writeHTML($this->profil8_($id), true, false, true, false, '');
 
 		// $pdf->lastPage();
 		//Close and output PDF document

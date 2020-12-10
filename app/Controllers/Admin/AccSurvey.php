@@ -65,12 +65,6 @@ class AccSurvey extends BaseController
                             'align' => 'right'
                         ),
                         array(
-                            'field' => 'peng_nominal',
-                            'title' => 'Jumlah Pinjaman',
-                            'format' => 'number',
-                            'align' => 'right'
-                        ),
-                        array(
                             'field' => 'status',
                             'title' => 'Status',
                             'encoded' => false,
@@ -94,15 +88,18 @@ class AccSurvey extends BaseController
     {
         $data = $this->db->table('pengajuan')->select('*')->getWhere(['peng_id' => $peng_id])->getRowArray();
         $data['form']   = $this->form_survey($id, $peng_id);
-        $data['form']   .= '<div class="row">
-            <div class="col">
-            <button onclick="approve('.$peng_id.')" class="btn btn-raised btn-success" title="Approve"><i class="k-icon k-i-check-circle"></i> Approve </button>
+        $approve = $this->db->table('survey_hasil')->select('*')->getWhere(['survey_hasil_peng_id' => $peng_id])->getRowArray();
+        if($approve['survey_hasil_approve_is'] != 't'){
+            $data['form']   .= '<div class="row">
+                <div class="col">
+                <button onclick="approve('.$peng_id.')" class="btn btn-raised btn-success" title="Approve"><i class="k-icon k-i-check-circle"></i> Approve </button>
+                </div>
+                <div class="col">
+                <button onclick="reject('.$peng_id.')" class="btn btn-raised btn-danger" title="Reject"><i class="k-icon k-i-close-circle"></i> Reject </button>
+                </div>
             </div>
-            <div class="col">
-            <button onclick="reject('.$peng_id.')" class="btn btn-raised btn-danger" title="Reject"><i class="k-icon k-i-close-circle"></i> Reject </button>
-            </div>
-        </div>
-        ';
+            ';
+        }
         $data['grid_tempat']   = '$this->grid_tempat($peng_id)';
         $data['grid_petugas']   = '$this->grid_petugas($peng_id)';
         $data['url_back']   = base_url("admin/AccSurvey");

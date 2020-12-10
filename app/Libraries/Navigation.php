@@ -112,7 +112,7 @@ class Navigation
                 'icon'          => 'fa-home',
                 'child'         => array(
                     array(
-                        'label'     => 'Member',
+                        'label'     => 'Pemohon',
                         'controller' => 'admin/member',
                         'icon'          => 'fa-home',
                     ),

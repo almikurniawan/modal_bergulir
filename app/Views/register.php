@@ -237,7 +237,7 @@
 			margin: 0 60px 50px;
 		}
 
-		.card .input-container input {
+		.card .input-container input  {
 			outline: none;
 			z-index: 1;
 			position: relative;
@@ -540,52 +540,55 @@
 				<div class="card">
 					<h1 class="title">Register</h1>
 					<?php
-						if(session()->getFlashdata('success')){
-							echo '<div class="alert alert-success ml-5 mb-5 mr-5" role="alert">
-									'.session()->getFlashdata('success').'
+					if (session()->getFlashdata('success')) {
+						echo '<div class="alert alert-success ml-5 mb-5 mr-5" role="alert">
+									' . session()->getFlashdata('success') . '
 						  		</div>';
-						}
+					}
 					?>
 					<?php
-						if(session()->getFlashdata('danger')){
-							echo '<div class="alert alert-danger ml-5 mb-5 mr-5" role="alert">
-									'.session()->getFlashdata('danger').'
+					if (session()->getFlashdata('danger')) {
+						echo '<div class="alert alert-danger ml-5 mb-5 mr-5" role="alert">
+									' . session()->getFlashdata('danger') . '
 						  		</div>';
-						}
+					}
 					?>
 					<form class="form-signin text-left" method="post" action="<?= base_url("login/register") ?>">
 						<div class="row">
 							<div class="col">
 								<div class="input-container">
-									<input type="text" id="Username" name="user_name" value="<?= (isset($user_name)?$user_name:'') ?>" required="required" />
+									<input type="text" id="Username" name="user_name" value="<?= (isset($user_name) ? $user_name : '') ?>" required="required" />
 									<label for="Username">Username</label>
 									<div class="bar"></div>
 								</div>
 								<div class="input-container">
-									<input type="password" id="Password" name="user_password" value="<?= (isset($user_password)?'***':'') ?>" required="required" />
+									<input type="password" id="Password" name="user_password" value="<?= (isset($user_password) ? '***' : '') ?>" required="required" />
 									<label for="Password">Password</label>
 									<div class="bar"></div>
 								</div>
 								<div class="input-container">
-									<input type="text" id="member_nama_lengkap" name="member_nama_lengkap" value="<?= (isset($member_nama_lengkap)?$member_nama_lengkap:'') ?>" required="required" />
+									<input type="text" id="member_nama_lengkap" name="member_nama_lengkap" value="<?= (isset($member_nama_lengkap) ? $member_nama_lengkap : '') ?>" required="required" />
 									<label for="member_nama_lengkap">Nama Lengkap</label>
 									<div class="bar"></div>
 								</div>
 							</div>
 							<div class="col">
 								<div class="input-container">
-									<input type="text" id="member_alamat" name="member_alamat" value="<?= (isset($member_alamat)?$member_alamat:'') ?>" required="required" />
+									<input type="text" id="member_alamat" name="member_alamat" value="<?= (isset($member_alamat) ? $member_alamat : '') ?>" required="required" />
 									<label for="member_alamat">Alamat</label>
 									<div class="bar"></div>
 								</div>
 								<div class="input-container">
-									<input type="text" id="member_no_telp" name="member_no_telp" value="<?= (isset($member_no_telp)?$member_no_telp:'') ?>" required="required" />
-									<label for="member_no_telp">No Telp</label>
+									<!-- <input type="text" id="member_kelurahan" name="member_kelurahan" value="<?= (isset($member_kelurahan) ? $member_kelurahan : '') ?>" required="required" /> -->
+									<select class="form-control" style="height: calc(2.25rem + 20px);">
+										<?= $opsi ?>
+									</select>
+									<label for="member_kelurahan"></label>
 									<div class="bar"></div>
 								</div>
 								<div class="input-container">
-									<input type="text" id="member_kelurahan" name="member_kelurahan" value="<?= (isset($member_kelurahan)?$member_kelurahan:'') ?>" required="required" />
-									<label for="member_kelurahan">Kelurahan</label>
+									<input type="text" id="member_no_telp" name="member_no_telp" value="<?= (isset($member_no_telp) ? $member_no_telp : '') ?>" required="required" />
+									<label for="member_no_telp">No Telp</label>
 									<div class="bar"></div>
 								</div>
 							</div>

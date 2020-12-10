@@ -167,7 +167,7 @@ class CetakSPPK extends BaseController
         <tr>
         <td style="width: 20%;">Nomor</td>
         <td style="width: 1.94932%;">:</td>
-        <td style="width: 37.6476%;">518 /&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;/ 419.106 / 2019</td>
+        <td style="width: 37.6476%;">'.$pengajuan['peng_disetujui_no_penetapan'].'</td>
         <td style="width: 32.294%;">'.$pengajuan['nama'].'</td>
         </tr>
         <tr>
@@ -285,15 +285,15 @@ class CetakSPPK extends BaseController
         </tr>
         <tr style="height: 18px;">
         <td style="width: 50%; height: 18px; text-align: center;">'.$pengajuan['peng_prof_pimpinan'].'</td>
-        <td style="width: 50%; height: 18px; text-align: center;"><span style="text-decoration: underline;"><strong>Drs. KRISTIANTO</strong></span></td>
+        <td style="width: 50%; height: 18px; text-align: center;"><span style="text-decoration: underline;"><strong>BAMBANG PRIAMBODO, SH., MM</strong></span></td>
         </tr>
         <tr style="height: 18px;">
         <td style="width: 50%; height: 18px; text-align: center;">&nbsp;</td>
-        <td style="width: 50%; height: 18px; text-align: center;">Pembina Utama Muda</td>
+        <td style="width: 50%; height: 18px; text-align: center;">Pembina Tingkat I</td>
         </tr>
         <tr style="height: 18px;">
         <td style="width: 50%; height: 18px; text-align: center;">&nbsp;</td>
-        <td style="width: 50%; height: 18px; text-align: center;">NIP .196003011990 3 1 012</td>
+        <td style="width: 50%; height: 18px; text-align: center;">NIP .19670327 200112 1 001</td>
         </tr>
         </tbody>
         </table>

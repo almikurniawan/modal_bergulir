@@ -25,7 +25,7 @@ class Persetujuan extends BaseController
                 *,
                 survey_tem_id as id,
                 '<a href=\"" . base_url('admin/CetakSPPK/index') . "/'||peng_id||'\" target=\"_new\" class=\"btn btn-primary btn-raised\" title=\"Lihat\">Cetak </a> <a href=\"" . base_url('admin/persetujuan/form') . "/'||peng_id||'\" class=\"btn btn-primary bmd-btn-fab-sm bmd-btn-fab\" title=\"Lihat\"><i class=\"k-icon k-i-preview m-2\"></i> </a>' as lihat,
-                case when survey_hasil_approve_is is true then '<span class=\"badge badge-success\">Approved</span>' when survey_hasil_reject_is is true then '<span class=\"badge badge-danger\">Rejected</span>' else '<span class=\"badge badge-warning\">belum</span>' end as status
+                case when peng_disetujui_nominal is not null then '<span class=\"badge badge-success\">Disetujui</span>' else '<span class=\"badge badge-warning\">belum</span>' end as status
                 from survey_tempat
                 left join survey_hasil on survey_tem_head_id = survey_hasil_survey_id and survey_tem_peng_id = survey_hasil_peng_id and survey_hasil_lock_is is true
                 left join pengajuan on peng_id = survey_tem_peng_id
@@ -63,8 +63,8 @@ class Persetujuan extends BaseController
                             'align' => 'right'
                         ),
                         array(
-                            'field' => 'peng_nominal',
-                            'title' => 'Jumlah Pinjaman',
+                            'field' => 'peng_disetujui_nominal',
+                            'title' => 'Pinjaman Disetujui',
                             'format' => 'number',
                             'align' => 'right'
                         ),
@@ -103,16 +103,19 @@ class Persetujuan extends BaseController
 
         $data = $this->db->table("pengajuan")->getWhere(['peng_id' => $peng_id])->getRowArray();
         $form = new Form();
-        $form->set_attribute_form('class="form-horizontal"')->set_resume(false)->set_template_column(2)
-            ->add('peng_disetujui_nominal', 'Nominal', 'number', true, !empty($data) ? $data['peng_disetujui_nominal'] : '', 'style="width:100%;"')
-            ->add('peng_disetujui_cicilan', 'Cicilan', 'number', true, !empty($data) ? $data['peng_disetujui_cicilan'] : '', 'style="width:100%;"')
-            ->add('peng_disetujui_jangka_waktu_bln', 'Jangka waktu Bulan', 'number', true, !empty($data) ? $data['peng_disetujui_jangka_waktu_bln'] : '', 'style="width:100%;"')
-            ->add('peng_disetujui_jangka_waktu_text', 'Jangka waktu keternangan', 'text', true, !empty($data) ? $data['peng_disetujui_jangka_waktu_text'] : '', 'style="width:100%;"')
+        $form->set_attribute_form('class="form-horizontal"')->set_resume(true)->set_template_column(2)
+            ->add('peng_nominal', 'Pengajuan Nominal', 'number', false, !empty($data) ? $data['peng_nominal'] : '', 'style="width:100%;"')->set_resume(false)
+            ->add('peng_disetujui_no_penetapan', 'Nomor Penetapan', 'text', true, !empty($data) ? $data['peng_disetujui_no_penetapan'] : '', 'style="width:100%;"')
+            ->add('peng_disetujui_nominal', 'Nominal Disetujui', 'number', false, ($data['peng_disetujui_nominal']!='') ? $data['peng_disetujui_nominal'] : $data['peng_nominal'], 'style="width:100%;"')
+            ->add('peng_disetujui_cicilan', 'Cicilan', 'number', false, !empty($data) ? $data['peng_disetujui_cicilan'] : '', 'style="width:100%;"')
+            ->add('peng_disetujui_jangka_waktu_bln', 'Jangka waktu Bulan', 'number', false, !empty($data) ? $data['peng_disetujui_jangka_waktu_bln'] : '', 'style="width:100%;"')
+            ->add('peng_disetujui_jangka_waktu_text', 'Jangka waktu keternangan', 'text', false, !empty($data) ? $data['peng_disetujui_jangka_waktu_text'] : '', 'style="width:100%;"')
             ->add('peng_disetujui_tanggal_penetapan', 'Tanggal penetapan', 'date', true, !empty($data) ? $data['peng_disetujui_tanggal_penetapan'] : '', 'style="width:100%;"')
             ->add('peng_disetujui_tanggal_jatuh_tempo', 'Tanggal Jatuh Tempo', 'date', true, !empty($data) ? $data['peng_disetujui_tanggal_jatuh_tempo'] : '', 'style="width:100%;"');
 
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
+            unset($dataForm['peng_nominal']);
             $dataForm['peng_disetujui_created_at'] = 'now()';
             $dataForm['peng_disetujui_created_by'] = $this->user['user_id'];
             if (!empty($data)) {
@@ -120,11 +123,11 @@ class Persetujuan extends BaseController
                 $this->db->table("pembayaran")->where('pembayaran_peng_id', $peng_id)->delete();
                 for ($i = 0; $i < $this->request->getPost('peng_disetujui_jangka_waktu_bln'); $i++) {
                     $jatuh_tempo = $this->request->getPost('peng_disetujui_tanggal_jatuh_tempo');
-                    $date = date("Y-m-d", strtotime($i." month", strtotime($jatuh_tempo)));
+                    $date = date("Y-m-d", strtotime($i . " month", strtotime($jatuh_tempo)));
                     $this->db->table("pembayaran")->insert([
                         'pembayaran_peng_id' => $peng_id,
                         'pembayaran_tanggal' => $date,
-                        'pembayaran_ke' => $i+1,
+                        'pembayaran_ke' => $i + 1,
                         'pembayaran_cicilan' => $this->request->getPost('peng_disetujui_cicilan'),
                     ]);
                 }

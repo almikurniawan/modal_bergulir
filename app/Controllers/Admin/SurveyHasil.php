@@ -34,7 +34,7 @@ class SurveyHasil extends BaseController
                 left join pengajuan on peng_id = survey_tem_peng_id
                 left join member on member_id = peng_member_id
                 left join ref_jenis_pengajuan on ref_jenis_pengajuan.jns_pengajuan_id = peng_jenis_pengajuan
-                where survey_hasil_survey_id = " . $id . " ";
+                where survey_tempat.survey_tem_head_id = " . $id . " ";
         // die($SQL);
         $action['detail'] = ['link' => 'admin/surveyHasil/form/'];
         $grid = new Grid();
@@ -59,12 +59,6 @@ class SurveyHasil extends BaseController
                             'field' => 'peng_tanggal',
                             'title' => 'Tanggal',
                             'format' => 'date'
-                        ),
-                        array(
-                            'field' => 'peng_nominal',
-                            'title' => 'Jumlah Pinjaman',
-                            'format' => 'number',
-                            'align' => 'right'
                         ),
                         array(
                             'field' => 'peng_nominal',
@@ -120,42 +114,45 @@ class SurveyHasil extends BaseController
     {
 
         $data = $this->db->table("survey_hasil")->getWhere(['survey_hasil_peng_id' => $peng_id])->getRowArray();
+        // print_r($data);die();
         $dataHasil = array(
             'survey_hasil_survey_id' => $id,
             'survey_hasil_peng_id' => $peng_id,
             'survey_hasil_created_at' => 'now()'
         );
         if (!empty($data)) {
-            $this->db->table("survey_hasil")->where('survey_hasil_id', $peng_id)->update($dataHasil);
+            $this->db->table("survey_hasil")->where('survey_hasil_peng_id', $peng_id)->update($dataHasil);
         } else {
             $this->db->table("survey_hasil")->insert($dataHasil);
+            $data = $this->db->table("survey_hasil")->getWhere(['survey_hasil_peng_id' => $peng_id])->getRowArray();
         }
         $form = new Form();
-        $form->set_attribute_form('class="form-horizontal"')->set_resume($data['survey_hasil_lock_is'])->set_template_column(2)
-            ->add('survey_hasil_1_perijinan', 'Perijinan yang dimiliki', 'text', true, !empty($data) ? $data['survey_hasil_1_perijinan'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_1_nilai_kes_usp', 'Penilaian Kesehatan USP', 'text', true, !empty($data) ? $data['survey_hasil_1_nilai_kes_usp'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_1_rat', 'Pelaksanaan RAT', 'text', true, !empty($data) ? $data['survey_hasil_1_rat'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_1_jml_angg_produktif', 'Jumlah Anggota Produktif', 'number', true, !empty($data) ? $data['survey_hasil_1_jml_angg_produktif'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_1_jml_angg', 'Jumlah Anggota Total', 'number', true, !empty($data) ? $data['survey_hasil_1_jml_angg'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_1_status', 'Status tempat Usaha', 'text', true, !empty($data) ? $data['survey_hasil_1_status'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_2_modal_sendiri', 'Modal sendiri', 'number', true, !empty($data) ? $data['survey_hasil_2_modal_sendiri'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_2_modal_luar', 'Modal luar', 'number', true, !empty($data) ? $data['survey_hasil_2_modal_luar'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_3_usaha', 'Usaha yang dilaksanakan', 'text', true, !empty($data) ? $data['survey_hasil_3_usaha'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_3_omset_per_tahun', 'Omset per tahun', 'number', true, !empty($data) ? $data['survey_hasil_3_omset_per_tahun'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_3_pendptn_per_tahun', 'Pendapatan per tahun', 'number', true, !empty($data) ? $data['survey_hasil_3_pendptn_per_tahun'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_3_beban_operasional', 'Beban operasional', 'number', true, !empty($data) ? $data['survey_hasil_3_beban_operasional'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_4_kas_per_bulan', 'Penerimaan Kas Per bulan', 'number', true, !empty($data) ? $data['survey_hasil_4_kas_per_bulan'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_4_pengeluaran', 'Pengeluaran', 'number', true, !empty($data) ? $data['survey_hasil_4_pengeluaran'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_5_jaminan', 'Jaminan yang diajukan', 'text', true, !empty($data) ? $data['survey_hasil_5_jaminan'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_5_taksiran_harga', 'Taksiran harga', 'number', true, !empty($data) ? $data['survey_hasil_5_taksiran_harga'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_5_status_jaminan', 'Status Jaminan', 'text', true, !empty($data) ? $data['survey_hasil_5_status_jaminan'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_6_kelangsungan_hidup', 'Aspek kelangsungan hidup', 'text', true, !empty($data) ? $data['survey_hasil_6_kelangsungan_hidup'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_permasalahan', 'PERMASALAHAN', 'text', true, !empty($data) ? $data['survey_hasil_permasalahan'] : '', 'style="width:100%;"');
+        $form->set_attribute_form('class="form-horizontal"')->set_resume(($data['survey_hasil_lock_is'] == "t" ? true : false))->set_template_column(2)
+            ->add('survey_hasil_1_perijinan', 'Perijinan yang dimiliki', 'text', FALSE, !empty($data) ? $data['survey_hasil_1_perijinan'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_1_nilai_kes_usp', 'Penilaian Kesehatan USP', 'text', FALSE, !empty($data) ? $data['survey_hasil_1_nilai_kes_usp'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_1_rat', 'Pelaksanaan RAT', 'text', FALSE, !empty($data) ? $data['survey_hasil_1_rat'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_1_jml_angg_produktif', 'Jumlah Anggota Produktif', 'number', FALSE, !empty($data) ? $data['survey_hasil_1_jml_angg_produktif'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_1_jml_angg', 'Jumlah Anggota Total', 'number', FALSE, !empty($data) ? $data['survey_hasil_1_jml_angg'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_1_status', 'Status tempat Usaha', 'text', FALSE, !empty($data) ? $data['survey_hasil_1_status'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_2_modal_sendiri', 'Modal sendiri', 'number', FALSE, !empty($data) ? $data['survey_hasil_2_modal_sendiri'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_2_modal_luar', 'Modal luar', 'number', FALSE, !empty($data) ? $data['survey_hasil_2_modal_luar'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_3_usaha', 'Usaha yang dilaksanakan', 'text', FALSE, !empty($data) ? $data['survey_hasil_3_usaha'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_3_omset_per_tahun', 'Omset per tahun', 'number', FALSE, !empty($data) ? $data['survey_hasil_3_omset_per_tahun'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_3_pendptn_per_tahun', 'Pendapatan per tahun', 'number', FALSE, !empty($data) ? $data['survey_hasil_3_pendptn_per_tahun'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_3_beban_operasional', 'Beban operasional', 'number', FALSE, !empty($data) ? $data['survey_hasil_3_beban_operasional'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_4_kas_per_bulan', 'Penerimaan Kas Per bulan', 'number', FALSE, !empty($data) ? $data['survey_hasil_4_kas_per_bulan'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_4_pengeluaran', 'Pengeluaran', 'number', FALSE, !empty($data) ? $data['survey_hasil_4_pengeluaran'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_5_jaminan', 'Jaminan yang diajukan', 'text', FALSE, !empty($data) ? $data['survey_hasil_5_jaminan'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_5_taksiran_harga', 'Taksiran harga', 'number', FALSE, !empty($data) ? $data['survey_hasil_5_taksiran_harga'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_5_status_jaminan', 'Status Jaminan', 'text', FALSE, !empty($data) ? $data['survey_hasil_5_status_jaminan'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_6_kelangsungan_hidup', 'Aspek kelangsungan hidup', 'text', FALSE, !empty($data) ? $data['survey_hasil_6_kelangsungan_hidup'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_permasalahan', 'PERMASALAHAN', 'text', FALSE, !empty($data) ? $data['survey_hasil_permasalahan'] : '', 'style="width:100%;"');
 
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
+            // print_r($data);DIE();
             if (!empty($data)) {
-                $this->db->table("survey_hasil")->where('survey_hasil_id', $peng_id)->update($dataForm);
+                $this->db->table("survey_hasil")->where('survey_hasil_peng_id', $peng_id)->update($dataForm);
             }
             return $form->output();
         } else {
@@ -171,8 +168,8 @@ class SurveyHasil extends BaseController
             'survey_hasil_lock_by' => $this->user['user_id'],
         ]);
         return $this->response->setJSON([
-            'status'=>true,
-            'message'=>'Sukses kunci hasil survey'
+            'status' => true,
+            'message' => 'Sukses kunci hasil survey'
         ]);
     }
     public function bukaKunci()
@@ -184,8 +181,8 @@ class SurveyHasil extends BaseController
             'survey_hasil_lock_by' => $this->user['user_id'],
         ]);
         return $this->response->setJSON([
-            'status'=>true,
-            'message'=>'Sukses buka kunci hasil survey'
+            'status' => true,
+            'message' => 'Sukses buka kunci hasil survey'
         ]);
     }
 }
