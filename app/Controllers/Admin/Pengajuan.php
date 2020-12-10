@@ -32,10 +32,10 @@ class Pengajuan extends BaseController
                             '<span class=\"badge badge-success\">Verified</span>' 
                         ELSE
                             case 
-                                when peng_lock_is is not true then 
+                                when peng_lock_is is true then 
                                     '<span class=\"badge badge-warning\">Waiting</span>'
                                 else 
-                                '<span class=\"badge badge-primary\">Not Submitted</span>'
+                                    '<span class=\"badge badge-primary\">Not Submitted</span>'
                             end
                     END AS status,
                     peng_id AS ID 
@@ -228,61 +228,73 @@ class Pengajuan extends BaseController
                 'id' => 'ref_bidang_id',
                 'label' => 'ref_bidang_label',
             ))
-            ->add('peng_tujuan_penggunaan', 'Tujuan Penggunaan', 'text', true, '', 'style="width:100%;"')
-            ->add('peng_foto_suami', 'Foto Suami', 'file', true, '', 'style="width:100%;" accept="image/*"')
-            ->add('peng_foto_istri', 'Foto Istri', 'file', true, '', 'style="width:100%;" accept="image/*"')
-            ->add('peng_fc_ktp', 'Fotocopy KTP suami istri', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_kk', 'Fotocopy KK', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_surat_nikah', 'Fotocopy Surat Nikah', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_legalitas_jaminan', 'Fotocopy Legalitas Jaminan', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"');
+            ->add('peng_tujuan_penggunaan', 'Tujuan Penggunaan', 'text', false, '', 'style="width:100%;"')
+            ->add('peng_foto_suami', 'Foto Suami', 'file', false, '', 'style="width:100%;" accept="image/*"')
+            ->add('peng_foto_istri', 'Foto Istri', 'file', false, '', 'style="width:100%;" accept="image/*"')
+            ->add('peng_fc_ktp', 'Fotocopy KTP suami istri', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_kk', 'Fotocopy KK', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_surat_nikah', 'Fotocopy Surat Nikah', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_legalitas_jaminan', 'Fotocopy Legalitas Jaminan', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"');
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
             $file = $this->request->getFile('peng_foto_suami');
-            $ext = $file->getClientExtension();
-            $name = $file->getName();
-            $name = $file->getRandomName() . "." . $ext;
-            if ($file->move('./uploads/', $name)) {
-                $dataForm['peng_foto_suami'] = $name;
+            if($file->getName()!=''){
+                $ext = $file->getClientExtension();
+                $name = $file->getName();
+                $name = $file->getRandomName() . "." . $ext;
+                if ($file->move('./uploads/', $name)) {
+                    $dataForm['peng_foto_suami'] = $name;
+                }
             }
 
             $file = $this->request->getFile('peng_foto_istri');
-            $ext = $file->getClientExtension();
-            $name = $file->getName();
-            $name = $file->getRandomName() . "." . $ext;
-            if ($file->move('./uploads/', $name)) {
-                $dataForm['peng_foto_istri'] = $name;
+            if($file->getName()!=''){
+                $ext = $file->getClientExtension();
+                $name = $file->getName();
+                $name = $file->getRandomName() . "." . $ext;
+                if ($file->move('./uploads/', $name)) {
+                    $dataForm['peng_foto_istri'] = $name;
+                }
             }
 
             $file = $this->request->getFile('peng_fc_ktp');
-            $ext = $file->getClientExtension();
-            $name = $file->getName();
-            $name = $file->getRandomName() . "." . $ext;
-            if ($file->move('./uploads/', $name)) {
-                $dataForm['peng_fc_ktp'] = $name;
+            if($file->getName()!=''){
+                $ext = $file->getClientExtension();
+                $name = $file->getName();
+                $name = $file->getRandomName() . "." . $ext;
+                if ($file->move('./uploads/', $name)) {
+                    $dataForm['peng_fc_ktp'] = $name;
+                }
             }
 
             $file = $this->request->getFile('peng_fc_kk');
-            $ext = $file->getClientExtension();
-            $name = $file->getName();
-            $name = $file->getRandomName() . "." . $ext;
-            if ($file->move('./uploads/', $name)) {
-                $dataForm['peng_fc_kk'] = $name;
+            if($file->getName()!=''){
+                $ext = $file->getClientExtension();
+                $name = $file->getName();
+                $name = $file->getRandomName() . "." . $ext;
+                if ($file->move('./uploads/', $name)) {
+                    $dataForm['peng_fc_kk'] = $name;
+                }
             }
 
             $file = $this->request->getFile('peng_fc_surat_nikah');
-            $ext = $file->getClientExtension();
-            $name = $file->getName();
-            $name = $file->getRandomName() . "." . $ext;
-            if ($file->move('./uploads/', $name)) {
-                $dataForm['peng_fc_surat_nikah'] = $name;
+            if($file->getName()!=''){
+                $ext = $file->getClientExtension();
+                $name = $file->getName();
+                $name = $file->getRandomName() . "." . $ext;
+                if ($file->move('./uploads/', $name)) {
+                    $dataForm['peng_fc_surat_nikah'] = $name;
+                }
             }
 
             $file = $this->request->getFile('peng_fc_legalitas_jaminan');
-            $ext = $file->getClientExtension();
-            $name = $file->getName();
-            $name = $file->getRandomName() . "." . $ext;
-            if ($file->move('./uploads/', $name)) {
-                $dataForm['peng_fc_legalitas_jaminan'] = $name;
+            if($file->getName()!=''){
+                $ext = $file->getClientExtension();
+                $name = $file->getName();
+                $name = $file->getRandomName() . "." . $ext;
+                if ($file->move('./uploads/', $name)) {
+                    $dataForm['peng_fc_legalitas_jaminan'] = $name;
+                }
             }
 
             $dataForm['peng_jenis_pengajuan'] = $jenis;
@@ -312,61 +324,73 @@ class Pengajuan extends BaseController
                 'id' => 'ref_bidang_id',
                 'label' => 'ref_bidang_label',
             ))
-            ->add('peng_tujuan_penggunaan', 'Tujuan Penggunaan', 'text', true, '', 'style="width:100%;"')
-            ->add('peng_foto_suami', 'Foto Suami', 'file', true, '', 'style="width:100%;" accept="image/*"')
-            ->add('peng_foto_istri', 'Foto Istri', 'file', true, '', 'style="width:100%;" accept="image/*"')
-            ->add('peng_fc_ktp', 'Fotocopy KTP suami istri', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_kk', 'Fotocopy KK', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_surat_nikah', 'Fotocopy Surat Nikah', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_legalitas_jaminan', 'Fotocopy Legalitas Jaminan', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"');
+            ->add('peng_tujuan_penggunaan', 'Tujuan Penggunaan', 'text', false, '', 'style="width:100%;"')
+            ->add('peng_foto_suami', 'Foto Suami', 'file', false, '', 'style="width:100%;" accept="image/*"')
+            ->add('peng_foto_istri', 'Foto Istri', 'file', false, '', 'style="width:100%;" accept="image/*"')
+            ->add('peng_fc_ktp', 'Fotocopy KTP suami istri', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_kk', 'Fotocopy KK', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_surat_nikah', 'Fotocopy Surat Nikah', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_legalitas_jaminan', 'Fotocopy Legalitas Jaminan', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"');
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
             $file = $this->request->getFile('peng_foto_suami');
-            $ext = $file->getClientExtension();
-            $name = $file->getName();
-            $name = $file->getRandomName() . "." . $ext;
-            if ($file->move('./uploads/', $name)) {
-                $dataForm['peng_foto_suami'] = $name;
+            if($file->getName()!=''){
+                $ext = $file->getClientExtension();
+                $name = $file->getName();
+                $name = $file->getRandomName() . "." . $ext;
+                if ($file->move('./uploads/', $name)) {
+                    $dataForm['peng_foto_suami'] = $name;
+                }
             }
 
             $file = $this->request->getFile('peng_foto_istri');
-            $ext = $file->getClientExtension();
-            $name = $file->getName();
-            $name = $file->getRandomName() . "." . $ext;
-            if ($file->move('./uploads/', $name)) {
-                $dataForm['peng_foto_istri'] = $name;
+            if($file->getName()!=''){
+                $ext = $file->getClientExtension();
+                $name = $file->getName();
+                $name = $file->getRandomName() . "." . $ext;
+                if ($file->move('./uploads/', $name)) {
+                    $dataForm['peng_foto_istri'] = $name;
+                }
             }
 
             $file = $this->request->getFile('peng_fc_ktp');
-            $ext = $file->getClientExtension();
-            $name = $file->getName();
-            $name = $file->getRandomName() . "." . $ext;
-            if ($file->move('./uploads/', $name)) {
-                $dataForm['peng_fc_ktp'] = $name;
+            if($file->getName()!=''){
+                $ext = $file->getClientExtension();
+                $name = $file->getName();
+                $name = $file->getRandomName() . "." . $ext;
+                if ($file->move('./uploads/', $name)) {
+                    $dataForm['peng_fc_ktp'] = $name;
+                }
             }
 
             $file = $this->request->getFile('peng_fc_kk');
-            $ext = $file->getClientExtension();
-            $name = $file->getName();
-            $name = $file->getRandomName() . "." . $ext;
-            if ($file->move('./uploads/', $name)) {
-                $dataForm['peng_fc_kk'] = $name;
+            if($file->getName()!=''){
+                $ext = $file->getClientExtension();
+                $name = $file->getName();
+                $name = $file->getRandomName() . "." . $ext;
+                if ($file->move('./uploads/', $name)) {
+                    $dataForm['peng_fc_kk'] = $name;
+                }
             }
 
             $file = $this->request->getFile('peng_fc_surat_nikah');
-            $ext = $file->getClientExtension();
-            $name = $file->getName();
-            $name = $file->getRandomName() . "." . $ext;
-            if ($file->move('./uploads/', $name)) {
-                $dataForm['peng_fc_surat_nikah'] = $name;
+            if($file->getName()!=''){
+                $ext = $file->getClientExtension();
+                $name = $file->getName();
+                $name = $file->getRandomName() . "." . $ext;
+                if ($file->move('./uploads/', $name)) {
+                    $dataForm['peng_fc_surat_nikah'] = $name;
+                }
             }
 
             $file = $this->request->getFile('peng_fc_legalitas_jaminan');
-            $ext = $file->getClientExtension();
-            $name = $file->getName();
-            $name = $file->getRandomName() . "." . $ext;
-            if ($file->move('./uploads/', $name)) {
-                $dataForm['peng_fc_legalitas_jaminan'] = $name;
+            if($file->getName()!=''){
+                $ext = $file->getClientExtension();
+                $name = $file->getName();
+                $name = $file->getRandomName() . "." . $ext;
+                if ($file->move('./uploads/', $name)) {
+                    $dataForm['peng_fc_legalitas_jaminan'] = $name;
+                }
             }
 
             $dataForm['peng_jenis_pengajuan'] = $jenis;
@@ -390,21 +414,21 @@ class Pengajuan extends BaseController
                 'label' => 'member_nama_lengkap',
             ))
             ->add('peng_tanggal', 'Tanggal', 'date', true, date("Y-m-d"), 'style="width:100%;"')
-            ->add('peng_tempat', 'Tempat', 'text', true, '', 'style="width:100%;"')
+            ->add('peng_tempat', 'Tempat', 'text', false, '', 'style="width:100%;"')
             ->add('peng_tanggal', 'Tanggal', 'date', true, date("Y-m-d"), 'style="width:100%;"')
             ->add('peng_nominal', 'Nominal Pinjaman', 'number', true, 10000000, 'style="width:100%;" min="0" max="100000000000"')
-            ->add('peng_susunan_pengurus', 'Susunan Pengurus', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_akta_pendirian', 'FC Akta Pendirian', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_buku_laporan_rapat', 'FC Buku Laporan Rapat', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_jaminan', 'FC Jaminan', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_ktp_pengurus', 'FC KTP Pengurus', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_ktp_pengawas', 'FC KTP Pengawas', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_siup', 'FC SIUP', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_tdp', 'FC TDP', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_npwp', 'FC NPWP', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_sertifikat_penilaian', 'FC Sertifikat Penilaian', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_foto_pengurus', 'Foto Pengurus', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_foto_pengawas', 'Foto Pengawas', 'file', true, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_susunan_pengurus', 'Susunan Pengurus', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_akta_pendirian', 'FC Akta Pendirian', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_buku_laporan_rapat', 'FC Buku Laporan Rapat', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_jaminan', 'FC Jaminan', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_ktp_pengurus', 'FC KTP Pengurus', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_ktp_pengawas', 'FC KTP Pengawas', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_siup', 'FC SIUP', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_tdp', 'FC TDP', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_npwp', 'FC NPWP', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_sertifikat_penilaian', 'FC Sertifikat Penilaian', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_foto_pengurus', 'Foto Pengurus', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_foto_pengawas', 'Foto Pengawas', 'file', false, '', 'style="width:100%;" accept="image/*, application/pdf"')
             ;
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
@@ -568,13 +592,13 @@ class Pengajuan extends BaseController
                 'id' => 'ref_bidang_id',
                 'label' => 'ref_bidang_label',
             ))
-            ->add('peng_tujuan_penggunaan', 'Tujuan Penggunaan', 'text', true, $data['peng_tujuan_penggunaan'], 'style="width:100%;"')
-            ->add('peng_foto_suami', 'Foto Suami', 'file', ($data['peng_foto_suami']=='' ? true  : false), ($data['peng_foto_suami']=='' ? '' : base_url("uploads/".$data['peng_foto_suami'])), 'style="width:100%;" accept="image/*"')
-            ->add('peng_foto_istri', 'Foto Istri', 'file', ($data['peng_foto_istri']=='' ? true  : false), ($data['peng_foto_istri']=='' ? '' : base_url("uploads/".$data['peng_foto_istri'])), 'style="width:100%;" accept="image/*"')
-            ->add('peng_fc_ktp', 'Fotocopy KTP', 'file', ($data['peng_fc_ktp']=='' ? true  : false), ($data['peng_fc_ktp']=='' ? '' : base_url("uploads/".$data['peng_fc_ktp'])), 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_kk', 'Fotocopy KK', 'file', ($data['peng_fc_kk']=='' ? true  : false), ($data['peng_fc_kk']=='' ? '' : base_url("uploads/".$data['peng_fc_kk'])), 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_surat_nikah', 'Fotocopy Surat Nikah', 'file', ($data['peng_fc_surat_nikah']=='' ? true  : false), ($data['peng_fc_surat_nikah']=='' ? '' : base_url("uploads/".$data['peng_fc_surat_nikah'])), 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_legalitas_jaminan', 'Fotocopy Legalitas Jaminan', 'file', ($data['peng_fc_legalitas_jaminan']=='' ? true  : false), ($data['peng_fc_legalitas_jaminan']=='' ? '' : base_url("uploads/".$data['peng_fc_legalitas_jaminan'])), 'style="width:100%;" accept="image/*, application/pdf"');
+            ->add('peng_tujuan_penggunaan', 'Tujuan Penggunaan', 'text', false, $data['peng_tujuan_penggunaan'], 'style="width:100%;"')
+            ->add('peng_foto_suami', 'Foto Suami', 'file', ($data['peng_foto_suami']=='' ? false  : false), ($data['peng_foto_suami']=='' ? '' : base_url("uploads/".$data['peng_foto_suami'])), 'style="width:100%;" accept="image/*"')
+            ->add('peng_foto_istri', 'Foto Istri', 'file', ($data['peng_foto_istri']=='' ? false  : false), ($data['peng_foto_istri']=='' ? '' : base_url("uploads/".$data['peng_foto_istri'])), 'style="width:100%;" accept="image/*"')
+            ->add('peng_fc_ktp', 'Fotocopy KTP', 'file', ($data['peng_fc_ktp']=='' ? false  : false), ($data['peng_fc_ktp']=='' ? '' : base_url("uploads/".$data['peng_fc_ktp'])), 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_kk', 'Fotocopy KK', 'file', ($data['peng_fc_kk']=='' ? false  : false), ($data['peng_fc_kk']=='' ? '' : base_url("uploads/".$data['peng_fc_kk'])), 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_surat_nikah', 'Fotocopy Surat Nikah', 'file', ($data['peng_fc_surat_nikah']=='' ? false  : false), ($data['peng_fc_surat_nikah']=='' ? '' : base_url("uploads/".$data['peng_fc_surat_nikah'])), 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_legalitas_jaminan', 'Fotocopy Legalitas Jaminan', 'file', ($data['peng_fc_legalitas_jaminan']=='' ? false  : false), ($data['peng_fc_legalitas_jaminan']=='' ? '' : base_url("uploads/".$data['peng_fc_legalitas_jaminan'])), 'style="width:100%;" accept="image/*, application/pdf"');
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
             $file = $this->request->getFile('peng_foto_suami');
@@ -677,13 +701,13 @@ class Pengajuan extends BaseController
                 'id' => 'ref_bidang_id',
                 'label' => 'ref_bidang_label',
             ))
-            ->add('peng_tujuan_penggunaan', 'Tujuan Penggunaan', 'text', true, $data['peng_tujuan_penggunaan'], 'style="width:100%;"')
-            ->add('peng_foto_suami', 'Foto Suami', 'file', ($data['peng_foto_suami']=='' ? true  : false), ($data['peng_foto_suami']=='' ? '' : base_url("uploads/".$data['peng_foto_suami'])), 'style="width:100%;" accept="image/*"')
-            ->add('peng_foto_istri', 'Foto Istri', 'file', ($data['peng_foto_istri']=='' ? true  : false), ($data['peng_foto_istri']=='' ? '' : base_url("uploads/".$data['peng_foto_istri'])), 'style="width:100%;" accept="image/*"')
-            ->add('peng_fc_ktp', 'Fotocopy KTP', 'file', ($data['peng_fc_ktp']=='' ? true  : false), ($data['peng_fc_ktp']=='' ? '' : base_url("uploads/".$data['peng_fc_ktp'])), 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_kk', 'Fotocopy KK', 'file', ($data['peng_fc_kk']=='' ? true  : false), ($data['peng_fc_kk']=='' ? '' : base_url("uploads/".$data['peng_fc_kk'])), 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_surat_nikah', 'Fotocopy Surat Nikah', 'file', ($data['peng_fc_surat_nikah']=='' ? true  : false), ($data['peng_fc_surat_nikah']=='' ? '' : base_url("uploads/".$data['peng_fc_surat_nikah'])), 'style="width:100%;" accept="image/*, application/pdf"')
-            ->add('peng_fc_legalitas_jaminan', 'Fotocopy Legalitas Jaminan', 'file', ($data['peng_fc_legalitas_jaminan']=='' ? true  : false), ($data['peng_fc_legalitas_jaminan']=='' ? '' : base_url("uploads/".$data['peng_fc_legalitas_jaminan'])), 'style="width:100%;" accept="image/*, application/pdf"');
+            ->add('peng_tujuan_penggunaan', 'Tujuan Penggunaan', 'text', false, $data['peng_tujuan_penggunaan'], 'style="width:100%;"')
+            ->add('peng_foto_suami', 'Foto Suami', 'file', ($data['peng_foto_suami']=='' ? false  : false), ($data['peng_foto_suami']=='' ? '' : base_url("uploads/".$data['peng_foto_suami'])), 'style="width:100%;" accept="image/*"')
+            ->add('peng_foto_istri', 'Foto Istri', 'file', ($data['peng_foto_istri']=='' ? false  : false), ($data['peng_foto_istri']=='' ? '' : base_url("uploads/".$data['peng_foto_istri'])), 'style="width:100%;" accept="image/*"')
+            ->add('peng_fc_ktp', 'Fotocopy KTP', 'file', ($data['peng_fc_ktp']=='' ? false  : false), ($data['peng_fc_ktp']=='' ? '' : base_url("uploads/".$data['peng_fc_ktp'])), 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_kk', 'Fotocopy KK', 'file', ($data['peng_fc_kk']=='' ? false  : false), ($data['peng_fc_kk']=='' ? '' : base_url("uploads/".$data['peng_fc_kk'])), 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_surat_nikah', 'Fotocopy Surat Nikah', 'file', ($data['peng_fc_surat_nikah']=='' ? false  : false), ($data['peng_fc_surat_nikah']=='' ? '' : base_url("uploads/".$data['peng_fc_surat_nikah'])), 'style="width:100%;" accept="image/*, application/pdf"')
+            ->add('peng_fc_legalitas_jaminan', 'Fotocopy Legalitas Jaminan', 'file', ($data['peng_fc_legalitas_jaminan']=='' ? false  : false), ($data['peng_fc_legalitas_jaminan']=='' ? '' : base_url("uploads/".$data['peng_fc_legalitas_jaminan'])), 'style="width:100%;" accept="image/*, application/pdf"');
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
             $file = $this->request->getFile('peng_foto_suami');
@@ -782,18 +806,18 @@ class Pengajuan extends BaseController
         ->add('peng_tanggal', 'Tanggal', 'date', true, $data['peng_tanggal'], 'style="width:100%;"')
         ->add('peng_tempat', 'Tempat', 'text', true, $data['peng_tempat'], 'style="width:100%;"')
         ->add('peng_nominal', 'Nominal Pinjaman', 'number', true, $data['peng_nominal'], 'style="width:100%;" min="0" max="100000000000"')
-        ->add('peng_susunan_pengurus', 'Susunan Pengurus', 'file', ($data['peng_susunan_pengurus']=='' ? true  : false), ($data['peng_susunan_pengurus']=='' ? '' : base_url("uploads/".$data['peng_susunan_pengurus'])), 'style="width:100%;" accept="image/*, application/pdf"')
-        ->add('peng_fc_akta_pendirian', 'FC Akta Pendirian', 'file', ($data['peng_fc_akta_pendirian']=='' ? true  : false), ($data['peng_fc_akta_pendirian']=='' ? '' : base_url("uploads/".$data['peng_fc_akta_pendirian'])), 'style="width:100%;" accept="image/*, application/pdf"')
-        ->add('peng_fc_buku_laporan_rapat', 'FC Buku Laporan Rapat', 'file', ($data['peng_fc_buku_laporan_rapat']=='' ? true  : false), ($data['peng_fc_buku_laporan_rapat']=='' ? '' : base_url("uploads/".$data['peng_fc_buku_laporan_rapat'])) , 'style="width:100%;" accept="image/*, application/pdf"')
-        ->add('peng_fc_jaminan', 'FC Jaminan', 'file', ($data['peng_fc_jaminan']=='' ? true  : false), ($data['peng_fc_jaminan']=='' ? '' : base_url("uploads/".$data['peng_fc_jaminan'])), 'style="width:100%;" accept="image/*, application/pdf"')
-        ->add('peng_fc_ktp_pengurus', 'FC KTP Pengurus', 'file', ($data['peng_fc_ktp_pengurus']=='' ? true  : false), ($data['peng_fc_ktp_pengurus']=='' ? '' : base_url("uploads/".$data['peng_fc_ktp_pengurus'])), 'style="width:100%;" accept="image/*, application/pdf"')
-        ->add('peng_fc_ktp_pengawas', 'FC KTP Pengawas', 'file', ($data['peng_fc_ktp_pengawas']=='' ? true  : false), ($data['peng_fc_ktp_pengawas']=='' ? '' : base_url("uploads/".$data['peng_fc_ktp_pengawas'])), 'style="width:100%;" accept="image/*, application/pdf"')
-        ->add('peng_fc_siup', 'FC SIUP', 'file', ($data['peng_fc_siup']=='' ? true  : false), ($data['peng_fc_siup']=='' ? '' : base_url("uploads/".$data['peng_fc_siup'])), 'style="width:100%;" accept="image/*, application/pdf"')
-        ->add('peng_fc_tdp', 'FC TDP', 'file', ($data['peng_fc_tdp']=='' ? true  : false), ($data['peng_fc_tdp']=='' ? '' : base_url("uploads/".$data['peng_fc_tdp'])), 'style="width:100%;" accept="image/*, application/pdf"')
-        ->add('peng_fc_npwp', 'FC NPWP', 'file', ($data['peng_fc_npwp']=='' ? true  : false), ($data['peng_fc_npwp']=='' ? '' : base_url("uploads/".$data['peng_fc_npwp'])), 'style="width:100%;" accept="image/*, application/pdf"')
-        ->add('peng_fc_sertifikat_penilaian', 'FC Sertifikat Penilaian', 'file', ($data['peng_fc_sertifikat_penilaian']=='' ? true  : false), ($data['peng_fc_sertifikat_penilaian']=='' ? '' : base_url("uploads/".$data['peng_fc_sertifikat_penilaian'])), 'style="width:100%;" accept="image/*, application/pdf"')
-        ->add('peng_foto_pengurus', 'Foto Pengurus', 'file', ($data['peng_foto_pengurus']=='' ? true  : false), ($data['peng_foto_pengurus']=='' ? '' : base_url("uploads/".$data['peng_foto_pengurus'])), 'style="width:100%;" accept="image/*, application/pdf"')
-        ->add('peng_foto_pengawas', 'Foto Pengawas', 'file', ($data['peng_foto_pengawas']=='' ? true  : false), ($data['peng_foto_pengawas']=='' ? '' : base_url("uploads/".$data['peng_foto_pengawas'])), 'style="width:100%;" accept="image/*, application/pdf"');
+        ->add('peng_susunan_pengurus', 'Susunan Pengurus', 'file', ($data['peng_susunan_pengurus']=='' ? false  : false), ($data['peng_susunan_pengurus']=='' ? '' : base_url("uploads/".$data['peng_susunan_pengurus'])), 'style="width:100%;" accept="image/*, application/pdf"')
+        ->add('peng_fc_akta_pendirian', 'FC Akta Pendirian', 'file', ($data['peng_fc_akta_pendirian']=='' ? false  : false), ($data['peng_fc_akta_pendirian']=='' ? '' : base_url("uploads/".$data['peng_fc_akta_pendirian'])), 'style="width:100%;" accept="image/*, application/pdf"')
+        ->add('peng_fc_buku_laporan_rapat', 'FC Buku Laporan Rapat', 'file', ($data['peng_fc_buku_laporan_rapat']=='' ? false  : false), ($data['peng_fc_buku_laporan_rapat']=='' ? '' : base_url("uploads/".$data['peng_fc_buku_laporan_rapat'])) , 'style="width:100%;" accept="image/*, application/pdf"')
+        ->add('peng_fc_jaminan', 'FC Jaminan', 'file', ($data['peng_fc_jaminan']=='' ? false  : false), ($data['peng_fc_jaminan']=='' ? '' : base_url("uploads/".$data['peng_fc_jaminan'])), 'style="width:100%;" accept="image/*, application/pdf"')
+        ->add('peng_fc_ktp_pengurus', 'FC KTP Pengurus', 'file', ($data['peng_fc_ktp_pengurus']=='' ? false  : false), ($data['peng_fc_ktp_pengurus']=='' ? '' : base_url("uploads/".$data['peng_fc_ktp_pengurus'])), 'style="width:100%;" accept="image/*, application/pdf"')
+        ->add('peng_fc_ktp_pengawas', 'FC KTP Pengawas', 'file', ($data['peng_fc_ktp_pengawas']=='' ? false  : false), ($data['peng_fc_ktp_pengawas']=='' ? '' : base_url("uploads/".$data['peng_fc_ktp_pengawas'])), 'style="width:100%;" accept="image/*, application/pdf"')
+        ->add('peng_fc_siup', 'FC SIUP', 'file', ($data['peng_fc_siup']=='' ? false  : false), ($data['peng_fc_siup']=='' ? '' : base_url("uploads/".$data['peng_fc_siup'])), 'style="width:100%;" accept="image/*, application/pdf"')
+        ->add('peng_fc_tdp', 'FC TDP', 'file', ($data['peng_fc_tdp']=='' ? false  : false), ($data['peng_fc_tdp']=='' ? '' : base_url("uploads/".$data['peng_fc_tdp'])), 'style="width:100%;" accept="image/*, application/pdf"')
+        ->add('peng_fc_npwp', 'FC NPWP', 'file', ($data['peng_fc_npwp']=='' ? false  : false), ($data['peng_fc_npwp']=='' ? '' : base_url("uploads/".$data['peng_fc_npwp'])), 'style="width:100%;" accept="image/*, application/pdf"')
+        ->add('peng_fc_sertifikat_penilaian', 'FC Sertifikat Penilaian', 'file', ($data['peng_fc_sertifikat_penilaian']=='' ? false  : false), ($data['peng_fc_sertifikat_penilaian']=='' ? '' : base_url("uploads/".$data['peng_fc_sertifikat_penilaian'])), 'style="width:100%;" accept="image/*, application/pdf"')
+        ->add('peng_foto_pengurus', 'Foto Pengurus', 'file', ($data['peng_foto_pengurus']=='' ? false  : false), ($data['peng_foto_pengurus']=='' ? '' : base_url("uploads/".$data['peng_foto_pengurus'])), 'style="width:100%;" accept="image/*, application/pdf"')
+        ->add('peng_foto_pengawas', 'Foto Pengawas', 'file', ($data['peng_foto_pengawas']=='' ? false  : false), ($data['peng_foto_pengawas']=='' ? '' : base_url("uploads/".$data['peng_foto_pengawas'])), 'style="width:100%;" accept="image/*, application/pdf"');
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
             $file = $this->request->getFile('peng_susunan_pengurus');
@@ -938,28 +962,30 @@ class Pengajuan extends BaseController
         $form->set_attribute_form('class="form-horizontal"')
             ->set_template('admin/pengajuan/sf_step2_jenis1')
             ->set_resume($resume)
-            ->add('peng_prof_nama_usaha', 'Nama Usaha Mikro', 'text', true, empty($data) ? '' : $data['peng_prof_nama_usaha'], 'style="width:100%;"')
-            ->add('peng_prof_alamat', 'Alamat', 'text', true, empty($data) ? '' : $data['peng_prof_alamat'], 'style="width:100%;"')
-            ->add('peng_prof_pimpinan', 'Pimpinan / Pemilik', 'text', true, empty($data) ? '' : $data['peng_prof_pimpinan'], 'style="width:100%;"')
-            ->add('peng_prof_perizinan', 'Perizinan yang dimiliki (SK dari kelurahan)', 'text', true, empty($data) ? '' : $data['peng_prof_perizinan'], 'style="width:100%;"')
-            ->add('peng_prof_jumlah_karyawan', 'Jumlah Karyawan', 'number', true, empty($data) ? '' : $data['peng_prof_jumlah_karyawan'], 'style="width:100%;"')
-            ->add('peng_prof_tahun_mulai', 'Tahun Mulai Usaha', 'text', true, empty($data) ? '' : $data['peng_prof_tahun_mulai'], 'style="width:100%;"')
-            ->add('peng_prof_jenis_usaha', 'Jenis Usaha', 'select', true, empty($data) ? '' : $data['peng_prof_jenis_usaha'], ' style="width:100%;"', array(
+            ->add('peng_prof_nama_usaha', 'Nama Usaha Mikro', 'text', false, empty($data) ? '' : $data['peng_prof_nama_usaha'], 'style="width:100%;"')
+            ->add('peng_prof_alamat', 'Alamat', 'text', false, empty($data) ? '' : $data['peng_prof_alamat'], 'style="width:100%;"')
+            ->add('peng_prof_pimpinan', 'Pimpinan / Pemilik', 'text', false, empty($data) ? '' : $data['peng_prof_pimpinan'], 'style="width:100%;"')
+            ->add('peng_prof_perizinan', 'Perizinan yang dimiliki (SK dari kelurahan)', 'text', false, empty($data) ? '' : $data['peng_prof_perizinan'], 'style="width:100%;"')
+            ->add('peng_prof_jumlah_karyawan', 'Jumlah Karyawan', 'number', false, empty($data) ? '' : $data['peng_prof_jumlah_karyawan'], 'style="width:100%;"')
+            ->add('peng_prof_tahun_mulai', 'Tahun Mulai Usaha', 'text', false, empty($data) ? '' : $data['peng_prof_tahun_mulai'], 'style="width:100%;"')
+            ->add('peng_prof_jenis_usaha', 'Jenis Usaha', 'select', false, empty($data) ? '' : $data['peng_prof_jenis_usaha'], ' style="width:100%;"', array(
                 'table' => 'ref_bidang_usaha',
                 'id' => 'ref_bidang_id',
                 'label' => 'ref_bidang_label'
             ))
-            ->add('peng_prof_komoditi_produk', 'Komoditi Produk', 'text', true, empty($data) ? '' : $data['peng_prof_komoditi_produk'], 'style="width:100%;"')
-            ->add('peng_prof_omset_per_bulan', 'Omset per bulan', 'number', true, empty($data) ? '' : $data['peng_prof_omset_per_bulan'], 'style="width:100%;"')
-            ->add('peng_prof_lokasi_pemasaran', 'Lokasi Pemasaran', 'text', true, empty($data) ? '' : $data['peng_prof_lokasi_pemasaran'], 'style="width:100%;"')
-            ->add('peng_prof_pola_pemasaran', 'Pola Pemasaran', 'text', true, empty($data) ? '' : $data['peng_prof_pola_pemasaran'], 'style="width:100%;"')
-            ->add('peng_prof_pendapatan_penjualan', 'Pendapatan / Penjualan', 'number', true, empty($data) ? '' : $data['peng_prof_pendapatan_penjualan'], 'style="width:100%;"')
-            ->add('peng_prof_beban_penjualan', 'Beban Penjualan', 'number', true, empty($data) ? '' : $data['peng_prof_beban_penjualan'], 'style="width:100%;"')
-            ->add('peng_prof_laba_per_bulan', 'Laba per bulan', 'number', true, empty($data) ? '' : $data['peng_prof_laba_per_bulan'], 'style="width:100%;"')
-            ->add('peng_prof_modal_sendiri', 'Modal sendiri', 'number', true, empty($data) ? '' : $data['peng_prof_modal_sendiri'], 'style="width:100%;"')
-            ->add('peng_prof_modal_luar', 'Modal luar', 'number', true, empty($data) ? '' : $data['peng_prof_modal_luar'], 'style="width:100%;"');
+            ->add('peng_prof_komoditi_produk', 'Komoditi Produk', 'text', false, empty($data) ? '' : $data['peng_prof_komoditi_produk'], 'style="width:100%;"')
+            ->add('peng_prof_omset_per_bulan', 'Omset per bulan', 'number', false, empty($data) ? '' : $data['peng_prof_omset_per_bulan'], 'style="width:100%;"')
+            ->add('peng_prof_lokasi_pemasaran', 'Lokasi Pemasaran', 'text', false, empty($data) ? '' : $data['peng_prof_lokasi_pemasaran'], 'style="width:100%;"')
+            ->add('peng_prof_pola_pemasaran', 'Pola Pemasaran', 'text', false, empty($data) ? '' : $data['peng_prof_pola_pemasaran'], 'style="width:100%;"')
+            ->add('peng_prof_pendapatan_penjualan', 'Pendapatan / Penjualan', 'number', false, empty($data) ? '' : $data['peng_prof_pendapatan_penjualan'], 'style="width:100%;"')
+            ->add('peng_prof_beban_penjualan', 'Beban Penjualan', 'number', false, empty($data) ? '' : $data['peng_prof_beban_penjualan'], 'style="width:100%;"')
+            ->add('peng_prof_laba_per_bulan', 'Laba per bulan', 'number', false, empty($data) ? '' : $data['peng_prof_laba_per_bulan'], 'style="width:100%;"')
+            ->add('peng_prof_modal_sendiri', 'Modal sendiri', 'number', false, empty($data) ? '' : $data['peng_prof_modal_sendiri'], 'style="width:100%;"')
+            ->add('peng_prof_modal_luar', 'Modal luar', 'number', false, empty($data) ? '' : $data['peng_prof_modal_luar'], 'style="width:100%;"');
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
+            // print_r($dataForm);
+            // die();
             $this->db->table("pengajuan")->where('peng_id', $id)->update($dataForm);
 
             die(forceRedirect(base_url('/admin/pengajuan/detail/' . $id . '?step=3')));
@@ -979,26 +1005,26 @@ class Pengajuan extends BaseController
         $form->set_attribute_form('class="form-horizontal"')
             ->set_template('admin/pengajuan/sf_step2_jenis1')
             ->set_resume($resume)
-            ->add('peng_prof_nama_usaha', 'Nama Usaha Mikro', 'text', true, empty($data) ? '' : $data['peng_prof_nama_usaha'], 'style="width:100%;"')
-            ->add('peng_prof_alamat', 'Alamat', 'text', true, empty($data) ? '' : $data['peng_prof_alamat'], 'style="width:100%;"')
-            ->add('peng_prof_pimpinan', 'Pimpinan / Pemilik', 'text', true, empty($data) ? '' : $data['peng_prof_pimpinan'], 'style="width:100%;"')
-            ->add('peng_prof_perizinan', 'Perizinan yang dimiliki (SK dari kelurahan)', 'text', true, empty($data) ? '' : $data['peng_prof_perizinan'], 'style="width:100%;"')
-            ->add('peng_prof_jumlah_karyawan', 'Jumlah Karyawan', 'number', true, empty($data) ? '' : $data['peng_prof_jumlah_karyawan'], 'style="width:100%;"')
-            ->add('peng_prof_tahun_mulai', 'Tahun Mulai Usaha', 'text', true, empty($data) ? '' : $data['peng_prof_tahun_mulai'], 'style="width:100%;"')
-            ->add('peng_prof_jenis_usaha', 'Jenis Usaha', 'select', true, empty($data) ? '' : $data['peng_prof_jenis_usaha'], ' style="width:100%;"', array(
+            ->add('peng_prof_nama_usaha', 'Nama Usaha Mikro', 'text', false, empty($data) ? '' : $data['peng_prof_nama_usaha'], 'style="width:100%;"')
+            ->add('peng_prof_alamat', 'Alamat', 'text', false, empty($data) ? '' : $data['peng_prof_alamat'], 'style="width:100%;"')
+            ->add('peng_prof_pimpinan', 'Pimpinan / Pemilik', 'text', false, empty($data) ? '' : $data['peng_prof_pimpinan'], 'style="width:100%;"')
+            ->add('peng_prof_perizinan', 'Perizinan yang dimiliki (SK dari kelurahan)', 'text', false, empty($data) ? '' : $data['peng_prof_perizinan'], 'style="width:100%;"')
+            ->add('peng_prof_jumlah_karyawan', 'Jumlah Karyawan', 'number', false, empty($data) ? '' : $data['peng_prof_jumlah_karyawan'], 'style="width:100%;"')
+            ->add('peng_prof_tahun_mulai', 'Tahun Mulai Usaha', 'text', false, empty($data) ? '' : $data['peng_prof_tahun_mulai'], 'style="width:100%;"')
+            ->add('peng_prof_jenis_usaha', 'Jenis Usaha', 'select', false, ($data['peng_prof_jenis_usaha']=='') ? $data['peng_bidang_usaha'] : $data['peng_prof_jenis_usaha'], ' style="width:100%;"', array(
                 'table' => 'ref_bidang_usaha',
                 'id' => 'ref_bidang_id',
                 'label' => 'ref_bidang_label'
             ))
-            ->add('peng_prof_komoditi_produk', 'Komoditi Produk', 'text', true, empty($data) ? '' : $data['peng_prof_komoditi_produk'], 'style="width:100%;"')
-            ->add('peng_prof_omset_per_bulan', 'Omset per bulan', 'number', true, empty($data) ? '' : $data['peng_prof_omset_per_bulan'], 'style="width:100%;"')
-            ->add('peng_prof_lokasi_pemasaran', 'Lokasi Pemasaran', 'text', true, empty($data) ? '' : $data['peng_prof_lokasi_pemasaran'], 'style="width:100%;"')
-            ->add('peng_prof_pola_pemasaran', 'Pola Pemasaran', 'text', true, empty($data) ? '' : $data['peng_prof_pola_pemasaran'], 'style="width:100%;"')
-            ->add('peng_prof_pendapatan_penjualan', 'Pendapatan / Penjualan', 'number', true, empty($data) ? '' : $data['peng_prof_pendapatan_penjualan'], 'style="width:100%;"')
-            ->add('peng_prof_beban_penjualan', 'Beban Penjualan', 'number', true, empty($data) ? '' : $data['peng_prof_beban_penjualan'], 'style="width:100%;"')
-            ->add('peng_prof_laba_per_bulan', 'Laba per bulan', 'number', true, empty($data) ? '' : $data['peng_prof_laba_per_bulan'], 'style="width:100%;"')
-            ->add('peng_prof_modal_sendiri', 'Modal sendiri', 'number', true, empty($data) ? '' : $data['peng_prof_modal_sendiri'], 'style="width:100%;"')
-            ->add('peng_prof_modal_luar', 'Modal luar', 'number', true, empty($data) ? '' : $data['peng_prof_modal_luar'], 'style="width:100%;"');
+            ->add('peng_prof_komoditi_produk', 'Komoditi Produk', 'text', false, empty($data) ? '' : $data['peng_prof_komoditi_produk'], 'style="width:100%;"')
+            ->add('peng_prof_omset_per_bulan', 'Omset per bulan', 'number', false, empty($data) ? '' : $data['peng_prof_omset_per_bulan'], 'style="width:100%;"')
+            ->add('peng_prof_lokasi_pemasaran', 'Lokasi Pemasaran', 'text', false, empty($data) ? '' : $data['peng_prof_lokasi_pemasaran'], 'style="width:100%;"')
+            ->add('peng_prof_pola_pemasaran', 'Pola Pemasaran', 'text', false, empty($data) ? '' : $data['peng_prof_pola_pemasaran'], 'style="width:100%;"')
+            ->add('peng_prof_pendapatan_penjualan', 'Pendapatan / Penjualan', 'number', false, empty($data) ? '' : $data['peng_prof_pendapatan_penjualan'], 'style="width:100%;"')
+            ->add('peng_prof_beban_penjualan', 'Beban Penjualan', 'number', false, empty($data) ? '' : $data['peng_prof_beban_penjualan'], 'style="width:100%;"')
+            ->add('peng_prof_laba_per_bulan', 'Laba per bulan', 'number', false, empty($data) ? '' : $data['peng_prof_laba_per_bulan'], 'style="width:100%;"')
+            ->add('peng_prof_modal_sendiri', 'Modal sendiri', 'number', false, empty($data) ? '' : $data['peng_prof_modal_sendiri'], 'style="width:100%;"')
+            ->add('peng_prof_modal_luar', 'Modal luar', 'number', false, empty($data) ? '' : $data['peng_prof_modal_luar'], 'style="width:100%;"');
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
             $this->db->table("pengajuan")->where('peng_id', $id)->update($dataForm);
@@ -1020,32 +1046,32 @@ class Pengajuan extends BaseController
         $form->set_attribute_form('class="form-horizontal"')
             ->set_template('admin/pengajuan/sf_step2_jenis3')
             ->set_resume($resume)
-            ->add('peng_prof_nama_usaha', 'Nama Koperasi', 'text', true, empty($data) ? '' : $data['peng_prof_nama_usaha'], 'style="width:100%;"')
-            ->add('peng_badan_hukum_no', 'No. Badan Hukum', 'text', true, empty($data) ? '' : $data['peng_badan_hukum_no'], 'style="width:100%;"')
-            ->add('peng_badan_hukum_tanggal', 'Tgl. Badan Hukum', 'date', true, empty($data) ? '' : $data['peng_badan_hukum_tanggal'], 'style="width:100%;"')
-            ->add('peng_prof_alamat', 'Alamat', 'text', true, empty($data) ? '' : $data['peng_prof_alamat'], 'style="width:100%;"')
-            ->add('peng_kesehatan_usp', 'Kesehatan USP', 'text', true, empty($data) ? '' : $data['peng_kesehatan_usp'], 'style="width:100%;"')
-            ->add('peng_jumlah_anggota', 'Jumlah Anggota', 'number', true, empty($data) ? '' : $data['peng_jumlah_anggota'], 'style="width:100%;"')
-            ->add('peng_pelaksanaan_rat', 'Jumlah Anggota', 'number', true, empty($data) ? '' : $data['peng_pelaksanaan_rat'], 'style="width:100%;"')
-            ->add('peng_ketua', 'Pengurus Ketua', 'text', true, empty($data) ? '' : $data['peng_ketua'], 'style="width:100%;"')
-            ->add('peng_sekretaris', 'Pengurus Sekretaris', 'text', true, empty($data) ? '' : $data['peng_sekretaris'], 'style="width:100%;"')
-            ->add('peng_bendahara', 'Pengurus Bendahara', 'text', true, empty($data) ? '' : $data['peng_bendahara'], 'style="width:100%;"')
-            ->add('peng_pengawas_koor', 'Pengawas Koordinator', 'text', true, empty($data) ? '' : $data['peng_pengawas_koor'], 'style="width:100%;"')
-            ->add('peng_pengawas_anggota1', 'Pengawas Anggota 1', 'text', true, empty($data) ? '' : $data['peng_pengawas_anggota1'], 'style="width:100%;"')
-            ->add('peng_pengawas_anggota2', 'Pengawas Anggota 2', 'text', true, empty($data) ? '' : $data['peng_pengawas_anggota2'], 'style="width:100%;"')
-            ->add('peng_prof_jumlah_karyawan', 'Jumlah Karyawan', 'number', true, empty($data) ? '' : $data['peng_prof_jumlah_karyawan'], 'style="width:100%;"')
-            ->add('peng_usaha_dikelola_1', 'Usaha yang dikelola 1', 'text', true, empty($data) ? '' : $data['peng_usaha_dikelola_1'], 'style="width:100%;"')
-            ->add('peng_usaha_dikelola_2', 'Usaha yang dikelola 2', 'text', true, empty($data) ? '' : $data['peng_usaha_dikelola_2'], 'style="width:100%;"')
-            ->add('peng_prof_omset_per_bulan', 'Omset Usaha', 'number', true, empty($data) ? '' : $data['peng_prof_omset_per_bulan'], 'style="width:100%;"')
-            ->add('peng_prof_pendapatan_penjualan', 'Pendapatan Penjualan', 'number', true, empty($data) ? '' : $data['peng_prof_pendapatan_penjualan'], 'style="width:100%;"')
-            ->add('peng_prof_beban_penjualan', 'Beban Penjualan', 'number', true, empty($data) ? '' : $data['peng_prof_beban_penjualan'], 'style="width:100%;"')
-            ->add('peng_usaha_shu', 'SHU', 'number', true, empty($data) ? '' : $data['peng_usaha_shu'], 'style="width:100%;"')
+            ->add('peng_prof_nama_usaha', 'Nama Koperasi', 'text', false, empty($data) ? '' : $data['peng_prof_nama_usaha'], 'style="width:100%;"')
+            ->add('peng_badan_hukum_no', 'No. Badan Hukum', 'text', false, empty($data) ? '' : $data['peng_badan_hukum_no'], 'style="width:100%;"')
+            ->add('peng_badan_hukum_tanggal', 'Tgl. Badan Hukum', 'date', false, empty($data) ? '' : $data['peng_badan_hukum_tanggal'], 'style="width:100%;"')
+            ->add('peng_prof_alamat', 'Alamat', 'text', false, empty($data) ? '' : $data['peng_prof_alamat'], 'style="width:100%;"')
+            ->add('peng_kesehatan_usp', 'Kesehatan USP', 'text', false, empty($data) ? '' : $data['peng_kesehatan_usp'], 'style="width:100%;"')
+            ->add('peng_jumlah_anggota', 'Jumlah Anggota', 'number', false, empty($data) ? '' : $data['peng_jumlah_anggota'], 'style="width:100%;"')
+            ->add('peng_pelaksanaan_rat', 'Pelaksanaan RAT', 'text', false, empty($data) ? '' : $data['peng_pelaksanaan_rat'], 'style="width:100%;"')
+            ->add('peng_ketua', 'Pengurus Ketua', 'text', false, empty($data) ? '' : $data['peng_ketua'], 'style="width:100%;"')
+            ->add('peng_sekretaris', 'Pengurus Sekretaris', 'text', false, empty($data) ? '' : $data['peng_sekretaris'], 'style="width:100%;"')
+            ->add('peng_bendahara', 'Pengurus Bendahara', 'text', false, empty($data) ? '' : $data['peng_bendahara'], 'style="width:100%;"')
+            ->add('peng_pengawas_koor', 'Pengawas Koordinator', 'text', false, empty($data) ? '' : $data['peng_pengawas_koor'], 'style="width:100%;"')
+            ->add('peng_pengawas_anggota1', 'Pengawas Anggota 1', 'text', false, empty($data) ? '' : $data['peng_pengawas_anggota1'], 'style="width:100%;"')
+            ->add('peng_pengawas_anggota2', 'Pengawas Anggota 2', 'text', false, empty($data) ? '' : $data['peng_pengawas_anggota2'], 'style="width:100%;"')
+            ->add('peng_prof_jumlah_karyawan', 'Jumlah Karyawan', 'number', false, empty($data) ? '' : $data['peng_prof_jumlah_karyawan'], 'style="width:100%;"')
+            ->add('peng_usaha_dikelola_1', 'Usaha yang dikelola 1', 'text', false, empty($data) ? '' : $data['peng_usaha_dikelola_1'], 'style="width:100%;"')
+            ->add('peng_usaha_dikelola_2', 'Usaha yang dikelola 2', 'text', false, empty($data) ? '' : $data['peng_usaha_dikelola_2'], 'style="width:100%;"')
+            ->add('peng_prof_omset_per_bulan', 'Omset Usaha', 'number', false, empty($data) ? '' : $data['peng_prof_omset_per_bulan'], 'style="width:100%;"')
+            ->add('peng_prof_pendapatan_penjualan', 'Pendapatan Penjualan', 'number', false, empty($data) ? '' : $data['peng_prof_pendapatan_penjualan'], 'style="width:100%;"')
+            ->add('peng_prof_beban_penjualan', 'Beban Penjualan', 'number', false, empty($data) ? '' : $data['peng_prof_beban_penjualan'], 'style="width:100%;"')
+            ->add('peng_usaha_shu', 'SHU', 'number', false, empty($data) ? '' : $data['peng_usaha_shu'], 'style="width:100%;"')
 
-            ->add('peng_prof_modal_sendiri', 'Equitas / Modal Sendiri', 'number', true, empty($data) ? '' : $data['peng_prof_modal_sendiri'], 'style="width:100%;"')
-            ->add('peng_permodalan_kewajiban', 'Kewajiban', 'number', true, empty($data) ? '' : $data['peng_permodalan_kewajiban'], 'style="width:100%;"')
-            ->add('peng_permodalan_modal_kerja', 'Modal Kerja', 'number', true, empty($data) ? '' : $data['peng_permodalan_modal_kerja'], 'style="width:100%;"')
-            ->add('peng_prof_modal_luar', 'Modal Investasi', 'number', true, empty($data) ? '' : $data['peng_prof_modal_luar'], 'style="width:100%;"')
-            ->add('peng_permodalan_pinjaman_bank', 'Pinjaman Bank / lembaga lainnya', 'number', true, empty($data) ? '' : $data['peng_permodalan_pinjaman_bank'], 'style="width:100%;"');
+            ->add('peng_prof_modal_sendiri', 'Equitas / Modal Sendiri', 'number', false, empty($data) ? '' : $data['peng_prof_modal_sendiri'], 'style="width:100%;"')
+            ->add('peng_permodalan_kewajiban', 'Kewajiban', 'number', false, empty($data) ? '' : $data['peng_permodalan_kewajiban'], 'style="width:100%;"')
+            ->add('peng_permodalan_modal_kerja', 'Modal Kerja', 'number', false, empty($data) ? '' : $data['peng_permodalan_modal_kerja'], 'style="width:100%;"')
+            ->add('peng_prof_modal_luar', 'Modal Investasi', 'number', false, empty($data) ? '' : $data['peng_prof_modal_luar'], 'style="width:100%;"')
+            ->add('peng_permodalan_pinjaman_bank', 'Pinjaman Bank / lembaga lainnya', 'number', false, empty($data) ? '' : $data['peng_permodalan_pinjaman_bank'], 'style="width:100%;"');
 
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
@@ -1079,29 +1105,31 @@ class Pengajuan extends BaseController
         $form->set_attribute_form('class="form-horizontal"')
             ->set_template("admin/pengajuan/sf_step3_jenis1")
             ->set_resume($resume)
-            ->add('peng_sk_kepala_kelurahan', 'Kepala Kelurahan', 'text', true, empty($data) ? '' : $data['peng_sk_kepala_kelurahan'], 'style="width:100%;"')
-            ->add('peng_sk_kecamatan', 'Kecamatan', 'select', true, empty($data) ? '' : $data['peng_sk_kecamatan'], ' style="width:100%;"', array(
+            ->add('peng_uji_kel_no_ktp', 'NO. KTP', 'text', false, empty($data) ? '' : $data['peng_uji_kel_no_ktp'], 'style="width:100%;"')
+            ->add('peng_uji_kel_pekerjaan', 'Pekerjaan', 'text', false, empty($data) ? '' : $data['peng_uji_kel_pekerjaan'], 'style="width:100%;"')
+            ->add('peng_sk_kepala_kelurahan', 'Kepala Kelurahan', 'text', false, empty($data) ? '' : $data['peng_sk_kepala_kelurahan'], 'style="width:100%;"')
+            ->add('peng_sk_kecamatan', 'Kecamatan', 'select', false, empty($data) ? '' : $data['peng_sk_kecamatan'], ' style="width:100%;"', array(
                 'table' => 'ref_kecamatan',
                 'id' => 'ref_kec_id',
                 'label' => 'ref_kec_label',
             ))
-            ->add('peng_sk_kota', 'Kota', 'text', true, 'KEDIRI', 'style="width:100%;" readonly="readonly"')
-            ->add('peng_sk_tanah_luas', 'Luas Tanah (M2)', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_luas'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_desa', 'Di Desa / Kelurahan', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_desa'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_kecamatan', 'Kecamatan', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_kecamatan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_no_shm', 'No. SHM', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_no_shm'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_tanggal_shm', 'Tanggal SHM', 'date', true, empty($data) ? '' : $data['peng_sk_tanah_tanggal_shm'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_atas_nama', 'Atas Nama', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_atas_nama'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_harga_ru', 'Harga Tanah per - RU', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_harga_ru'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_harga_meter', 'Harga Tanah per meter', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_harga_meter'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_luas_bangunan', 'Luas Bangunan', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_luas_bangunan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_harga_bangunan', 'Harga Bangunan', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_harga_bangunan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_harga_bangunan', 'Harga Bangunan', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_harga_bangunan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_letak_utara', 'Letak Sebelah Utara', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_letak_utara'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_letak_selatan', 'Letak Sebelah Selatan', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_letak_selatan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_letak_timur', 'Letak Sebelah Timur', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_letak_timur'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_letak_barat', 'Letak Sebelah Barat', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_letak_barat'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_penggunaan', 'Penggunaan tanah saat ini', 'textArea', true, empty($data) ? '' : $data['peng_sk_tanah_penggunaan'], 'style="width:100%;" rows="5"');
+            ->add('peng_sk_kota', 'Kota', 'text', false, 'KEDIRI', 'style="width:100%;" readonly="readonly"')
+            ->add('peng_sk_tanah_luas', 'Luas Tanah (M2)', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_luas'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_desa', 'Di Desa / Kelurahan', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_desa'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_kecamatan', 'Kecamatan', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_kecamatan'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_no_shm', 'No. SHM', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_no_shm'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_tanggal_shm', 'Tanggal SHM', 'date', false, empty($data) ? '' : $data['peng_sk_tanah_tanggal_shm'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_atas_nama', 'Atas Nama', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_atas_nama'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_harga_ru', 'Harga Tanah per - RU', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_ru'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_harga_meter', 'Harga Tanah per meter', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_meter'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_luas_bangunan', 'Luas Bangunan', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_luas_bangunan'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_harga_bangunan', 'Harga Bangunan', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_bangunan'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_harga_bangunan', 'Harga Bangunan', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_bangunan'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_letak_utara', 'Letak Sebelah Utara', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_utara'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_letak_selatan', 'Letak Sebelah Selatan', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_selatan'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_letak_timur', 'Letak Sebelah Timur', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_timur'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_letak_barat', 'Letak Sebelah Barat', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_barat'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_penggunaan', 'Penggunaan tanah saat ini', 'textArea', false, empty($data) ? '' : $data['peng_sk_tanah_penggunaan'], 'style="width:100%;" rows="5"');
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
             $this->db->table("pengajuan")->where('peng_id', $id)->update($dataForm);
@@ -1157,16 +1185,16 @@ class Pengajuan extends BaseController
                 'id' => 'jns_jam_id',
                 'label' => 'jns_jam_label',
             ))
-            ->add('peng_jam_pemegang_ktp_no', 'Pemegang KTP No', 'text', true, empty($data) ? '' : $data['peng_jam_pemegang_ktp_no'], 'style="width:100%;"')
-            ->add('peng_jam_pekerjaan', 'Pekerjaan', 'text', true, empty($data) ? '' : $data['peng_jam_pekerjaan'], 'style="width:100%;"')
-            ->add('peng_jam_no_akta', 'Nomor Akta', 'text', true, empty($data) ? '' : $data['peng_jam_no_akta'], 'style="width:100%;"')
-            ->add('peng_jam_tempat', 'Tempat', 'text', true, empty($data) ? '' : $data['peng_jam_tempat'], 'style="width:100%;"')
-            ->add('peng_jam_atas_nama_tanah', 'Atas Nama', 'text', true, empty($data) ? '' : $data['peng_jam_atas_nama_tanah'], 'style="width:100%;"')
-            ->add('peng_jam_alamat_tanah', 'Alamat', 'text', true, empty($data) ? '' : $data['peng_jam_alamat_tanah'], 'style="width:100%;"');
+            ->add('peng_jam_pemegang_ktp_no', 'Pemegang KTP No', 'text', false, empty($data) ? '' : $data['peng_jam_pemegang_ktp_no'], 'style="width:100%;"')
+            ->add('peng_jam_pekerjaan', 'Pekerjaan', 'text', false, empty($data) ? '' : $data['peng_jam_pekerjaan'], 'style="width:100%;"')
+            ->add('peng_jam_no_akta', 'Nomor Akta', 'text', false, empty($data) ? '' : $data['peng_jam_no_akta'], 'style="width:100%;"')
+            ->add('peng_jam_tempat', 'Tempat', 'text', false, empty($data) ? '' : $data['peng_jam_tempat'], 'style="width:100%;"')
+            ->add('peng_jam_atas_nama_tanah', 'Atas Nama', 'text', false, empty($data) ? '' : $data['peng_jam_atas_nama_tanah'], 'style="width:100%;"')
+            ->add('peng_jam_alamat_tanah', 'Alamat', 'text', false, empty($data) ? '' : $data['peng_jam_alamat_tanah'], 'style="width:100%;"');
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
             $this->db->table("pengajuan")->where('peng_id', $id)->update($dataForm);
-            die(forceRedirect(base_url('/admin/pengajuan/detail/' . $id . '?step=4')));
+            die(forceRedirect(base_url('/admin/pengajuan/detail/' . $id . '?step=5')));
         } else {
             return $form->output();
         }
@@ -1188,18 +1216,18 @@ class Pengajuan extends BaseController
                 'id' => 'jns_jam_id',
                 'label' => 'jns_jam_label',
             ))
-            ->add('peng_jam_pemegang_ktp_no', 'Pemegang KTP No', 'text', true, empty($data) ? '' : $data['peng_jam_pemegang_ktp_no'], 'style="width:100%;"')
-            ->add('peng_jam_pekerjaan', 'Pekerjaan', 'text', true, empty($data) ? '' : $data['peng_jam_pekerjaan'], 'style="width:100%;"')
-            ->add('peng_jam_tahun_pembuatan', 'Tahun Pembuatan', 'text', true, empty($data) ? '' : $data['peng_jam_tahun_pembuatan'], 'style="width:100%;"')
-            ->add('peng_jam_nopol', 'Nomor Polisi', 'text', true, empty($data) ? '' : $data['peng_jam_nopol'], 'style="width:100%;"')
-            ->add('peng_jam_mesin', 'Nomor Mesin', 'text', true, empty($data) ? '' : $data['peng_jam_mesin'], 'style="width:100%;"')
-            ->add('peng_jam_rangka', 'Nomor Rangka', 'text', true, empty($data) ? '' : $data['peng_jam_rangka'], 'style="width:100%;"')
-            ->add('peng_jam_atas_nama', 'Atas Nama', 'text', true, empty($data) ? '' : $data['peng_jam_atas_nama'], 'style="width:100%;"')
-            ->add('peng_jam_alamat', 'Alamat', 'text', true, empty($data) ? '' : $data['peng_jam_alamat'], 'style="width:100%;"');
+            ->add('peng_jam_pemegang_ktp_no', 'Pemegang KTP No', 'text', false, empty($data) ? '' : $data['peng_jam_pemegang_ktp_no'], 'style="width:100%;"')
+            ->add('peng_jam_pekerjaan', 'Pekerjaan', 'text', false, empty($data) ? '' : $data['peng_jam_pekerjaan'], 'style="width:100%;"')
+            ->add('peng_jam_tahun_pembuatan', 'Tahun Pembuatan', 'text', false, empty($data) ? '' : $data['peng_jam_tahun_pembuatan'], 'style="width:100%;"')
+            ->add('peng_jam_nopol', 'Nomor Polisi', 'text', false, empty($data) ? '' : $data['peng_jam_nopol'], 'style="width:100%;"')
+            ->add('peng_jam_mesin', 'Nomor Mesin', 'text', false, empty($data) ? '' : $data['peng_jam_mesin'], 'style="width:100%;"')
+            ->add('peng_jam_rangka', 'Nomor Rangka', 'text', false, empty($data) ? '' : $data['peng_jam_rangka'], 'style="width:100%;"')
+            ->add('peng_jam_atas_nama', 'Atas Nama', 'text', false, empty($data) ? '' : $data['peng_jam_atas_nama'], 'style="width:100%;"')
+            ->add('peng_jam_alamat', 'Alamat', 'text', false, empty($data) ? '' : $data['peng_jam_alamat'], 'style="width:100%;"');
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
             $this->db->table("pengajuan")->where('peng_id', $id)->update($dataForm);
-            die(forceRedirect(base_url('/admin/pengajuan/detail/' . $id . '?step=4')));
+            die(forceRedirect(base_url('/admin/pengajuan/detail/' . $id . '?step=5')));
         } else {
             return $form->output();
         }
@@ -1248,25 +1276,30 @@ class Pengajuan extends BaseController
         $form->set_attribute_form('class="form-horizontal"')
             ->set_template("admin/pengajuan/sf_step4_jenis2")
             ->set_resume($resume)
-            ->add('peng_sk_kepala_kelurahan', 'Kepala Kelurahan', 'text', true, empty($data) ? '' : $data['peng_sk_kepala_kelurahan'], 'style="width:100%;"')
-            ->add('peng_sk_kecamatan', 'Kecamatan', 'text', true, empty($data) ? '' : $data['peng_sk_kecamatan'], 'style="width:100%;"')
-            ->add('peng_sk_kota', 'Kota', 'text', true, empty($data) ? '' : $data['peng_sk_kota'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_luas', 'Luas Tanah (M2)', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_luas'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_desa', 'Di Desa / Kelurahan', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_desa'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_kecamatan', 'Kecamatan', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_kecamatan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_no_shm', 'No. SHM', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_no_shm'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_tanggal_shm', 'Tanggal SHM', 'date', true, empty($data) ? '' : $data['peng_sk_tanah_tanggal_shm'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_atas_nama', 'Atas Nama', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_atas_nama'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_harga_ru', 'Harga Tanah per - RU', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_harga_ru'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_harga_meter', 'Harga Tanah per meter', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_harga_meter'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_luas_bangunan', 'Luas Bangunan', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_luas_bangunan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_harga_bangunan', 'Harga Bangunan', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_harga_bangunan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_harga_bangunan', 'Harga Bangunan', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_harga_bangunan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_letak_utara', 'Letak Sebelah Utara', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_letak_utara'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_letak_selatan', 'Letak Sebelah Selatan', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_letak_selatan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_letak_timur', 'Letak Sebelah Timur', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_letak_timur'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_letak_barat', 'Letak Sebelah Barat', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_letak_barat'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_penggunaan', 'Penggunaan tanah saat ini', 'textArea', true, empty($data) ? '' : $data['peng_sk_tanah_penggunaan'], 'style="width:100%;" rows="5"');
+            ->add('peng_sk_kepala_kelurahan', 'Kepala Kelurahan', 'text', false, empty($data) ? '' : $data['peng_sk_kepala_kelurahan'], 'style="width:100%;"')
+            ->add('peng_sk_kecamatan', 'Kecamatan', 'select', false, empty($data) ? '' : $data['peng_sk_kecamatan'], 'style="width:100%;"', array(
+                'table'=> 'ref_kecamatan',
+                'id'=> 'ref_kec_id',
+                'label'=> 'ref_kec_label'
+            ))
+            ->add('peng_sk_kota', 'Kota', 'text', false, empty($data) ? 'KEDIRI' : 'KEDIRI', 'style="width:100%;"')
+            // ->add('peng_sk_tanah_luas', 'Luas Tanah (M2)', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_luas'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_desa', 'Di Desa / Kelurahan', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_desa'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_kecamatan', 'Kecamatan', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_kecamatan'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_no_shm', 'No. SHM', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_no_shm'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_tanggal_shm', 'Tanggal SHM', 'date', false, empty($data) ? '' : $data['peng_sk_tanah_tanggal_shm'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_atas_nama', 'Atas Nama', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_atas_nama'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_harga_ru', 'Harga Tanah per - RU', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_ru'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_harga_meter', 'Harga Tanah per meter', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_meter'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_luas_bangunan', 'Luas Bangunan', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_luas_bangunan'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_harga_bangunan', 'Harga Bangunan', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_bangunan'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_harga_bangunan', 'Harga Bangunan', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_bangunan'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_letak_utara', 'Letak Sebelah Utara', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_utara'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_letak_selatan', 'Letak Sebelah Selatan', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_selatan'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_letak_timur', 'Letak Sebelah Timur', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_timur'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_letak_barat', 'Letak Sebelah Barat', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_barat'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_penggunaan', 'Penggunaan tanah saat ini', 'textArea', false, empty($data) ? '' : $data['peng_sk_tanah_penggunaan'], 'style="width:100%;" rows="5"')
+            ;
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
             $this->db->table("pengajuan")->where('peng_id', $id)->update($dataForm);
@@ -1287,25 +1320,29 @@ class Pengajuan extends BaseController
         $form->set_attribute_form('class="form-horizontal"')
             ->set_template("admin/pengajuan/sf_step4_jenis2")
             ->set_resume($resume)
-            ->add('peng_sk_kepala_kelurahan', 'Kepala Kelurahan', 'text', true, empty($data) ? '' : $data['peng_sk_kepala_kelurahan'], 'style="width:100%;"')
-            ->add('peng_sk_kecamatan', 'Kecamatan', 'text', true, empty($data) ? '' : $data['peng_sk_kecamatan'], 'style="width:100%;"')
-            ->add('peng_sk_kota', 'Kota', 'text', true, empty($data) ? '' : $data['peng_sk_kota'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_luas', 'Luas Tanah (M2)', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_luas'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_desa', 'Di Desa / Kelurahan', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_desa'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_kecamatan', 'Kecamatan', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_kecamatan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_no_shm', 'No. SHM', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_no_shm'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_tanggal_shm', 'Tanggal SHM', 'date', true, empty($data) ? '' : $data['peng_sk_tanah_tanggal_shm'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_atas_nama', 'Atas Nama', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_atas_nama'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_harga_ru', 'Harga Tanah per - RU', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_harga_ru'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_harga_meter', 'Harga Tanah per meter', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_harga_meter'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_luas_bangunan', 'Luas Bangunan', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_luas_bangunan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_harga_bangunan', 'Harga Bangunan', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_harga_bangunan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_harga_bangunan', 'Harga Bangunan', 'number', true, empty($data) ? '' : $data['peng_sk_tanah_harga_bangunan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_letak_utara', 'Letak Sebelah Utara', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_letak_utara'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_letak_selatan', 'Letak Sebelah Selatan', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_letak_selatan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_letak_timur', 'Letak Sebelah Timur', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_letak_timur'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_letak_barat', 'Letak Sebelah Barat', 'text', true, empty($data) ? '' : $data['peng_sk_tanah_letak_barat'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_penggunaan', 'Penggunaan tanah saat ini', 'textArea', true, empty($data) ? '' : $data['peng_sk_tanah_penggunaan'], 'style="width:100%;" rows="5"');
+            ->add('peng_sk_kepala_kelurahan', 'Kepala Kelurahan', 'text', false, empty($data) ? '' : $data['peng_sk_kepala_kelurahan'], 'style="width:100%;"')
+            ->add('peng_sk_kecamatan', 'Kecamatan', 'select', false, empty($data) ? '' : $data['peng_sk_kecamatan'], 'style="width:100%;"', array(
+                'table'=> 'ref_kecamatan',
+                'id'=> 'ref_kec_id',
+                'label'=> 'ref_kec_label'
+            ))
+            ->add('peng_sk_kota', 'Kota', 'text', false, empty($data) ? 'KEDIRI' : $data['peng_sk_kota'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_luas', 'Luas Tanah (M2)', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_luas'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_desa', 'Di Desa / Kelurahan', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_desa'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_kecamatan', 'Kecamatan', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_kecamatan'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_no_shm', 'No. SHM', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_no_shm'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_tanggal_shm', 'Tanggal SHM', 'date', false, empty($data) ? '' : $data['peng_sk_tanah_tanggal_shm'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_atas_nama', 'Atas Nama', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_atas_nama'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_harga_ru', 'Harga Tanah per - RU', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_ru'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_harga_meter', 'Harga Tanah per meter', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_meter'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_luas_bangunan', 'Luas Bangunan', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_luas_bangunan'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_harga_bangunan', 'Harga Bangunan', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_bangunan'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_harga_bangunan', 'Harga Bangunan', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_bangunan'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_letak_utara', 'Letak Sebelah Utara', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_utara'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_letak_selatan', 'Letak Sebelah Selatan', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_selatan'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_letak_timur', 'Letak Sebelah Timur', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_timur'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_letak_barat', 'Letak Sebelah Barat', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_barat'], 'style="width:100%;"')
+            ->add('peng_sk_tanah_penggunaan', 'Penggunaan tanah saat ini', 'textArea', false, empty($data) ? '' : $data['peng_sk_tanah_penggunaan'], 'style="width:100%;" rows="5"');
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
             $this->db->table("pengajuan")->where('peng_id', $id)->update($dataForm);
@@ -1456,7 +1493,7 @@ class Pengajuan extends BaseController
         $form = new Form();
         $form->set_attribute_form('class="form-horizontal" enctype="multipart/form-data"')
             ->set_resume(false)
-            ->add('foto', 'Foto Kegiatan Usaha', 'file', true, '', 'style="width:100%;" accept="image/*"');
+            ->add('foto', 'Foto Jaminan', 'file', true, '', 'style="width:100%;" accept="image/*"');
 
         if ($form->formVerified()) {
             $file = $this->request->getFile('foto');
@@ -1469,7 +1506,7 @@ class Pengajuan extends BaseController
                     $dataForm['peng_foto_file'] = $name;
                     $dataForm['peng_foto_created_at'] = date("Y-m-d H:i:s");
                     $dataForm['peng_foto_created_by'] = $this->user['user_id'];
-                    $dataForm['peng_foto_jenis'] = 1;
+                    $dataForm['peng_foto_jenis'] = 2;
                     $this->db->table("pengajuan_foto")->insert($dataForm);
                 }
             }
@@ -1500,21 +1537,21 @@ class Pengajuan extends BaseController
         $form->set_attribute_form('class="form-horizontal"')
             ->set_template("admin/pengajuan/sf_step7_jenis2", $data)
             ->set_resume($resume)
-            ->add('peng_srt_nama', 'Nama', 'text', true, empty($data) ? '' : $data['peng_srt_nama'], 'style="width:100%;"')
-            ->add('peng_srt_pekerjaan', 'Pekerjaan', 'text', true, empty($data) ? '' : $data['peng_srt_pekerjaan'], 'style="width:100%;"')
-            ->add('peng_srt_nama_usaha', 'Nama Usaha', 'text', true, empty($data) ? '' : $data['peng_srt_nama_usaha'], 'style="width:100%;"')
-            ->add('peng_srt_jenis_usaha', 'Jenis Usaha', 'select', true, empty($data) ? '' : $data['peng_srt_jenis_usaha'], ' style="width:100%;"', array(
+            ->add('peng_srt_nama', 'Nama', 'text', false, empty($data) ? '' : $data['peng_srt_nama'], 'style="width:100%;"')
+            ->add('peng_srt_pekerjaan', 'Pekerjaan', 'text', false, empty($data) ? '' : $data['peng_srt_pekerjaan'], 'style="width:100%;"')
+            ->add('peng_srt_nama_usaha', 'Nama Usaha', 'text', false, empty($data) ? '' : $data['peng_srt_nama_usaha'], 'style="width:100%;"')
+            ->add('peng_srt_jenis_usaha', 'Jenis Usaha', 'select', false, ($data['peng_srt_jenis_usaha']=='') ? $data['peng_bidang_usaha'] : $data['peng_srt_jenis_usaha'], ' style="width:100%;"', array(
                 'table' => 'ref_bidang_usaha',
                 'id' => 'ref_bidang_id',
                 'label' => 'ref_bidang_label'
             ))
-            ->add('peng_srt_alamat', 'Alamat', 'text', true, empty($data) ? '' : $data['peng_srt_alamat'], 'style="width:100%;"')
+            ->add('peng_srt_alamat', 'Alamat', 'text', false, empty($data) ? '' : $data['peng_srt_alamat'], 'style="width:100%;"')
 
-            ->add('peng_srt_jumlah_pinjaman', 'Jumlah Pinjaman', 'number', true, empty($data) ? '' : $data['peng_srt_jumlah_pinjaman'], 'style="width:100%;"')
-            ->add('peng_srt_modal_kerja', 'Modal Kerja', 'number', true, empty($data) ? '' : $data['peng_srt_modal_kerja'], 'style="width:100%;"')
-            ->add('peng_srt_investasi', 'Investasi', 'number', true, empty($data) ? '' : $data['peng_srt_investasi'], 'style="width:100%;"')
+            ->add('peng_srt_jumlah_pinjaman', 'Jumlah Pinjaman', 'number', false, ($data['peng_srt_jumlah_pinjaman']=='') ? $data['peng_nominal'] : $data['peng_srt_jumlah_pinjaman'], 'style="width:100%;"')
+            ->add('peng_srt_modal_kerja', 'Modal Kerja', 'number', false, empty($data) ? '' : $data['peng_srt_modal_kerja'], 'style="width:100%;"')
+            ->add('peng_srt_investasi', 'Investasi', 'number', false, empty($data) ? '' : $data['peng_srt_investasi'], 'style="width:100%;"')
             
-            ->add('peng_srt_pengambilan_waktu', 'Pengambilan Waktu', 'select_custom', true, empty($data) ? '' : $data['peng_srt_pengambilan_waktu'], 'style="width:100%;"', [
+            ->add('peng_srt_pengambilan_waktu', 'Pengambilan Waktu', 'select_custom', false, empty($data) ? '' : $data['peng_srt_pengambilan_waktu'], 'style="width:100%;"', [
                 'option'=> [
                     [
                         'id'=>1,
@@ -1566,17 +1603,17 @@ class Pengajuan extends BaseController
                     ]
                 ]
             ])
-            ->add('peng_srt_bunga', 'Bunga (2%)', 'number', true, empty($data) ? '' : $data['peng_srt_bunga'], 'style="width:100%;"')
+            ->add('peng_srt_bunga', 'Bunga (2%)', 'number', false, empty($data) ? '' : $data['peng_srt_bunga'], 'style="width:100%;"')
 
-            ->add('peng_srt_omset_penjualan_pokok', 'Omset Penjualan Pokok', 'number', true, empty($data) ? '' : $data['peng_srt_omset_penjualan_pokok'], 'style="width:100%;"')
-            ->add('peng_srt_pendapatan_lain', 'Pendapatan Lain-Lain', 'number', true, empty($data) ? '' : $data['peng_srt_pendapatan_lain'], 'style="width:100%;"')
+            ->add('peng_srt_omset_penjualan_pokok', 'Omset Penjualan Pokok', 'number', false, empty($data) ? '' : $data['peng_srt_omset_penjualan_pokok'], 'style="width:100%;"')
+            ->add('peng_srt_pendapatan_lain', 'Pendapatan Lain-Lain', 'number', false, empty($data) ? '' : $data['peng_srt_pendapatan_lain'], 'style="width:100%;"')
 
-            ->add('peng_srt_harga_pokok_penjualan', 'Harga Pokok Penjualan', 'number', true, empty($data) ? '' : $data['peng_srt_harga_pokok_penjualan'], 'style="width:100%;"')
-            ->add('peng_srt_beban_bunga', 'Beban Bunga', 'number', true, empty($data) ? '' : $data['peng_srt_beban_bunga'], 'style="width:100%;"')
-            ->add('peng_srt_beban_usaha', 'Beban Usaha', 'number', true, empty($data) ? '' : $data['peng_srt_beban_usaha'], 'style="width:100%;"')
-            ->add('peng_srt_beban_non_usaha', 'Beban Non Usaha', 'number', true, empty($data) ? '' : $data['peng_srt_beban_non_usaha'], 'style="width:100%;"')
+            ->add('peng_srt_harga_pokok_penjualan', 'Harga Pokok Penjualan', 'number', false, empty($data) ? '' : $data['peng_srt_harga_pokok_penjualan'], 'style="width:100%;"')
+            ->add('peng_srt_beban_bunga', 'Beban Bunga', 'number', false, empty($data) ? '' : $data['peng_srt_beban_bunga'], 'style="width:100%;"')
+            ->add('peng_srt_beban_usaha', 'Beban Usaha', 'number', false, empty($data) ? '' : $data['peng_srt_beban_usaha'], 'style="width:100%;"')
+            ->add('peng_srt_beban_non_usaha', 'Beban Non Usaha', 'number', false, empty($data) ? '' : $data['peng_srt_beban_non_usaha'], 'style="width:100%;"')
 
-            ->add('peng_srt_laba', 'Laba', 'number', true, empty($data) ? '' : $data['peng_srt_laba'], 'style="width:100%;"')
+            ->add('peng_srt_laba', 'Laba', 'number', false, empty($data) ? '' : $data['peng_srt_laba'], 'style="width:100%;"')
 
             ;
         if ($form->formVerified()) {
@@ -1599,10 +1636,10 @@ class Pengajuan extends BaseController
         $form->set_attribute_form('class="form-horizontal"')
             ->set_template("admin/pengajuan/sf_step7_jenis3", $data)
             ->set_resume($resume)
-            ->add('peng_srt_jumlah_pinjaman', 'Jumlah Pinjaman', 'number', true, empty($data) ? '' : $data['peng_srt_jumlah_pinjaman'], 'style="width:100%;"')
-            ->add('peng_srt_modal_kerja', 'Modal Kerja', 'number', true, empty($data) ? '' : $data['peng_srt_modal_kerja'], 'style="width:100%;"')
-            ->add('peng_srt_investasi', 'Investasi', 'number', true, empty($data) ? '' : $data['peng_srt_investasi'], 'style="width:100%;"')
-            ->add('peng_srt_pengambilan_waktu', 'Pengambilan Waktu', 'select_custom', true, empty($data) ? '' : $data['peng_srt_pengambilan_waktu'], 'style="width:100%;"', [
+            ->add('peng_srt_jumlah_pinjaman', 'Jumlah Pinjaman', 'number', false, ($data['peng_srt_jumlah_pinjaman']=='') ? $data['peng_nominal'] : $data['peng_srt_jumlah_pinjaman'], 'style="width:100%;"')
+            ->add('peng_srt_modal_kerja', 'Modal Kerja', 'number', false, empty($data) ? '' : $data['peng_srt_modal_kerja'], 'style="width:100%;"')
+            ->add('peng_srt_investasi', 'Investasi', 'number', false, empty($data) ? '' : $data['peng_srt_investasi'], 'style="width:100%;"')
+            ->add('peng_srt_pengambilan_waktu', 'Pengambilan Waktu', 'select_custom', false, empty($data) ? '' : $data['peng_srt_pengambilan_waktu'], 'style="width:100%;"', [
                 'option'=> [
                     [
                         'id'=>1,
@@ -1654,24 +1691,24 @@ class Pengajuan extends BaseController
                     ]
                 ]
             ])
-            ->add('peng_srt_bunga', 'Bunga (4%)', 'number', true, empty($data) ? '' : $data['peng_srt_bunga'], 'style="width:100%;"')
-            ->add('peng_srt_omset_penjualan_pokok', 'Omset Penjualan Pokok', 'number', true, empty($data) ? '' : $data['peng_srt_omset_penjualan_pokok'], 'style="width:100%;"')
-            ->add('peng_srt_pendapatan_lain', 'Pendapatan Lain-Lain', 'number', true, empty($data) ? '' : $data['peng_srt_pendapatan_lain'], 'style="width:100%;"')
-            ->add('peng_srt_harga_pokok_penjualan', 'Harga Pokok Penjualan', 'number', true, empty($data) ? '' : $data['peng_srt_harga_pokok_penjualan'], 'style="width:100%;"')
-            ->add('peng_srt_beban_bunga', 'Beban Bunga', 'number', true, empty($data) ? '' : $data['peng_srt_beban_bunga'], 'style="width:100%;"')
-            ->add('peng_srt_beban_usaha', 'Beban Usaha', 'number', true, empty($data) ? '' : $data['peng_srt_beban_usaha'], 'style="width:100%;"')
-            ->add('peng_srt_beban_non_usaha', 'Beban Non Usaha', 'number', true, empty($data) ? '' : $data['peng_srt_beban_non_usaha'], 'style="width:100%;"')
-            ->add('peng_srt_laba', 'Laba', 'number', true, empty($data) ? '' : $data['peng_srt_laba'], 'style="width:100%;"')
+            ->add('peng_srt_bunga', 'Bunga (4%)', 'number', false, empty($data) ? '' : $data['peng_srt_bunga'], 'style="width:100%;"')
+            ->add('peng_srt_omset_penjualan_pokok', 'Omset Penjualan Pokok', 'number', false, empty($data) ? '' : $data['peng_srt_omset_penjualan_pokok'], 'style="width:100%;"')
+            ->add('peng_srt_pendapatan_lain', 'Pendapatan Lain-Lain', 'number', false, empty($data) ? '' : $data['peng_srt_pendapatan_lain'], 'style="width:100%;"')
+            ->add('peng_srt_harga_pokok_penjualan', 'Harga Pokok Penjualan', 'number', false, empty($data) ? '' : $data['peng_srt_harga_pokok_penjualan'], 'style="width:100%;"')
+            ->add('peng_srt_beban_bunga', 'Beban Bunga', 'number', false, empty($data) ? '' : $data['peng_srt_beban_bunga'], 'style="width:100%;"')
+            ->add('peng_srt_beban_usaha', 'Beban Usaha', 'number', false, empty($data) ? '' : $data['peng_srt_beban_usaha'], 'style="width:100%;"')
+            ->add('peng_srt_beban_non_usaha', 'Beban Non Usaha', 'number', false, empty($data) ? '' : $data['peng_srt_beban_non_usaha'], 'style="width:100%;"')
+            ->add('peng_srt_laba', 'Laba', 'number', false, empty($data) ? '' : $data['peng_srt_laba'], 'style="width:100%;"')
 
-            ->add('peng_manf_meningkatkan_penjualan', 'Meningkatkan penjualan & pendapatan', 'number', true, empty($data) ? '' : $data['peng_manf_meningkatkan_penjualan'], 'style="width:100%;"')
-            ->add('peng_manf_menambah_modal', 'Menambah permodalan', 'number', true, empty($data) ? '' : $data['peng_manf_menambah_modal'], 'style="width:100%;"')
-            ->add('peng_manf_peningkatan_omset', 'Peningkatan Omset', 'number', true, empty($data) ? '' : $data['peng_manf_peningkatan_omset'], 'style="width:100%;"')
-            ->add('peng_manf_peningkatan_shu', 'Peningkatan SHU', 'number', true, empty($data) ? '' : $data['peng_manf_peningkatan_shu'], 'style="width:100%;"')
-            ->add('peng_manf_peningkatan_asset', 'Peningkatan Asset', 'number', true, empty($data) ? '' : $data['peng_manf_peningkatan_asset'], 'style="width:100%;"');
+            ->add('peng_manf_meningkatkan_penjualan', 'Meningkatkan penjualan & pendapatan', 'number', false, empty($data) ? '' : $data['peng_manf_meningkatkan_penjualan'], 'style="width:100%;"')
+            ->add('peng_manf_menambah_modal', 'Menambah permodalan', 'number', false, empty($data) ? '' : $data['peng_manf_menambah_modal'], 'style="width:100%;"')
+            ->add('peng_manf_peningkatan_omset', 'Peningkatan Omset', 'number', false, empty($data) ? '' : $data['peng_manf_peningkatan_omset'], 'style="width:100%;"')
+            ->add('peng_manf_peningkatan_shu', 'Peningkatan SHU', 'number', false, empty($data) ? '' : $data['peng_manf_peningkatan_shu'], 'style="width:100%;"')
+            ->add('peng_manf_peningkatan_asset', 'Peningkatan Asset', 'number', false, empty($data) ? '' : $data['peng_manf_peningkatan_asset'], 'style="width:100%;"');
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
             $this->db->table("pengajuan")->where('peng_id', $id)->update($dataForm);
-            die(forceRedirect(base_url('/admin/pengajuan/detail/' . $id . '?step=8')));
+            die(forceRedirect(base_url('/admin/pengajuan/detail/' . $id . '?step=7')));
         } else {
             return $form->output();
         }

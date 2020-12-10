@@ -371,7 +371,11 @@ class Form{
 
         foreach($this->fields as $key => $value){
             if($value['type']!='file'){
-                $data[$key] = html_entity_decode($method[$key]);
+                if(isset($method[$key])){
+                    if($method[$key]!=''){
+                        $data[$key] = html_entity_decode($method[$key]);
+                    }
+                }
             }
         }
         return $data;

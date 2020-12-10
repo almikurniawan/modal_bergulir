@@ -5,16 +5,6 @@ $uri = service('uri');
 <hr/>
 <div class="row">
     <div class="form-group col-sm-6">
-        <label class="<?= $field['peng_uji_kel_no_ktp']['class'] ?>"><?= $field['peng_uji_kel_no_ktp']['title'] ?></label>
-        <?= $field['peng_uji_kel_no_ktp']['field'] ?>
-    </div>
-    <div class="form-group col-sm-6">
-        <label class="<?= $field['peng_uji_kel_pekerjaan']['class'] ?>"><?= $field['peng_uji_kel_pekerjaan']['title'] ?></label>
-        <?= $field['peng_uji_kel_pekerjaan']['field'] ?>
-    </div>
-</div>
-<!-- <div class="row">
-    <div class="form-group col-sm-6">
         <label class="<?= $field['peng_sk_kepala_kelurahan']['class'] ?>"><?= $field['peng_sk_kepala_kelurahan']['title'] ?></label>
         <?= $field['peng_sk_kepala_kelurahan']['field'] ?>
     </div>
@@ -30,7 +20,7 @@ $uri = service('uri');
     </div>
 </div>
 
-<h5 class="mt-3">1. Tanah</h5>
+<!-- <h5 class="mt-3">1. Tanah</h5>
 <hr/>
 <div class="row">
     <div class="form-group col-sm-6">
@@ -118,7 +108,7 @@ $uri = service('uri');
         <?= $field['peng_sk_tanah_penggunaan']['field'] ?>
     </div>
 </div> -->
-<?= $submit_btn . $cancel_btn ?> <a href="<?= base_url("admin/pengajuan/lock/".$uri->getSegment(4))?>" class="btn btn-success btn-raised float-right"><i class="k-icon k-i-lock"></i> Kunci Pengajuan</a>
+<?= $submit_btn . $cancel_btn ?>
 <script type="text/javascript">
     function cancel_filter() {
         <?= $cancel_action ?>

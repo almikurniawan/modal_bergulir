@@ -109,7 +109,7 @@ class Survey extends BaseController
             ['member_nama_lengkap',$this->request->getGet('member')],
             ['peng_tanggal',$this->request->getGet('tanggal'),'='],
             ['peng_verif_is','true','is'],
-            ['peng_surv_is','false','is']
+            ['peng_surv_is','not true','is']
         );
 
         $grid = new Grid();
@@ -197,6 +197,8 @@ class Survey extends BaseController
         $data = $this->db->table("survey")->getWhere(['survey_id'=> $surv_id])->getRowArray();
         $form = new Form();
         $form->set_attribute_form('class="form-horizontal"')
+            ->set_template_column(2)
+            ->add('survey_nomor_lengkap', 'Nomor Surat', 'text', true, !empty($data) ? $data['survey_nomor_lengkap'] : '', 'style="width:100%;"')
             ->add('survey_dasar', 'Dasar', 'text', true, !empty($data) ? $data['survey_dasar'] : '', 'style="width:100%;"')
             ->add('survey_untuk', 'Untuk', 'text', true, !empty($data) ? $data['survey_untuk'] : '', 'style="width:100%;"')
             ->add('survey_keterangan', 'Keterangan', 'textArea', true, !empty($data) ? $data['survey_keterangan'] : '', 'style="width:100%;"')

@@ -32,6 +32,7 @@ class CetakBI extends BaseController
 
     public function html_jadwal($survey_id)
     {
+        $survey_jadwal = $this->db->table("survey")->getWhere(['survey_id'=> $survey_id])->getRowArray();
         $pengajuan = $this->db->query("SELECT
                                             peng_prof_nama_usaha,
                                             peng_prof_alamat,
@@ -100,7 +101,7 @@ class CetakBI extends BaseController
         <tr>
         <td style="width: 20%;">Nomor</td>
         <td style="width: 1.94932%;">:</td>
-        <td style="width: 38.0507%;">518 /&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;/ 419.106 / 2019</td>
+        <td style="width: 38.0507%;">'.$survey_jadwal['survey_nomor_lengkap'].'</td>
         <td style="width: 8.10916%;">Yth.</td>
         <td style="width: 31.8909%;">Sdr. Direktur Utama PD. Bank</td>
         </tr>
@@ -198,15 +199,15 @@ class CetakBI extends BaseController
         <td style="width: 50%; height: 61px;">&nbsp;</td>
         </tr>
         <tr style="height: 18px;">
-        <td style="width: 50%; height: 18px; text-align: center;"><span style="text-decoration: underline;"><strong>Drs. KRISTIANTO</strong></span></td>
+        <td style="width: 50%; height: 18px; text-align: center;"><span style="text-decoration: underline;"><strong>BAMBANG PRIAMBODO, SH., MM</strong></span></td>
         <td style="width: 50%; height: 18px; text-align: center;"><span style="text-decoration: underline;"><strong>PATRYA HADIWIJAYA, SH</strong></span></td>
         </tr>
         <tr style="height: 18px;">
-        <td style="width: 50%; height: 18px; text-align: center;">Pembina Utama Muda</td>
+        <td style="width: 50%; height: 18px; text-align: center;">Pembina Tingkat I</td>
         <td style="width: 50%; height: 18px; text-align: center;">Penata Muda</td>
         </tr>
         <tr style="height: 18px;">
-        <td style="width: 50%; height: 18px; text-align: center;">NIP .196003011990 3 1 012</td>
+        <td style="width: 50%; height: 18px; text-align: center;">NIP .19670327 200112 1 001</td>
         <td style="width: 50%; height: 18px; text-align: center;">NIP. 19820915 200312 1 004</td>
         </tr>
         </tbody>

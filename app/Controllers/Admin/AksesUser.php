@@ -59,7 +59,8 @@ class AksesUser extends BaseController
                 )
             )
             ->set_toolbar(function($toolbar){
-                $toolbar->addHtml('<a href="" class="btn">Tambah User Bos</a>')
+                $toolbar
+                // ->addHtml('<a href="" class="btn">Tambah User Bos</a>')
                 ->add('add', ['label'=>'Tambah User', 'url'=> base_url("admin/aksesUser/add")])
                 ->add('download');
             })

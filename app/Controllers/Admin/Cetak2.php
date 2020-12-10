@@ -287,13 +287,13 @@ class Cetak2 extends BaseController
 						<td width="5%"></td>
 						<td width="5%">2.</td>
 						<td width="30%">Beban penjualan</td>
-						<td width="40%">: ' . ($data['peng_prof_beban_penjualan'] ? $data['peng_prof_beban_penjualan'] : '') . '</td>
+						<td width="40%">: Rp. ' . ($data['peng_prof_beban_penjualan'] ? number_format($data['peng_prof_beban_penjualan'], 2, ",", ".")  : '') . '</td>
 					</tr>
 					<tr>
 						<td width="5%"></td>
 						<td width="5%">3.</td>
 						<td width="30%">Laba per bulan</td>
-						<td width="40%">: ' . ($data['peng_prof_laba_per_bulan'] ? $data['peng_prof_laba_per_bulan'] : '') . '</td>
+						<td width="40%">: Rp. ' . ($data['peng_prof_laba_per_bulan'] ? number_format($data['peng_prof_laba_per_bulan'], 2, ",", ".") : '') . '</td>
 					</tr>
 					<tr>
 						<td width="10%"></td>
@@ -1136,8 +1136,8 @@ class Cetak2 extends BaseController
 		$pdf->addPage();
 		$pdf->writeHTML($this->profil8_($id), true, false, true, false, '');
 		
-		$pdf->addPage();
-		$pdf->writeHTML($this->profil6($id), true, false, true, false, '');
+		// $pdf->addPage();
+		// $pdf->writeHTML($this->profil6($id), true, false, true, false, '');
 
 		$pdf->addPage();
 		$pdf->writeHTML($this->profil7($id), true, false, true, false, '');

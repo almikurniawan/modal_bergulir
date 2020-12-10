@@ -25,7 +25,7 @@ class Pembayaran extends BaseController
                 *,
                 survey_tem_id as id,
                 '<a href=\"" . base_url('admin/pembayaran/form') . "/'||peng_id||'\" class=\"btn btn-primary bmd-btn-fab-sm bmd-btn-fab\" title=\"Lihat\"><i class=\"k-icon k-i-preview m-2\"></i> </a>' as lihat,
-                case when survey_hasil_approve_is is true then '<span class=\"badge badge-success\">Approved</span>' when survey_hasil_reject_is is true then '<span class=\"badge badge-danger\">Rejected</span>' else '<span class=\"badge badge-warning\">belum</span>' end as status
+                case when peng_disetujui_nominal is not null then '<span class=\"badge badge-success\">Disetujui</span>' else '<span class=\"badge badge-warning\">belum</span>' end as status
                 from survey_tempat
                 left join survey_hasil on survey_tem_head_id = survey_hasil_survey_id and survey_tem_peng_id = survey_hasil_peng_id and survey_hasil_lock_is is true
                 left join pengajuan on peng_id = survey_tem_peng_id
@@ -63,8 +63,8 @@ class Pembayaran extends BaseController
                             'align' => 'right'
                         ),
                         array(
-                            'field' => 'peng_nominal',
-                            'title' => 'Jumlah Pinjaman',
+                            'field' => 'peng_disetujui_nominal',
+                            'title' => 'Pinjaman Disetujui',
                             'format' => 'number',
                             'align' => 'right'
                         ),
