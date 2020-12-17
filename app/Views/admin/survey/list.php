@@ -33,11 +33,15 @@
         $(':checkbox:checked').each(function(i) {
             peng_id.push($(this).val());
         });
-        if(peng_id.length>0){
-            window.location.href= '<?= base_url('admin/survey/proses') ?>' + '?id=' + peng_id;
-        }else{
+        if (peng_id.length > 0) {
+            window.location.href = '<?= base_url('admin/survey/proses') ?>' + '?id=' + peng_id;
+        } else {
             kendo.alert("Silahkan Pilih Pengajuan yang ingin di survey");
         }
+    }
+
+    function upload_cetak(id) {
+        showForm(1000, 600, '_newpop', '<?= base_url('admin/survey/upload_cetakan') ?>/' + id);
     }
 </script>
 <?= $this->endSection() ?>

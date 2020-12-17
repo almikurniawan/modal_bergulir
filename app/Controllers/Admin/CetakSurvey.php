@@ -223,16 +223,16 @@ class CetakSurvey extends BaseController
         </tr>
         <tr>
         <td style="width: 50%;">&nbsp;</td>
-        <td style="width: 50%; text-align: center;"><u>Drs.KRISTIANTO</u></td>
+        <td style="width: 50%; text-align: center;"><u>BAMBANG PRIAMBODO, SH., MM</u></td>
         </tr>
         <tr>
         <td style="width: 50%;">&nbsp;</td>
-        <td style="width: 50%; text-align: center;">Pembina Utama Muda
+        <td style="width: 50%; text-align: center;">Pembina Tingkat I
         </td>
         </tr>
         <tr>
         <td style="width: 50%;">&nbsp;</td>
-        <td style="width: 50%; text-align: center;">NIP.19600301 199003 2 012
+        <td style="width: 50%; text-align: center;">NIP.19670327 200112 1 001
         </td>
         </tr>
         </tbody>

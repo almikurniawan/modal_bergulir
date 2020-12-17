@@ -95,8 +95,8 @@ $columns = preg_replace($re, '"template":kendo.template$1,', $columns);
     grid_<?= $grid_name?> = $("#grid_<?= $grid_name?>").kendoGrid({
         dataSource: ds_<?= $datasouce_name?>,
         // height: "<?= $grid_height?>",
+        scrollable : false,
         groupable: false,
-        scrollable : <?= $scrollable?>,
         toolbar: '<?= $toolbarComponent . $toolbarHtml?>',
         sortable: {
             mode: "multiple",

@@ -207,6 +207,7 @@ class AccSurvey extends BaseController
             'survey_hasil_reject_at' => 'now()',
             'survey_hasil_reject_by' => $this->user['user_id'],
             'survey_hasil_approve_is' => 'false',
+            'survey_hasil_lock_is'=> 'false'
         ]);
         return $this->response->setJSON([
             'status'=>true,

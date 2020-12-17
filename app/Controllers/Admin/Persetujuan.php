@@ -15,8 +15,10 @@ class Persetujuan extends BaseController
         $data['search'] = '';
         $data['title']  = 'Persetujuan';
         $data['url_delete']  = '';
+        $data['url_buka_kunci']  = base_url('admin/persetujuan/bukaKunci');
+        $data['url_kunci']  = base_url('admin/persetujuan/kunci');
 
-        return view('global/list', $data);
+        return view('admin/persetujuan/list', $data);
     }
 
     public function grid_persetujuan()
@@ -24,8 +26,14 @@ class Persetujuan extends BaseController
         $SQL = "SELECT
                 *,
                 survey_tem_id as id,
-                '<a href=\"" . base_url('admin/CetakSPPK/index') . "/'||peng_id||'\" target=\"_new\" class=\"btn btn-primary btn-raised\" title=\"Lihat\">Cetak </a> <a href=\"" . base_url('admin/persetujuan/form') . "/'||peng_id||'\" class=\"btn btn-primary bmd-btn-fab-sm bmd-btn-fab\" title=\"Lihat\"><i class=\"k-icon k-i-preview m-2\"></i> </a>' as lihat,
-                case when peng_disetujui_nominal is not null then '<span class=\"badge badge-success\">Disetujui</span>' else '<span class=\"badge badge-warning\">belum</span>' end as status
+                '<a href=\"" . base_url('admin/CetakSPPK/index') . "/'||peng_id||'\" target=\"_new\" class=\"btn btn-primary btn-raised\" title=\"Lihat\">Cetak SPPK</a> 
+                <button onclick=\"upload_cetak('||peng_id||')\" class=\"btn btn-success bmd-btn-fab-sm bmd-btn-fab\" title=\"Upload\"><i class=\"k-icon k-i-upload\"></i> </button>
+                <a href=\"" . base_url('admin/CetakAngsuran/cetak') . "/'||peng_id||'\" target=\"_new\" class=\"btn btn-primary btn-raised\" title=\"Lihat\">Cetak Angsuran</a> 
+                <a href=\"" . base_url('admin/persetujuan/form') . "/'||peng_id||'\" class=\"btn btn-primary bmd-btn-fab-sm bmd-btn-fab\" title=\"Lihat\"><i class=\"k-icon k-i-preview m-2\"></i> </a>' as lihat,
+                case when peng_disetujui_nominal is not null then '<span class=\"badge badge-success\">Disetujui</span>' when peng_disetujui_kunci_is is true then '<span class=\"badge badge-success\">Terkunci</span>' when peng_disetujui_kunci_is is false then '<span class=\"badge badge-danger\">Belum dikunci</span>' end as status,
+                case 
+                when peng_disetujui_kunci_is is true then '<button onclick=\"persetujuan_buka_kunci('||peng_id||')\" class=\"btn btn-danger bmd-btn-fab-sm bmd-btn-fab\" title=\"Buka Kunci\"><i class=\"k-icon k-i-unlock\"></i> </button>'
+                else '<button onclick=\"persetujuan_kunci('||peng_id||')\" class=\"btn btn-success bmd-btn-fab-sm bmd-btn-fab\" title=\"Kunci\"><i class=\"k-icon k-i-lock\"></i> </button>' end as kunci
                 from survey_tempat
                 left join survey_hasil on survey_tem_head_id = survey_hasil_survey_id and survey_tem_peng_id = survey_hasil_peng_id and survey_hasil_lock_is is true
                 left join pengajuan on peng_id = survey_tem_peng_id
@@ -69,6 +77,12 @@ class Persetujuan extends BaseController
                             'align' => 'right'
                         ),
                         array(
+                            'field' => 'kunci',
+                            'title' => 'Kunci/Buka Kunci',
+                            'encoded' => false,
+                            'width' => 200
+                        ),
+                        array(
                             'field' => 'status',
                             'title' => 'Status',
                             'encoded' => false,
@@ -78,7 +92,7 @@ class Persetujuan extends BaseController
                             'field' => 'lihat',
                             'title' => ' ',
                             'encoded' => false,
-                            'width' => 200
+                            'width' => 250
                         ),
                     ),
                     // "action"    => $action,
@@ -93,6 +107,8 @@ class Persetujuan extends BaseController
         $data = $this->db->table('pengajuan')->select('*')->getWhere(['peng_id' => $peng_id])->getRowArray();
         $data['form']   = $this->form_pengajuan($peng_id);
 
+        $data['form']   .= $this->grid_angsuran($peng_id);
+
         $data['url_back']   = base_url("admin/persetujuan");
         $data['title']  = 'Persetujuan <b>' . strtoupper($data['peng_prof_nama_usaha']) . '</b>';
         return view('global/form', $data);
@@ -103,17 +119,35 @@ class Persetujuan extends BaseController
 
         $data = $this->db->table("pengajuan")->getWhere(['peng_id' => $peng_id])->getRowArray();
         $form = new Form();
-        $form->set_attribute_form('class="form-horizontal"')->set_resume(true)->set_template_column(2)
-            ->add('peng_nominal', 'Pengajuan Nominal', 'number', false, !empty($data) ? $data['peng_nominal'] : '', 'style="width:100%;"')->set_resume(false)
+        $form->set_attribute_form('class="form-horizontal"')
+            ->set_resume(true)
+            ->set_template_column(2)
+            ->add('peng_nominal', 'Pengajuan Nominal', 'number', false, !empty($data) ? $data['peng_nominal'] : '', 'style="width:100%;"')->set_resume($data['peng_disetujui_kunci_is'] == "t" ? true : false)
             ->add('peng_disetujui_no_penetapan', 'Nomor Penetapan', 'text', true, !empty($data) ? $data['peng_disetujui_no_penetapan'] : '', 'style="width:100%;"')
-            ->add('peng_disetujui_nominal', 'Nominal Disetujui', 'number', false, ($data['peng_disetujui_nominal']!='') ? $data['peng_disetujui_nominal'] : $data['peng_nominal'], 'style="width:100%;"')
-            ->add('peng_disetujui_cicilan', 'Cicilan', 'number', false, !empty($data) ? $data['peng_disetujui_cicilan'] : '', 'style="width:100%;"')
-            ->add('peng_disetujui_jangka_waktu_bln', 'Jangka waktu Bulan', 'number', false, !empty($data) ? $data['peng_disetujui_jangka_waktu_bln'] : '', 'style="width:100%;"')
+            ->add('peng_disetujui_nominal', 'Nominal Disetujui', 'number', false, ($data['peng_disetujui_nominal'] != '') ? $data['peng_disetujui_nominal'] : $data['peng_nominal'], 'style="width:100%;"')
+            // ->add('peng_disetujui_cicilan', 'Cicilan', 'number', false, !empty($data) ? $data['peng_disetujui_cicilan'] : '', 'style="width:100%;"')
+            // ->add('peng_disetujui_jangka_waktu_bln', 'Jangka waktu Bulan', 'number', false, !empty($data) ? $data['peng_disetujui_jangka_waktu_bln'] : '', 'style="width:100%;"')
+            ->add('peng_disetujui_jangka_waktu_bln', 'Pengambilan Waktu', 'select_custom', false, ($data['peng_disetujui_jangka_waktu_bln'] == '') ? 36 : $data['peng_disetujui_jangka_waktu_bln'], 'style="width:100%;" readonly', [
+                'option' => [
+                    [
+                        'id' => 36,
+                        'label' => '3 Tahun'
+                    ],
+                ]
+            ])
             ->add('peng_disetujui_jangka_waktu_text', 'Jangka waktu keternangan', 'text', false, !empty($data) ? $data['peng_disetujui_jangka_waktu_text'] : '', 'style="width:100%;"')
+            ->add('peng_disetujui_bank', 'Bank Pelaksana', 'select', true, !empty($data) ? $data['peng_disetujui_bank'] : '', ' style="width:100%;"', array(
+                'table' => 'ref_bank',
+                'id' => 'ref_bank_id',
+                'label' => 'ref_bank_label',
+            ))
             ->add('peng_disetujui_tanggal_penetapan', 'Tanggal penetapan', 'date', true, !empty($data) ? $data['peng_disetujui_tanggal_penetapan'] : '', 'style="width:100%;"')
             ->add('peng_disetujui_tanggal_jatuh_tempo', 'Tanggal Jatuh Tempo', 'date', true, !empty($data) ? $data['peng_disetujui_tanggal_jatuh_tempo'] : '', 'style="width:100%;"');
 
         if ($form->formVerified()) {
+            $nominal = (float)$data['peng_disetujui_nominal'];
+            $cicilan  = (float)($nominal / 33);
+            $dataForm['peng_disetujui_cicilan'] = $cicilan;
             $dataForm = $form->get_data();
             unset($dataForm['peng_nominal']);
             $dataForm['peng_disetujui_created_at'] = 'now()';
@@ -121,18 +155,197 @@ class Persetujuan extends BaseController
             if (!empty($data)) {
                 $this->db->table("pengajuan")->where('peng_id', $peng_id)->update($dataForm);
                 $this->db->table("pembayaran")->where('pembayaran_peng_id', $peng_id)->delete();
-                for ($i = 0; $i < $this->request->getPost('peng_disetujui_jangka_waktu_bln'); $i++) {
+                $bunga = !empty($data['peng_srt_bunga']) ? $data['peng_srt_bunga'] : 2;
+                $bulan = $this->request->getPost('peng_disetujui_jangka_waktu_bln');
+                // die($cicilan);
+                for ($i = 0; $i < $bulan; $i++) {
+                    // if ( $i == 12 || $i == 24) {
+                    //     $sisa = (float)$nominal - (($i + 1) * $cicilan);
+                    // } else {
+                    //     $sisa = (float)$nominal - ($i * $cicilan);
+                    // }
                     $jatuh_tempo = $this->request->getPost('peng_disetujui_tanggal_jatuh_tempo');
                     $date = date("Y-m-d", strtotime($i . " month", strtotime($jatuh_tempo)));
-                    $this->db->table("pembayaran")->insert([
-                        'pembayaran_peng_id' => $peng_id,
-                        'pembayaran_tanggal' => $date,
-                        'pembayaran_ke' => $i + 1,
-                        'pembayaran_cicilan' => $this->request->getPost('peng_disetujui_cicilan'),
+                    if ($i == 0) {
+                        $this->db->table("pembayaran")->insert([
+                            'pembayaran_penetapan_no'=> $dataForm['peng_disetujui_no_penetapan'],
+                            'pembayaran_peng_id' => $peng_id,
+                            'pembayaran_ke' => $i + 1,
+                            'pembayaran_bunga' => $nominal * ($bunga / 100),
+                            'pembayaran_tanggal' => $date,
+                            // 'pembayaran_sisa' => $nominal
+                        ]);
+                    } else
+                    if ($i == 12) {
+                        $this->db->table("pembayaran")->insert([
+                            'pembayaran_penetapan_no'=> $dataForm['peng_disetujui_no_penetapan'],
+                            'pembayaran_peng_id' => $peng_id,
+                            'pembayaran_ke' => $i + 1,
+                            'pembayaran_bunga' => ($nominal - ($cicilan * 11)) * ($bunga / 100),
+                            'pembayaran_tanggal' => $date,
+                            // 'pembayaran_sisa' => $sisa
+                        ]);
+                    } else
+                    if ($i == 24) {
+                        $this->db->table("pembayaran")->insert([
+                            'pembayaran_penetapan_no'=> $dataForm['peng_disetujui_no_penetapan'],
+                            'pembayaran_peng_id' => $peng_id,
+                            'pembayaran_ke' => $i + 1,
+                            'pembayaran_bunga' => ($nominal - ($cicilan * 22)) * ($bunga / 100),
+                            'pembayaran_tanggal' => $date,
+                            // 'pembayaran_sisa' => $sisa
+                        ]);
+                    } else {
+                        $this->db->table("pembayaran")->insert([
+                            'pembayaran_penetapan_no'=> $dataForm['peng_disetujui_no_penetapan'],
+                            'pembayaran_peng_id' => $peng_id,
+                            'pembayaran_ke' => $i + 1,
+                            'pembayaran_cicilan' => $cicilan,
+                            'pembayaran_tanggal' => $date,
+                            // 'pembayaran_sisa' => $sisa
+                        ]);
+                    }
+                }
+
+                $query_total = $this->db->query("SELECT 
+                                    SUM( pembayaran_cicilan ) AS total 
+                                FROM
+                                    pembayaran 
+                                WHERE
+                                    pembayaran_peng_id = " . $peng_id)->getRowArray();
+                $total_seluruh = round($query_total['total']);
+                $query_cicilan = $this->db->query("select * from pembayaran where pembayaran_peng_id = " . $peng_id . " order by pembayaran_ke asc")->getResultArray();
+                $bayar_sampai_ke = 0;
+                foreach ($query_cicilan as $key => $value) {
+                    $bayar_sampai_ke += $value['pembayaran_cicilan'];
+                    // echo $total_seluruh ." - ".$bayar_sampai_ke;
+                    $sisa = $total_seluruh - $bayar_sampai_ke;
+                    $this->db->table("pembayaran")->where(['pembayaran_id' => $value['pembayaran_id']])->update([
+                        'pembayaran_sisa' => $sisa
                     ]);
                 }
+                // die();
             }
             return $form->output();
+        } else {
+            return $form->output();
+        }
+    }
+    public function kunci()
+    {
+        $id = $this->request->getPost('id');
+        $this->db->table("pengajuan")->where('peng_id', $id)->update([
+            'peng_disetujui_kunci_is' => 'true',
+            'peng_disetujui_kunci_at' => 'now()',
+            'peng_disetujui_kunci_by' => $this->user['user_id']
+        ]);
+        return $this->response->setJSON([
+            'status' => true,
+            'message' => 'Sukses kunci hasil survey'
+        ]);
+    }
+    public function bukaKunci()
+    {
+        $id = $this->request->getPost('id');
+        $this->db->table("pengajuan")->where('peng_id', $id)->update([
+            'peng_disetujui_kunci_is' => 'false',
+            'peng_disetujui_kunci_at' => 'now()',
+            'peng_disetujui_kunci_by' => $this->user['user_id'],
+        ]);
+        return $this->response->setJSON([
+            'status' => true,
+            'message' => 'Sukses buka kunci hasil survey'
+        ]);
+    }
+    public function grid_angsuran($peng_id)
+    {
+        $SQL = "SELECT
+                *,
+                pembayaran_id as id,
+                case when pembayaran_lunas_is is true then '<span class=\"badge badge-success\">Lunas</span> <br/>Tanggal <b>'||to_char(pembayaran_lunas_tanggal, 'DD Month YYYY')||'</b>' else '<span class=\"badge badge-warning\">-</span>' end as status
+                from pembayaran";
+        // die($SQL);
+        $action['detail'] = ['link' => 'admin/surveyHasil/form/'];
+        $grid = new Grid();
+        return $grid->set_query($SQL, [
+            ['pembayaran_peng_id', $peng_id, '='],
+            // ['survey_tanggal', $this->request->getGet('tanggal'),'=']
+        ])
+            ->set_sort(array('id', 'desc'))
+            ->configure(
+                array(
+                    'datasouce_url' => base_url("admin/pembayaran/grid_angsuran/" . $peng_id . "?datasource&" . get_query_string()),
+                    'grid_columns'  => array(
+                        array(
+                            'field' => 'pembayaran_tanggal',
+                            'title' => 'Tanggal',
+                            'format' => 'date'
+                        ),
+                        array(
+                            'field' => 'pembayaran_ke',
+                            'title' => 'Ke',
+                        ),
+                        array(
+                            'field' => 'pembayaran_cicilan',
+                            'title' => 'Angsuran pokok',
+                            'format' => 'number',
+                            'align' => 'right',
+                            'width' => 200
+                        ),
+                        array(
+                            'field' => 'pembayaran_bunga',
+                            'title' => 'Angsuran bunga',
+                            'format' => 'number',
+                            'align' => 'right',
+                            'width' => 200
+                        ),
+                        array(
+                            'field' => 'status',
+                            'title' => 'Status',
+                            'encoded' => false,
+                            'width' => 250
+                        ),
+                        array(
+                            'field' => 'lihat',
+                            'title' => ' ',
+                            'encoded' => false,
+                            'width' => 200
+                        ),
+                    ),
+                    // "action"    => $action,
+                    // 'head_left' => array('add' => base_url('/admin/survey/start'))
+                )
+            )
+            ->set_sort(['pembayaran_ke', 'asc'])
+            ->output();
+    }
+    public function upload_cetakan($id)
+    {
+        $data['title']  = 'Upload Bertanda tangan';
+        $data['form']   = $this->form_upload_cetakan($id);
+        $data['url_back'] = base_url('admin');
+        return view('global/form_pop', $data);
+    }
+    public function form_upload_cetakan($id)
+    {
+        $data = $this->db->table('pengajuan')->getWhere(['peng_id' => $id])->getRowArray();
+
+        $form = new Form();
+        $form->set_attribute_form('class="form-horizontal" enctype="multipart/form-data"')
+            ->add('peng_disetujui_cetak_sppk', 'Cetakan SPPK bertanda tangan', 'file', false, empty($data['peng_disetujui_cetak_sppk']) ? '' : base_url() . '/uploads/' . $data['peng_disetujui_cetak_sppk'], 'style="width:100%;"');
+        if ($form->formVerified()) {
+            $dataForm = $form->get_data();
+            $file = $this->request->getFile('peng_disetujui_cetak_sppk');
+            if ($file->getName() != '') {
+                $ext = $file->getClientExtension();
+                $name = $file->getName();
+                $name = $file->getRandomName() . "." . $ext;
+                if ($file->move('./uploads/', $name)) {
+                    $dataForm['peng_disetujui_cetak_sppk'] = $name;
+                }
+            }
+            $this->db->table("pengajuan")->where('peng_id', $id)->update($dataForm);
+            die('<script>window.close();</script>');
         } else {
             return $form->output();
         }

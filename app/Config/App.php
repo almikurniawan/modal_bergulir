@@ -21,7 +21,7 @@ class App extends BaseConfig
 	| environments.
 	|
 	*/
-	public $baseURL = 'http://localhost/apps/dinkop/public/';
+	public $baseURL = 'http://192.168.9.44/apps/dinkop/public/';
 
 	/*
 	|--------------------------------------------------------------------------

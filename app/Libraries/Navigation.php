@@ -40,7 +40,7 @@ class Navigation
 
     public function cek_akses($controller)
     {
-        return true;
+        // return true;
         $data_ref_modul = $this->db->query("SELECT
                                             ref_modul_akses_label
                                         FROM
@@ -107,10 +107,25 @@ class Navigation
                 'icon'          => 'fa-home',
             ),
             array(
+                'label'         => 'Rekap',
+                'controller'    => 'admin/rekap',
+                'icon'          => 'fa-home',
+            ),
+            array(
                 'label'         => 'Data Master',
-                'controller'    => '#master',
+                'controller'    => '#data_master',
                 'icon'          => 'fa-home',
                 'child'         => array(
+                    array(
+                        'label'     => 'Bidang Usaha',
+                        'controller' => 'admin/bidangUsaha',
+                        'icon'          => 'fa-home',
+                    ),
+                    array(
+                        'label'     => 'BANK',
+                        'controller' => 'admin/refBank',
+                        'icon'          => 'fa-home',
+                    ),
                     array(
                         'label'     => 'Pemohon',
                         'controller' => 'admin/member',
@@ -125,7 +140,7 @@ class Navigation
             ),
             array(
                 'label'         => 'Hak Akses',
-                'controller'    => '#akses',
+                'controller'    => '#hak_akses',
                 'icon'          => 'fa-home',
                 'child'         => array(
                     array(

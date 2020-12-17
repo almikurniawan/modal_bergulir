@@ -116,12 +116,14 @@ CREATE TABLE public.member (
     member_nama_lengkap character varying,
     member_alamat character varying(255),
     member_no_telp character varying(255),
-    member_kelurahan character varying(255),
+    member_kelurahan integer,
     member_created_at timestamp(6) without time zone,
     member_created_by integer,
     member_updated_by integer,
     member_updated_at timestamp without time zone,
-    member_visible boolean DEFAULT true
+    member_visible boolean DEFAULT true,
+    member_no_ktp character varying(255),
+    member_pekerjaan character varying(255)
 );
 
 
@@ -147,6 +149,48 @@ ALTER TABLE public.member_member_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.member_member_id_seq OWNED BY public.member.member_id;
+
+
+--
+-- Name: pembayaran; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.pembayaran (
+    pembayaran_id integer NOT NULL,
+    pembayaran_peng_id integer,
+    pembayaran_tanggal date,
+    pembayaran_cicilan double precision,
+    pembayaran_ke integer,
+    pembayaran_lunas_is boolean,
+    pembayaran_lunas_tanggal date,
+    pembayaran_bunga double precision,
+    pembayaran_sisa double precision,
+    pembayaran_penetapan_no character varying(255)
+);
+
+
+ALTER TABLE public.pembayaran OWNER TO postgres;
+
+--
+-- Name: pembayaran_pembayaran_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.pembayaran_pembayaran_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.pembayaran_pembayaran_id_seq OWNER TO postgres;
+
+--
+-- Name: pembayaran_pembayaran_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.pembayaran_pembayaran_id_seq OWNED BY public.pembayaran.pembayaran_id;
 
 
 --
@@ -186,7 +230,7 @@ CREATE TABLE public.pengajuan (
     peng_sk_kepala_kelurahan character varying(255),
     peng_sk_kecamatan integer,
     peng_sk_kota character varying(255),
-    peng_sk_tanah_luas smallint,
+    peng_sk_tanah_luas integer,
     peng_sk_tanah_desa character varying(255),
     peng_sk_tanah_kecamatan character varying(255),
     peng_sk_tanah_no_shm character varying(255),
@@ -285,7 +329,24 @@ CREATE TABLE public.pengajuan (
     peng_verif_reject_at timestamp(6) without time zone,
     peng_verif_reject_note text,
     peng_surv_is boolean,
-    peng_surv_id integer
+    peng_surv_id integer,
+    peng_disetujui_nominal double precision,
+    peng_disetujui_tanggal_jatuh_tempo date,
+    peng_disetujui_tanggal_penetapan date,
+    peng_disetujui_jangka_waktu_bln integer,
+    peng_disetujui_jangka_waktu_text text,
+    peng_disetujui_cicilan double precision,
+    peng_disetujui_created_at timestamp(0) without time zone,
+    peng_disetujui_created_by integer,
+    peng_uji_kel_no_ktp character varying(255),
+    peng_uji_kel_pekerjaan character varying(255),
+    peng_disetujui_no_penetapan character varying(255),
+    peng_disetujui_bank integer,
+    peng_disetujui_kunci_is boolean DEFAULT false,
+    peng_disetujui_kunci_at timestamp(6) without time zone,
+    peng_disetujui_kunci_by integer,
+    peng_cetak_pengajuan_ttd character varying(255),
+    peng_disetujui_cetak_sppk character varying(255)
 );
 
 
@@ -383,6 +444,40 @@ ALTER TABLE public.ref_approval_ref_approval_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.ref_approval_ref_approval_id_seq OWNED BY public.ref_approval.ref_approval_id;
+
+
+--
+-- Name: ref_bank; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.ref_bank (
+    ref_bank_id integer NOT NULL,
+    ref_bank_label character varying
+);
+
+
+ALTER TABLE public.ref_bank OWNER TO postgres;
+
+--
+-- Name: ref_bank_ref_bank_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.ref_bank_ref_bank_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.ref_bank_ref_bank_id_seq OWNER TO postgres;
+
+--
+-- Name: ref_bank_ref_bank_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.ref_bank_ref_bank_id_seq OWNED BY public.ref_bank.ref_bank_id;
 
 
 --
@@ -671,7 +766,9 @@ CREATE TABLE public.survey (
     survey_tanggal date,
     survey_ttd_kar_id integer,
     survey_created_by integer,
-    survey_created_at timestamp(6) without time zone
+    survey_created_at timestamp(6) without time zone,
+    survey_surat_tugas_ttd character varying(255),
+    survey_cetak_ttd character varying(255)
 );
 
 
@@ -712,6 +809,74 @@ ALTER TABLE public.survey_detail_survey_det_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.survey_detail_survey_det_id_seq OWNED BY public.survey_detail.survey_det_id;
+
+
+--
+-- Name: survey_hasil; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.survey_hasil (
+    survey_hasil_id integer NOT NULL,
+    survey_hasil_survey_id integer,
+    survey_hasil_peng_id integer,
+    survey_hasil_1_perijinan character varying(255),
+    survey_hasil_1_nilai_kes_usp character varying(255),
+    survey_hasil_1_rat character varying(255),
+    survey_hasil_1_jml_angg_produktif integer,
+    survey_hasil_1_jml_angg integer,
+    survey_hasil_2_modal_sendiri bigint,
+    survey_hasil_2_modal_luar bigint,
+    survey_hasil_3_usaha character varying(255),
+    survey_hasil_3_omset_per_tahun bigint,
+    survey_hasil_3_pendptn_per_tahun bigint,
+    survey_hasil_3_beban_operasional bigint,
+    survey_hasil_3_shu bigint,
+    survey_hasil_4_kas_per_bulan bigint,
+    survey_hasil_4_pengeluaran bigint,
+    survey_hasil_4_saldo bigint,
+    survey_hasil_5_jaminan character varying(255),
+    survey_hasil_5_taksiran_harga bigint,
+    survey_hasil_5_status_jaminan character varying(255),
+    survey_hasil_6_kelangsungan_hidup character varying(255),
+    survey_hasil_permasalahan character varying(255),
+    survey_hasil_created_at timestamp(6) without time zone,
+    survey_hasil_created_by integer,
+    survey_hasil_1_status character varying(255),
+    survey_hasil_lock_is boolean DEFAULT false,
+    survey_hasil_lock_at timestamp(6) without time zone,
+    survey_hasil_lock_by integer,
+    survey_hasil_approve_is boolean,
+    survey_hasil_approve_at timestamp(6) without time zone,
+    survey_hasil_approve_by integer,
+    survey_hasil_reject_is boolean,
+    survey_hasil_reject_at timestamp(6) without time zone,
+    survey_hasil_reject_by integer,
+    survey_hasil_file character varying(255)
+);
+
+
+ALTER TABLE public.survey_hasil OWNER TO postgres;
+
+--
+-- Name: survey_hasil_survey_hasil_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.survey_hasil_survey_hasil_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.survey_hasil_survey_hasil_id_seq OWNER TO postgres;
+
+--
+-- Name: survey_hasil_survey_hasil_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.survey_hasil_survey_hasil_id_seq OWNED BY public.survey_hasil.survey_hasil_id;
 
 
 --
@@ -825,6 +990,13 @@ ALTER TABLE ONLY public.member ALTER COLUMN member_id SET DEFAULT nextval('publi
 
 
 --
+-- Name: pembayaran pembayaran_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.pembayaran ALTER COLUMN pembayaran_id SET DEFAULT nextval('public.pembayaran_pembayaran_id_seq'::regclass);
+
+
+--
 -- Name: pengajuan peng_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -843,6 +1015,13 @@ ALTER TABLE ONLY public.pengajuan_foto ALTER COLUMN peng_foto_id SET DEFAULT nex
 --
 
 ALTER TABLE ONLY public.ref_approval ALTER COLUMN ref_approval_id SET DEFAULT nextval('public.ref_approval_ref_approval_id_seq'::regclass);
+
+
+--
+-- Name: ref_bank ref_bank_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ref_bank ALTER COLUMN ref_bank_id SET DEFAULT nextval('public.ref_bank_ref_bank_id_seq'::regclass);
 
 
 --
@@ -923,6 +1102,13 @@ ALTER TABLE ONLY public.survey_detail ALTER COLUMN survey_det_id SET DEFAULT nex
 
 
 --
+-- Name: survey_hasil survey_hasil_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.survey_hasil ALTER COLUMN survey_hasil_id SET DEFAULT nextval('public.survey_hasil_survey_hasil_id_seq'::regclass);
+
+
+--
 -- Name: survey_tempat survey_tem_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -950,10 +1136,59 @@ COPY public.karyawan (kar_id, kar_nama, kar_nip, kar_pangkat, kar_jabatan, kar_c
 -- Data for Name: member; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.member (member_id, member_nama_lengkap, member_alamat, member_no_telp, member_kelurahan, member_created_at, member_created_by, member_updated_by, member_updated_at, member_visible) FROM stdin;
-17	yusuf	kediri	0858585	lirboyo	2020-10-23 15:48:26.280736	\N	\N	\N	\N
-18	yusuf	kediri	0988	kediri	2020-10-24 09:56:41.298859	\N	\N	\N	\N
-32	mohammad almi kurniawan	kediri	08765432	jabon	2020-11-06 15:08:25.827111	\N	\N	\N	t
+COPY public.member (member_id, member_nama_lengkap, member_alamat, member_no_telp, member_kelurahan, member_created_at, member_created_by, member_updated_by, member_updated_at, member_visible, member_no_ktp, member_pekerjaan) FROM stdin;
+18	yusuf	kediri	0988	2	2020-10-24 09:56:41.298859	\N	\N	\N	\N	\N	\N
+32	mohammad almi kurniawan	kediri	08765432	3	2020-11-06 15:08:25.827111	\N	\N	\N	t	\N	\N
+17	yusuf	kediri	0858585	4	2020-10-23 15:48:26.280736	\N	\N	\N	\N	\N	\N
+33	yusuf	kediri	0858585	\N	2020-12-08 14:27:16.844868	\N	\N	\N	t	\N	\N
+34	ari	kediri	0858585	\N	2020-12-08 14:32:26.895413	\N	\N	\N	t	\N	\N
+35	almi kurniawan	kediri	0875463545	\N	2020-12-09 08:27:33.959045	\N	\N	\N	t	\N	\N
+36	almi kurniawan	kediri	0856657647	33	2020-12-09 09:00:58.509572	\N	\N	\N	t	350687857476	Swasta
+37	Anis Fahmi	Kediri	0857646546	33	2020-12-10 08:18:37.93483	\N	\N	\N	t	350698682638423	Swasta
+\.
+
+
+--
+-- Data for Name: pembayaran; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.pembayaran (pembayaran_id, pembayaran_peng_id, pembayaran_tanggal, pembayaran_cicilan, pembayaran_ke, pembayaran_lunas_is, pembayaran_lunas_tanggal, pembayaran_bunga, pembayaran_sisa, pembayaran_penetapan_no) FROM stdin;
+1164	23	2022-07-10	3030303.030303	20	\N	\N	\N	45454545.454545997	nomor123
+1165	23	2022-08-10	3030303.030303	21	\N	\N	\N	42424242.424243003	nomor123
+1166	23	2022-09-10	3030303.030303	22	\N	\N	\N	39393939.393940002	nomor123
+1167	23	2022-10-10	3030303.030303	23	\N	\N	\N	36363636.363637	nomor123
+1168	23	2022-11-10	3030303.030303	24	\N	\N	\N	33333333.333333999	nomor123
+1169	23	2022-12-10	\N	25	\N	\N	666666.66666667	33333333.333333999	nomor123
+1170	23	2023-01-10	3030303.030303	26	\N	\N	\N	30303030.303031001	nomor123
+1171	23	2023-02-10	3030303.030303	27	\N	\N	\N	27272727.272728	nomor123
+1172	23	2023-03-10	3030303.030303	28	\N	\N	\N	24242424.242424998	nomor123
+1146	23	2021-01-10	3030303.030303	2	\N	\N	\N	96969696.969696999	nomor123
+1147	23	2021-02-10	3030303.030303	3	\N	\N	\N	93939393.939393997	nomor123
+1148	23	2021-03-10	3030303.030303	4	\N	\N	\N	90909090.909090996	nomor123
+1149	23	2021-04-10	3030303.030303	5	\N	\N	\N	87878787.878787994	nomor123
+1150	23	2021-05-10	3030303.030303	6	\N	\N	\N	84848484.848484993	nomor123
+1151	23	2021-06-10	3030303.030303	7	\N	\N	\N	81818181.818182006	nomor123
+1152	23	2021-07-10	3030303.030303	8	\N	\N	\N	78787878.787879005	nomor123
+1153	23	2021-08-10	3030303.030303	9	\N	\N	\N	75757575.757576004	nomor123
+1154	23	2021-09-10	3030303.030303	10	\N	\N	\N	72727272.727273002	nomor123
+1155	23	2021-10-10	3030303.030303	11	\N	\N	\N	69696969.696970001	nomor123
+1156	23	2021-11-10	3030303.030303	12	\N	\N	\N	66666666.666666999	nomor123
+1157	23	2021-12-10	\N	13	\N	\N	1333333.3333333	66666666.666666999	nomor123
+1158	23	2022-01-10	3030303.030303	14	\N	\N	\N	63636363.636363998	nomor123
+1159	23	2022-02-10	3030303.030303	15	\N	\N	\N	60606060.606060997	nomor123
+1160	23	2022-03-10	3030303.030303	16	\N	\N	\N	57575757.575758003	nomor123
+1161	23	2022-04-10	3030303.030303	17	\N	\N	\N	54545454.545455001	nomor123
+1162	23	2022-05-10	3030303.030303	18	\N	\N	\N	51515151.515152	nomor123
+1163	23	2022-06-10	3030303.030303	19	\N	\N	\N	48484848.484848998	nomor123
+1173	23	2023-04-10	3030303.030303	29	\N	\N	\N	21212121.212122001	nomor123
+1174	23	2023-05-10	3030303.030303	30	\N	\N	\N	18181818.181818999	nomor123
+1175	23	2023-06-10	3030303.030303	31	\N	\N	\N	15151515.151516	nomor123
+1176	23	2023-07-10	3030303.030303	32	\N	\N	\N	12121212.121213	nomor123
+1177	23	2023-08-10	3030303.030303	33	\N	\N	\N	9090909.0909100007	nomor123
+1178	23	2023-09-10	3030303.030303	34	\N	\N	\N	6060606.0606070003	nomor123
+1179	23	2023-10-10	3030303.030303	35	\N	\N	\N	3030303.0303039998	nomor123
+1180	23	2023-11-10	3030303.030303	36	\N	\N	\N	9.6857547760009999e-007	nomor123
+1145	23	2020-12-10	\N	1	t	2020-10-03	2000000	100000000	nomor123
 \.
 
 
@@ -961,18 +1196,10 @@ COPY public.member (member_id, member_nama_lengkap, member_alamat, member_no_tel
 -- Data for Name: pengajuan; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.pengajuan (peng_id, peng_tanggal, peng_bidang_usaha, peng_jenis_pengajuan, peng_tujuan_penggunaan, peng_foto_suami, peng_foto_istri, peng_fc_ktp, peng_fc_kk, peng_fc_surat_nikah, peng_fc_legalitas_jaminan, peng_member_id, peng_nominal, peng_prof_nama_usaha, peng_prof_alamat, peng_prof_pimpinan, peng_prof_perizinan, peng_prof_jumlah_karyawan, peng_prof_tahun_mulai, peng_prof_jenis_usaha, peng_prof_komoditi_produk, peng_prof_omset_per_bulan, peng_prof_lokasi_pemasaran, peng_prof_pola_pemasaran, peng_prof_pendapatan_penjualan, peng_prof_beban_penjualan, peng_prof_laba_per_bulan, peng_prof_modal_sendiri, peng_prof_modal_luar, peng_sk_kepala_kelurahan, peng_sk_kecamatan, peng_sk_kota, peng_sk_tanah_luas, peng_sk_tanah_desa, peng_sk_tanah_kecamatan, peng_sk_tanah_no_shm, peng_sk_tanah_tanggal_shm, peng_sk_tanah_atas_nama, peng_sk_tanah_harga_ru, peng_sk_tanah_harga_meter, peng_sk_tanah_luas_bangunan, peng_sk_tanah_harga_bangunan, peng_sk_tanah_letak_utara, peng_sk_tanah_letak_selatan, peng_sk_tanah_letak_timur, peng_sk_tanah_letak_barat, peng_sk_tanah_penggunaan, peng_jam_pemegang_ktp_no, peng_jam_pekerjaan, peng_jam_tahun_pembuatan, peng_jam_nopol, peng_jam_mesin, peng_jam_rangka, peng_jam_atas_nama, peng_jam_alamat, peng_jam_no_akta, peng_jam_tempat, peng_jam_atas_nama_tanah, peng_jam_alamat_tanah, peng_jam_jenis_bpkb, peng_jam_jenis_tanah, peng_lokasi_lat, peng_lokasi_lon, peng_lokasi_keterangan, peng_no_hp, peng_no_telp, peng_no_ktp, peng_srt_nama, peng_srt_pekerjaan, peng_srt_nama_usaha, peng_srt_jenis_usaha, peng_srt_alamat, peng_srt_jumlah_pinjaman, peng_srt_modal_kerja, peng_srt_investasi, peng_srt_pengambilan_waktu, peng_srt_bunga, peng_srt_omset_penjualan_pokok, peng_srt_pendapatan_lain, peng_srt_harga_pokok_penjualan, peng_srt_beban_bunga, peng_srt_beban_usaha, peng_srt_beban_non_usaha, peng_srt_laba, peng_lock_is, peng_lock_at, peng_lock_by, peng_tempat, peng_susunan_pengurus, peng_fc_akta_pendirian, peng_fc_buku_laporan_rapat, peng_fc_jaminan, peng_fc_ktp_pengurus, peng_fc_ktp_pengawas, peng_fc_siup, peng_fc_tdp, peng_fc_npwp, peng_fc_sertifikat_penilaian, peng_foto_pengawas, peng_foto_pengurus, peng_badan_hukum_no, peng_badan_hukum_tanggal, peng_kesehatan_usp, peng_jumlah_anggota, peng_pelaksanaan_rat, peng_ketua, peng_sekretaris, peng_bendahara, peng_pengawas_koor, peng_pengawas_anggota1, peng_pengawas_anggota2, peng_usaha_dikelola_1, peng_usaha_dikelola_2, peng_jam_jenis, peng_usaha_shu, peng_permodalan_kewajiban, peng_permodalan_modal_kerja, peng_permodalan_pinjaman_bank, peng_manf_meningkatkan_penjualan, peng_manf_menambah_modal, peng_manf_peningkatan_omset, peng_manf_peningkatan_shu, peng_manf_peningkatan_asset, peng_verif_is, peng_verif_by, peng_verif_at, peng_verif_reject_is, peng_verif_reject_by, peng_verif_reject_at, peng_verif_reject_note, peng_surv_is, peng_surv_id) FROM stdin;
-10	2020-11-06	\N	2	modal	1604650978_8ed09b3b7fc8612755e1.jpg.jpg	1604650978_01962f7f7120e566de89.jpg.jpg	1604650978_7d72a2817dfdff515cb9.jpg.jpg	1604650978_8eb560271130a05bc456.jpg.jpg	1604650978_557f18dd5df5224a8c05.jpg.jpg	1604650978_2856b8141ee7a158b0e2.jpg.jpg	32	23000000	pecel lele almi	kediri	almi	tes123	100	2019	\N	makanan	10000000	kediri dan sekitarnya	offline dan online	\N	\N	\N	1000000	1000000	almi	\N	KEDIRI	30	jabon	banyakan	tes123	2020-11-19	almi	100000	100000	100	1000000	tes	tes	tes	tes	tes	123	swasta	2019	tes123	tes123	tes123	almi kruniawan	kediri	tes123	tes123	tes123	tes123	1	1	\N	\N	\N	\N	\N	\N	almi kurniawan	swasta	pecel lele almi	\N	kediri	1000000	1000000	1000000	123	1000	1000000	1000000	1000000	100000	100000	1000000	100000000	f	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	t	1	2020-11-13 20:59:41	ts	\N	\N
-13	2020-11-06	\N	3	\N	\N	\N	\N	\N	\N	\N	17	57000000	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	1231423	wirausaha	\N	\N	\N	\N	\N	\N	123	kediri	almi	kediri	\N	1	-7.821568440250536	112.06311350830077	tes	\N	\N	\N	\N	\N	\N	\N	\N	57000000	10000	10000	1	10000	10000	10000	10000	10000	10000	10000	10000	t	2020-11-13 02:33:33	1	kediri	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	2	\N	\N	\N	\N	10000	10000	10000	10000	10000	t	1	2020-11-13 21:11:36	\N	\N	\N	\N	t	24
-3	2020-10-31	\N	1	modal	1603509290_48927043fb58bd0de462.webp.webp	1603509290_1de85623baea261b8170.jpg.jpg	1603509290_6ed2a5acc3219979a9a9.jpg.jpg	1603509290_b861f4e4b42733998c0f.jpg.jpg	1603509290_6efa7b3bafd784b9df57.jpg.jpg	1603509290_b8ebbb022fcebadc7921.jpg.jpg	17	500000	tes	tes	tes	tes	100	2019	\N	tes	1000	tes	tes	\N	\N	\N	10000000	5000000	\N	\N	KEDIRI	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	t	1	2020-11-13 21:11:41	hgfhg	\N	\N
-5	2020-10-30	\N	2	modal	1604043110_387c7a4698b8bd13954f.jpg.jpg	1604043110_b9efdbfa8832410f373f.jpg.jpg	1604043110_d1a8e37588d1b514582b.jpg.jpg	1604043110_b944da009f296ca9a3ac.jpg.jpg	1604043110_c064611870e587d9efac.jpg.jpg	1604043110_89ad777c21f35f0aa7a9.jpg.jpg	17	49000000	tes	tes	almi kurniawan	tes	100	2019	\N	lele	100000000	kediri dan sekitarnya	internet	\N	\N	\N	1000000000	500000000	almi	\N	KEDIRI	90	manukan	banyakan	12542534	2020-10-26	almi	70000	50000	90	90000	sungai	sungai	sungai	sungai	tes	1242367	Wirausaha	2019	08856576	r9987698	76986988	Almi	kediri	1252653472	kediri	almi	kediri	1	2	-7.799489411170418	112.10423139746091	tes	\N	\N	\N	almi	tukang sapu	karaoke top 99	\N	kediri	100000	100000	100000	4	100000	100000	100000	100000	100000	100000	100000	100000	f	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	t	1	2020-11-13 20:59:35	kurang jelas, jaminan tidak ada	\N	\N
-7	2020-11-05	1	1	modal	1605164353_86469b8a339bced60296.pdf.pdf	1604306102_7b66de595efb5ba5e81a.png.png	1604306102_58ad519384e47bb2e60f.jpg.jpg	1604306102_c8d2714013fb8915a3d8.jpg.jpg	1604306102_62678a2d4223a0da71ea.jpg.jpg	1604306102_af404a498648776465a8.jpg.jpg	17	10000000	tes	tes	tes	tes	10	2019	\N	tes	100000	tes	tes	90000	900000	9900000	100000000	500000	ALMI	1	KEDIRI	20	MANUKAN	banyakan	57123169	2020-11-12	almi	2000000	1000000	20	20000000	masjid	masjid	masjid	masjid	untuk tempat tinggal	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	t	1	2020-11-13 21:04:41	kurang jelas, jaminan tidak ada	\N	\N
-9	2020-11-06	\N	1	tambahan modal	1604650295_8261967d7919ce3f1ec9.jpg.jpg	1604650295_23d63984ddc056339471.jpg.jpg	1604650295_b3dc800967733d4aecc5.jpg.jpg	1604650295_1093a2e74186f8fbc1fa.jpg.jpg	1604650295_98cbcee6b6ba5768cc32.jpg.jpg	1604650295_4de69a5867efa667fd53.jpg.jpg	17	8000000	pecel lele yusuf	kediri	yusuf	tes123	10	2019	\N	makanan	10000000	jl. dhoho	offline	\N	\N	\N	5000000	5000000	Almi Kurniawan	\N	KEDIRI	30	jabon	banyakan	tes123	2020-11-12	almi kurniawan	10000000	7000000	25	300000000	masjid	sungai	rumah	jalan	untuk tempat tinggal saja	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	t	2020-11-06 02:18:03	1	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	t	1	2020-11-13 21:04:45	\N	\N	\N	\N	t	24
-6	2020-10-29	\N	1	modal	1604044411_51eb31fff8f152f9fdb7.jpg.jpg	1604044411_f421eef7d1a17e67885b.jpg.jpg	1604044411_c8139217732c4dfa0f38.jpg.jpg	1604044411_cc568599582d840361c2.jpg.jpg	1604044411_7c32ed6367f5548713eb.jpg.jpg	1604044411_b853161be63f073f9c10.jpg.jpg	17	5000000	mie ayam	Kediri	almi kurniaan	123566	4	2019	\N	mie	1000000	kediri dan sekitarnya	mulut ke mulut	\N	\N	\N	5000000	0	\N	\N	KEDIRI	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
-8	2020-11-06	\N	3	\N	\N	\N	\N	\N	\N	\N	17	57000000	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	KEDIRI	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	kediri	1604647164_16ff775a72537d4850db.jpg.jpg	1604647164_730afff939c74242c197.jpg.jpg	1604647164_95f40719ee3efd069832.jpg.jpg	1604647164_0fae1b964d19e3ed2735.jpg.jpg	1604647164_84027199d1c461063811.jpg.jpg	1604647164_709699c5b99ab5755744.jpg.jpg	1604647164_5e75f08faf03e3371a2b.jpg.jpg	1604647164_7276fd30f40b8086cc5b.jpg.jpg	1604647164_194a22615b04f542fce8.jpg.jpg	1604647164_a0e873743d54d6d21afb.jpg.jpg	1604647164_addb93e60cc8deaad8d8.jpg.jpg	1604647164_fe57b76eb69507236fe6.jpg.jpg	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
-11	2020-11-12	1	2	modal	1605165428_aba2361a59e54c6318dd.png.png	1605165428_94349065dd1c8b6e5ce0.png.png	1605165428_b932998813b4eb0033b2.pdf.pdf	1605165428_e91dda5c2e5bee120db8.pdf.pdf	1605165428_f9ff438b23b13de0dcc8.pdf.pdf	1605165428_ffac828f33c167475885.pdf.pdf	32	100000000	Pecel lele mas almi	kediri	almi	16212	10	2021	1	makanan	1000000	kediri kota	mulut ke mulut	100000	100000	10000000	10000000	10000000	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	3506	Wiraswasta	\N	\N	\N	\N	\N	\N	tes123	kediri	almi	kediri	\N	1	-7.812725	112.014705	tes	\N	\N	\N	\N	\N	\N	\N	\N	100000000	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	2	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
-12	2020-11-13	\N	3	\N	\N	\N	\N	\N	\N	\N	17	10000000	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	10000000	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	Kediri	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
-4	2020-11-02	\N	1	tambah purel	1603522933_d62b9c275926f0cc9046.jpg.jpg	1603522933_c77f7ed39edeeb7d1685.jpg.jpg	1603522933_c70856e78547f3aec75b.jpg.jpg	1603522933_69bd72caec184b5451c5.jpg.jpg	1603522933_75de871e01705e2a1e69.jpg.jpg	1603522933_c31ec38c2a699b83d0d1.jpg.jpg	17	500000	Jualan ayam	tes	almi kurniawan	tes	100	2019	\N	segala jenis ayam	50000000	tes	tes	\N	\N	\N	10000000	5000000	tes	\N	KEDIRI	1000	tes	tes	12748	2020-10-24	tes	1000000	200000	100	100	tes	tes	tes	tes	tes	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	t	2020-11-02 02:21:02	1	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+COPY public.pengajuan (peng_id, peng_tanggal, peng_bidang_usaha, peng_jenis_pengajuan, peng_tujuan_penggunaan, peng_foto_suami, peng_foto_istri, peng_fc_ktp, peng_fc_kk, peng_fc_surat_nikah, peng_fc_legalitas_jaminan, peng_member_id, peng_nominal, peng_prof_nama_usaha, peng_prof_alamat, peng_prof_pimpinan, peng_prof_perizinan, peng_prof_jumlah_karyawan, peng_prof_tahun_mulai, peng_prof_jenis_usaha, peng_prof_komoditi_produk, peng_prof_omset_per_bulan, peng_prof_lokasi_pemasaran, peng_prof_pola_pemasaran, peng_prof_pendapatan_penjualan, peng_prof_beban_penjualan, peng_prof_laba_per_bulan, peng_prof_modal_sendiri, peng_prof_modal_luar, peng_sk_kepala_kelurahan, peng_sk_kecamatan, peng_sk_kota, peng_sk_tanah_luas, peng_sk_tanah_desa, peng_sk_tanah_kecamatan, peng_sk_tanah_no_shm, peng_sk_tanah_tanggal_shm, peng_sk_tanah_atas_nama, peng_sk_tanah_harga_ru, peng_sk_tanah_harga_meter, peng_sk_tanah_luas_bangunan, peng_sk_tanah_harga_bangunan, peng_sk_tanah_letak_utara, peng_sk_tanah_letak_selatan, peng_sk_tanah_letak_timur, peng_sk_tanah_letak_barat, peng_sk_tanah_penggunaan, peng_jam_pemegang_ktp_no, peng_jam_pekerjaan, peng_jam_tahun_pembuatan, peng_jam_nopol, peng_jam_mesin, peng_jam_rangka, peng_jam_atas_nama, peng_jam_alamat, peng_jam_no_akta, peng_jam_tempat, peng_jam_atas_nama_tanah, peng_jam_alamat_tanah, peng_jam_jenis_bpkb, peng_jam_jenis_tanah, peng_lokasi_lat, peng_lokasi_lon, peng_lokasi_keterangan, peng_no_hp, peng_no_telp, peng_no_ktp, peng_srt_nama, peng_srt_pekerjaan, peng_srt_nama_usaha, peng_srt_jenis_usaha, peng_srt_alamat, peng_srt_jumlah_pinjaman, peng_srt_modal_kerja, peng_srt_investasi, peng_srt_pengambilan_waktu, peng_srt_bunga, peng_srt_omset_penjualan_pokok, peng_srt_pendapatan_lain, peng_srt_harga_pokok_penjualan, peng_srt_beban_bunga, peng_srt_beban_usaha, peng_srt_beban_non_usaha, peng_srt_laba, peng_lock_is, peng_lock_at, peng_lock_by, peng_tempat, peng_susunan_pengurus, peng_fc_akta_pendirian, peng_fc_buku_laporan_rapat, peng_fc_jaminan, peng_fc_ktp_pengurus, peng_fc_ktp_pengawas, peng_fc_siup, peng_fc_tdp, peng_fc_npwp, peng_fc_sertifikat_penilaian, peng_foto_pengawas, peng_foto_pengurus, peng_badan_hukum_no, peng_badan_hukum_tanggal, peng_kesehatan_usp, peng_jumlah_anggota, peng_pelaksanaan_rat, peng_ketua, peng_sekretaris, peng_bendahara, peng_pengawas_koor, peng_pengawas_anggota1, peng_pengawas_anggota2, peng_usaha_dikelola_1, peng_usaha_dikelola_2, peng_jam_jenis, peng_usaha_shu, peng_permodalan_kewajiban, peng_permodalan_modal_kerja, peng_permodalan_pinjaman_bank, peng_manf_meningkatkan_penjualan, peng_manf_menambah_modal, peng_manf_peningkatan_omset, peng_manf_peningkatan_shu, peng_manf_peningkatan_asset, peng_verif_is, peng_verif_by, peng_verif_at, peng_verif_reject_is, peng_verif_reject_by, peng_verif_reject_at, peng_verif_reject_note, peng_surv_is, peng_surv_id, peng_disetujui_nominal, peng_disetujui_tanggal_jatuh_tempo, peng_disetujui_tanggal_penetapan, peng_disetujui_jangka_waktu_bln, peng_disetujui_jangka_waktu_text, peng_disetujui_cicilan, peng_disetujui_created_at, peng_disetujui_created_by, peng_uji_kel_no_ktp, peng_uji_kel_pekerjaan, peng_disetujui_no_penetapan, peng_disetujui_bank, peng_disetujui_kunci_is, peng_disetujui_kunci_at, peng_disetujui_kunci_by, peng_cetak_pengajuan_ttd, peng_disetujui_cetak_sppk) FROM stdin;
+23	2020-12-09	1	2	Modal	1607563827_929889ab5a059997f5af.jpg.jpg	1607563827_181bca03c25400ba69b6.jpg.jpg	\N	\N	\N	\N	32	100000000	Mie Ayam Makmur	Kediri	almi kurniawan	nomor123	10	2020	1	Mie	10000000	Kediri	Online	1000000	1000000	10000000	100000000	10000000	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	350612323423	Swasta	2020	23758	mes123	rang123	almi kurniawan	kediri	\N	\N	\N	\N	1	\N	\N	\N	\N	\N	\N	\N	Mohammad Almi Kurniawan	Swasta	Mie Ayam Makmur	1	Kediri	100000000	100000	100000	1	2	10000000	\N	\N	\N	\N	\N	\N	t	2020-12-09 19:43:40	1	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	1	\N	\N	\N	\N	\N	\N	\N	\N	\N	t	1	2020-12-09 19:44:02	\N	\N	\N	\N	t	31	100000000	2020-12-10	2020-12-10	36	10 Bulan	10000000	2020-12-16 16:20:24	1	\N	\N	nomor123	2	t	2020-12-16 16:20:34.937738	1	\N	1608088577_da65a0d22b6efb08e215.png.png
+25	2020-12-12	4	1	\N	1608109555_a4a8614a376bb2920c48.png.png	\N	\N	\N	\N	\N	32	500000	\N	\N	\N	\N	\N	\N	4	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	4	\N	500000	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	f	\N	\N	1608007919_fc9bd600ed8aeac3568a.png.png	\N
+24	2020-12-09	\N	3	\N	\N	\N	\N	\N	\N	\N	37	10000000	Koperasi Makmur	Kediri	\N	\N	10	\N	\N	\N	10000000	\N	\N	100000000	100000000	\N	1000000000	10000000000	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	35069868587	Swasta	2020	pol123	mes123	rang123	Almi Kurniawan	\N	\N	\N	\N	\N	1	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	10000000	100000	1000000	36	4	100000000	100000000	\N	\N	\N	\N	\N	\N	\N	\N	Kediri	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	nomor321	2020-12-10	Ujicoba	10	Ujicoba	Ujicoba	Ujicoba	Ujicoba	Ujicoba	Ujicoba	Ujicoba	Ujicoba	Ujicoba	1	10000000	10000000	10000000000	1000000000	\N	\N	\N	\N	\N	t	1	2020-12-09 19:50:16	\N	\N	\N	\N	t	32	25000000	2020-12-10	2020-12-10	36	Dua Belas Bulan	100000	2020-12-15 14:50:23	1	\N	\N	nomor321	1	f	2020-12-12 14:03:23.983224	1	\N	\N
 \.
 
 
@@ -981,12 +1208,8 @@ COPY public.pengajuan (peng_id, peng_tanggal, peng_bidang_usaha, peng_jenis_peng
 --
 
 COPY public.pengajuan_foto (peng_foto_id, peng_foto_peng_id, peng_foto_file, peng_foto_created_at, peng_foto_created_by, peng_foto_jenis) FROM stdin;
-7	10	1604651261_51898aba1b88fd889063.jpg	2020-11-06 02:27:41	1	1
-10	13	1605253251_c9960aa1529a904cc193.jpg	2020-11-13 01:40:51	1	1
-1	5	1603856337_b814ad5b948a54a0ff96.jpg	2020-10-27 22:38:57	1	2
-2	5	1603856359_f3346f9ad01b675e2e26.jpg	2020-10-27 22:39:19	1	2
-3	5	1603856391_5b433f4b4e2216089179.jpg	2020-10-27 22:39:51	1	2
-11	5	1605944051_16ed32e97961faac4e8d.jpg	2020-11-21 01:34:11	1	2
+17	23	1607564220_718ebe6e391a113ffce4.jpg	2020-12-09 19:37:00	1	1
+19	24	1607564914_81635da19ee6b874b3e1.jpg	2020-12-09 19:48:34	1	2
 \.
 
 
@@ -999,14 +1222,27 @@ COPY public.ref_approval (ref_approval_id, ref_approval_label) FROM stdin;
 
 
 --
+-- Data for Name: ref_bank; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.ref_bank (ref_bank_id, ref_bank_label) FROM stdin;
+1	BRI
+2	BANK JATIM
+3	MANDIRI
+\.
+
+
+--
 -- Data for Name: ref_bidang_usaha; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.ref_bidang_usaha (ref_bidang_id, ref_bidang_label) FROM stdin;
 1	Kuliner
-2	Peternakan
-3	Pertanian
 4	Jasa
+3	Pertanian
+5	Kuliner
+6	Peracangan
+8	Hiburan
 \.
 
 
@@ -1015,9 +1251,14 @@ COPY public.ref_bidang_usaha (ref_bidang_id, ref_bidang_label) FROM stdin;
 --
 
 COPY public.ref_group_akses (ref_group_akses_id, ref_group_akses_label) FROM stdin;
-1	Admin
-2	Surveyor
-4	Approval
+5	Pengaju
+6	Verifikator
+7	Surveyor
+8	Appoval Survey
+9	Persetujuan
+10	Pembayaran
+12	Super User
+13	Rekap
 \.
 
 
@@ -1055,9 +1296,9 @@ COPY public.ref_jenis_pengajuan (jns_pengajuan_id, jns_pengajuan_label) FROM std
 --
 
 COPY public.ref_kecamatan (ref_kec_id, ref_kec_label) FROM stdin;
-1	MOJOROTO
-2	KOTA
 3	PESANTREN
+2	MOJOROTO
+1	KOTA
 \.
 
 
@@ -1066,7 +1307,52 @@ COPY public.ref_kecamatan (ref_kec_id, ref_kec_label) FROM stdin;
 --
 
 COPY public.ref_kelurahan (ref_kel_id, ref_kel_label, ref_kel_kec_id) FROM stdin;
-1	MOJOROTO	1
+2	 Semampir	1
+3	 Dandangan	1
+4	 Ngadirejo	1
+5	 Pakelan	1
+6	 Pocanan	1
+7	 Banjaran	1
+8	 Jagalan	1
+9	 Kemasan	1
+10	 Kaliombo	1
+11	 Kampung Dalem	1
+12	 Ngronggo	1
+13	 Manisrenggo	1
+14	 Balowerti	1
+15	 Rejomulyo	1
+16	 Ringin Anom	1
+17	 Setono Gedong	1
+18	 Setono Pande	1
+19	Lirboyo	2
+20	 Campurejo	2
+21	 Bandar Lor	2
+22	 Dermo	2
+23	 Mrican	2
+24	 Mojoroto	2
+25	 Ngampel	2
+26	 Gayam	2
+27	 Sukorame	2
+28	 Pojok	2
+29	 Tamanan	2
+30	 Bandar Kidul	2
+31	 Banjarmelati	2
+32	 Bujel	2
+33	Jamsaren	3
+34	 Bangsal	3
+35	 Burengan	3
+36	 Pesantren	3
+37	 Pakunden	3
+38	 Singonegaran	3
+39	 Tinalan	3
+40	 Banaran	3
+41	 Tosaren	3
+42	 Betet	3
+43	 Blabak	3
+44	 Bawang	3
+45	 Ngletih	3
+46	 Tempurejo	3
+47	 Ketami	3
 \.
 
 
@@ -1075,22 +1361,27 @@ COPY public.ref_kelurahan (ref_kel_id, ref_kel_label, ref_kel_kec_id) FROM stdin
 --
 
 COPY public.ref_modul_akses (ref_modul_akses_id, ref_modul_akses_label, ref_modul_akses_group_id) FROM stdin;
-2	admin/aksesModul	1
-3	admin/survey	2
-4	admin/rekap	4
-5	admin/validasi	4
-6	#referensi	1
-7	admin/refPasar	1
-8	admin/refProduk	1
-9	admin/refProdukSatuan	1
-10	admin/refProdukVarian	1
-11	admin/refSeller	1
-12	#akses	1
-13	admin/aksesGroup	1
-14	admin/aksesModul	1
-15	admin/aksesUser	1
-16	admin/notifikasi	2
-17	admin/notifikasi	1
+20	admin/verifikasi	6
+21	admin/survey	7
+22	admin/addSurvey	8
+24	admin/pembayaran	10
+23	admin/persetujuan	9
+26	admin/verifikasi	12
+27	admin/survey	12
+28	admin/accSurvey	12
+29	admin/persetujuan	12
+30	admin/pembayaran	12
+31	#data_master	12
+32	admin/bidangUsaha	12
+33	admin/refBank	12
+34	admin/member	12
+35	admin/karyawan	12
+36	#hak_akses	12
+37	admin/aksesGroup	12
+38	admin/aksesModul	12
+39	admin/aksesUser	12
+40	admin/rekap	13
+41	admin/rekap	12
 \.
 
 
@@ -1099,13 +1390,7 @@ COPY public.ref_modul_akses (ref_modul_akses_id, ref_modul_akses_label, ref_modu
 --
 
 COPY public.ref_user_akses (ref_user_akses_id, ref_user_akses_user_id, ref_user_akses_group_id) FROM stdin;
-4	3	1
-5	3	2
-6	3	3
-7	2	2
-20	1	1
-21	1	2
-22	1	4
+33	1	12
 \.
 
 
@@ -1113,9 +1398,9 @@ COPY public.ref_user_akses (ref_user_akses_id, ref_user_akses_user_id, ref_user_
 -- Data for Name: survey; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.survey (survey_id, survey_nomor, survey_nomor_lengkap, survey_dasar, survey_untuk, survey_keterangan, survey_tanggal, survey_ttd_kar_id, survey_created_by, survey_created_at) FROM stdin;
-22	\N	\N	tes	tes	tes	2020-11-21	\N	1	2020-11-20 20:24:15
-24	\N	\N	\N	\N	\N	\N	\N	1	2020-11-20 22:54:52
+COPY public.survey (survey_id, survey_nomor, survey_nomor_lengkap, survey_dasar, survey_untuk, survey_keterangan, survey_tanggal, survey_ttd_kar_id, survey_created_by, survey_created_at, survey_surat_tugas_ttd, survey_cetak_ttd) FROM stdin;
+31	\N	nomor123	Ujicoba	Ujicoba	Ujicoba	2020-12-10	\N	1	2020-12-09 19:44:21	\N	\N
+32	\N	nomor321	ujicoba	ujicoba	ujicoba	2020-12-10	\N	1	2020-12-09 19:50:23	1608019453_f9163bfca6fe1585acde.png.png	1608019453_6e9b9aceacfe742521c1.png.png
 \.
 
 
@@ -1124,8 +1409,20 @@ COPY public.survey (survey_id, survey_nomor, survey_nomor_lengkap, survey_dasar,
 --
 
 COPY public.survey_detail (survey_det_id, survey_det_kar_id, survey_det_created_at, survey_det_created_by, survey_det_head_id) FROM stdin;
-2	1	\N	\N	22
-3	2	\N	\N	22
+18	2	\N	\N	31
+19	1	\N	\N	31
+20	2	\N	\N	32
+21	1	\N	\N	32
+\.
+
+
+--
+-- Data for Name: survey_hasil; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.survey_hasil (survey_hasil_id, survey_hasil_survey_id, survey_hasil_peng_id, survey_hasil_1_perijinan, survey_hasil_1_nilai_kes_usp, survey_hasil_1_rat, survey_hasil_1_jml_angg_produktif, survey_hasil_1_jml_angg, survey_hasil_2_modal_sendiri, survey_hasil_2_modal_luar, survey_hasil_3_usaha, survey_hasil_3_omset_per_tahun, survey_hasil_3_pendptn_per_tahun, survey_hasil_3_beban_operasional, survey_hasil_3_shu, survey_hasil_4_kas_per_bulan, survey_hasil_4_pengeluaran, survey_hasil_4_saldo, survey_hasil_5_jaminan, survey_hasil_5_taksiran_harga, survey_hasil_5_status_jaminan, survey_hasil_6_kelangsungan_hidup, survey_hasil_permasalahan, survey_hasil_created_at, survey_hasil_created_by, survey_hasil_1_status, survey_hasil_lock_is, survey_hasil_lock_at, survey_hasil_lock_by, survey_hasil_approve_is, survey_hasil_approve_at, survey_hasil_approve_by, survey_hasil_reject_is, survey_hasil_reject_at, survey_hasil_reject_by, survey_hasil_file) FROM stdin;
+11	31	23	Legal	Ujicoba	Ujicoba	10	10	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	2020-12-10 08:45:21.564029	\N	Ujicoba	t	2020-12-10 08:45:26.595193	1	t	2020-12-15 15:00:07.198602	1	f	2020-12-12 10:28:11.015998	1	\N
+12	32	24	Legal	ujicoba	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	2020-12-16 11:09:35.387089	\N	\N	f	2020-12-15 14:41:23.219944	1	t	2020-12-12 11:07:29.897836	1	f	2020-12-12 10:29:11.429378	1	1608018347_0ced3ef79cd506caee4f.pdf.pdf
 \.
 
 
@@ -1134,9 +1431,8 @@ COPY public.survey_detail (survey_det_id, survey_det_kar_id, survey_det_created_
 --
 
 COPY public.survey_tempat (survey_tem_id, survey_tem_head_id, survey_tem_peng_id) FROM stdin;
-7	22	9
-10	24	9
-11	24	13
+19	31	23
+20	32	24
 \.
 
 
@@ -1145,14 +1441,18 @@ COPY public.survey_tempat (survey_tem_id, survey_tem_head_id, survey_tem_peng_id
 --
 
 COPY public."user" (user_id, user_name, user_password, user_kar_id, user_disable, user_created_at, user_namalengkap, user_member_id) FROM stdin;
-1	admin	d033e22ae348aeb5660fc2140aec35850c4da997	0	f	2020-09-16 10:34:30.089515	Yusuf	\N
-2	surveyor	d033e22ae348aeb5660fc2140aec35850c4da997	0	f	2020-09-16 10:34:30.089515	Almi	\N
-3	wina	2fee5e53252cce3b7146551b6459fc99c3e28041	0	\N	\N	wina	\N
-6	yus	40bd001563085fc35165329ea1ff5c5ecbdbbeef	0	\N	\N	yusuf	17
 15	yus	36c3eaa0e1e290f41e2810bae8d9502c785e92d9	0	\N	2020-10-23 15:39:55.106223	yusuf	18
 19	almikurniawan	40bd001563085fc35165329ea1ff5c5ecbdbbeef	\N	\N	2020-11-06 15:08:25.874301	mohammad almi kurniawan	32
 20	patria	40bd001563085fc35165329ea1ff5c5ecbdbbeef	1	\N	2020-11-20 09:45:15.074359	PATRIA HADI WIJAYA,SH	\N
 21	husna	40bd001563085fc35165329ea1ff5c5ecbdbbeef	2	\N	2020-11-20 09:47:41.181877	HUSNAWATI,S.Sos	\N
+6	yus	40bd001563085fc35165329ea1ff5c5ecbdbbeef	0	\N	\N	yusuf	17
+3	wina	2fee5e53252cce3b7146551b6459fc99c3e28041	0	\N	\N	wina	\N
+2	surveyor	d033e22ae348aeb5660fc2140aec35850c4da997	0	f	2020-09-16 10:34:30.089515	Almi	\N
+22	ari	7158a9e0f8e84a0a74ed148e0f652dfbd4913a18	\N	\N	2020-12-08 14:32:26.902357	ari	34
+23	almikur	a9e0378601ec4a08f949292d349f0c9abe8f82e8	\N	\N	2020-12-09 08:27:34.243121	almi kurniawan	35
+24	ucup	36c3eaa0e1e290f41e2810bae8d9502c785e92d9	\N	\N	2020-12-09 09:00:04.940915	almi kurniawan	36
+25	anis	36c3eaa0e1e290f41e2810bae8d9502c785e92d9	\N	\N	2020-12-10 08:18:38.105918	Anis Fahmi	37
+1	admin	d033e22ae348aeb5660fc2140aec35850c4da997	0	f	2020-09-16 10:34:30.089515	Yusuf	\N
 \.
 
 
@@ -1174,21 +1474,28 @@ SELECT pg_catalog.setval('public.karyawan_kar_id_seq', 2, true);
 -- Name: member_member_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.member_member_id_seq', 32, true);
+SELECT pg_catalog.setval('public.member_member_id_seq', 37, true);
+
+
+--
+-- Name: pembayaran_pembayaran_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.pembayaran_pembayaran_id_seq', 1180, true);
 
 
 --
 -- Name: pengajuan_foto_peng_foto_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.pengajuan_foto_peng_foto_id_seq', 11, true);
+SELECT pg_catalog.setval('public.pengajuan_foto_peng_foto_id_seq', 19, true);
 
 
 --
 -- Name: pengajuan_peng_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.pengajuan_peng_id_seq', 13, true);
+SELECT pg_catalog.setval('public.pengajuan_peng_id_seq', 25, true);
 
 
 --
@@ -1199,17 +1506,24 @@ SELECT pg_catalog.setval('public.ref_approval_ref_approval_id_seq', 1, false);
 
 
 --
+-- Name: ref_bank_ref_bank_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.ref_bank_ref_bank_id_seq', 3, true);
+
+
+--
 -- Name: ref_bidang_usaha_ref_bidang_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.ref_bidang_usaha_ref_bidang_id_seq', 4, true);
+SELECT pg_catalog.setval('public.ref_bidang_usaha_ref_bidang_id_seq', 8, true);
 
 
 --
 -- Name: ref_group_akses_ref_group_akses_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.ref_group_akses_ref_group_akses_id_seq', 4, true);
+SELECT pg_catalog.setval('public.ref_group_akses_ref_group_akses_id_seq', 13, true);
 
 
 --
@@ -1237,49 +1551,56 @@ SELECT pg_catalog.setval('public.ref_kecamatan_ref_kec_id_seq', 3, true);
 -- Name: ref_kelurahan_ref_kel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.ref_kelurahan_ref_kel_id_seq', 1, true);
+SELECT pg_catalog.setval('public.ref_kelurahan_ref_kel_id_seq', 47, true);
 
 
 --
 -- Name: ref_modul_akses_ref_modul_akses_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.ref_modul_akses_ref_modul_akses_id_seq', 18, true);
+SELECT pg_catalog.setval('public.ref_modul_akses_ref_modul_akses_id_seq', 41, true);
 
 
 --
 -- Name: ref_user_akses_ref_user_akses_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.ref_user_akses_ref_user_akses_id_seq', 22, true);
+SELECT pg_catalog.setval('public.ref_user_akses_ref_user_akses_id_seq', 33, true);
 
 
 --
 -- Name: survey_detail_survey_det_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.survey_detail_survey_det_id_seq', 3, true);
+SELECT pg_catalog.setval('public.survey_detail_survey_det_id_seq', 21, true);
+
+
+--
+-- Name: survey_hasil_survey_hasil_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.survey_hasil_survey_hasil_id_seq', 12, true);
 
 
 --
 -- Name: survey_survey_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.survey_survey_id_seq', 24, true);
+SELECT pg_catalog.setval('public.survey_survey_id_seq', 32, true);
 
 
 --
 -- Name: survey_tempat_survey_tem_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.survey_tempat_survey_tem_id_seq', 11, true);
+SELECT pg_catalog.setval('public.survey_tempat_survey_tem_id_seq', 20, true);
 
 
 --
 -- Name: user_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.user_user_id_seq', 21, true);
+SELECT pg_catalog.setval('public.user_user_id_seq', 25, true);
 
 
 --
@@ -1307,6 +1628,14 @@ ALTER TABLE ONLY public.member
 
 
 --
+-- Name: pembayaran pembayaran_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.pembayaran
+    ADD CONSTRAINT pembayaran_pkey PRIMARY KEY (pembayaran_id);
+
+
+--
 -- Name: pengajuan_foto pengajuan_foto_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1320,6 +1649,14 @@ ALTER TABLE ONLY public.pengajuan_foto
 
 ALTER TABLE ONLY public.pengajuan
     ADD CONSTRAINT pengajuan_pkey PRIMARY KEY (peng_id);
+
+
+--
+-- Name: ref_bank ref_bank_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ref_bank
+    ADD CONSTRAINT ref_bank_pkey PRIMARY KEY (ref_bank_id);
 
 
 --
@@ -1384,6 +1721,14 @@ ALTER TABLE ONLY public.ref_user_akses
 
 ALTER TABLE ONLY public.survey_detail
     ADD CONSTRAINT survey_detail_pkey PRIMARY KEY (survey_det_id);
+
+
+--
+-- Name: survey_hasil survey_hasil_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.survey_hasil
+    ADD CONSTRAINT survey_hasil_pkey PRIMARY KEY (survey_hasil_id);
 
 
 --

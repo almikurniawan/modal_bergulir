@@ -48,6 +48,8 @@ class Login extends BaseController
 			'member_nama_lengkap' 	=> $this->request->getPost('member_nama_lengkap'),
 			'member_alamat' 		=> $this->request->getPost('member_alamat'),
 			'member_no_telp' 		=> $this->request->getPost('member_no_telp'),
+			'member_pekerjaan' 		=> $this->request->getPost('member_pekerjaan'),
+			'member_no_ktp' 		=> $this->request->getPost('member_no_ktp'),
 			'member_kelurahan' 		=> $this->request->getPost('member_kelurahan'),
 			'member_created_at'		=> 'now()',
 		);

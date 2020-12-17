@@ -222,7 +222,7 @@ class CetakSPPK extends BaseController
         <td style="width: 4.83871%;">4.</td>
         <td style="width: 24.3952%;">Suku bunga</td>
         <td style="width: 2.01613%;">:</td>
-        <td style="width: 68.75%;">4% ( empat persen ) pertahun &nbsp;dibayar di depan</td>
+        <td style="width: 68.75%;">'.$pengajuan['peng_srt_bunga'].'% ( '.str_replace("rupiah","",terbilang($pengajuan['peng_srt_bunga'])).' persen ) pertahun &nbsp;dibayar di depan</td>
         </tr>
         <tr>
         <td style="width: 4.83871%;">5.</td>

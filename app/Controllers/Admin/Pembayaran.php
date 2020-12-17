@@ -13,10 +13,10 @@ class Pembayaran extends BaseController
     {
         $data['grid']   = $this->grid_pembayaran();
         $data['search'] = '';
-        $data['title']  = 'pembayaran';
+        $data['title']  = 'Pembayaran';
         $data['url_delete']  = '';
 
-        return view('global/list', $data);
+        return view('admin/pembayaran/list', $data);
     }
 
     public function grid_pembayaran()
@@ -206,7 +206,42 @@ class Pembayaran extends BaseController
         return view('admin/pembayaran/form_file', $data);
     }
 
+    public function importPembayran(Type $var = null)
+    {
+        // $data = $this->db->table('pengajuan')->select('*')->getWhere(['peng_id' => $peng_id])->getRowArray();
+        $data['form']   = $this->formImportPembayran();
+        $data['title']  = 'Import Excell Pembayaran';
+        $data['url_back']   = '';
 
+        return view('admin/pembayaran/form_file', $data);
+    }
+    public function formImportPembayran()
+    {
+        $form = new Form();
+        $form->set_attribute_form('class="form-horizontal" enctype="multipart/form-data"')
+            ->add('file_upload', 'File Excell Pembayaran', 'file', false,  '', ' style="width:100%;" ');
+
+        if ($form->formVerified()) {
+            $file = $this->request->getFile('file_upload');
+            $name = "importExcell_" . $file->getRandomName();
+            if ($file->move('./uploads/', $name)) {
+                $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('C:\xampp7\htdocs\apps\dinkop\public\uploads\\' . $name);
+                $xls_data = $spreadsheet->getSheet(0)->toArray();
+                // print_r($xls_data);die();
+                foreach ($xls_data as $key => $value) {
+                    if ($key > 2 & $value[2] > 0) {
+                        $this->db->table("pembayaran")->where(['pembayaran_penetapan_no' => $value[0], 'pembayaran_ke' => $value[2]])->update([
+                            'pembayaran_lunas_is' => 'true',
+                            'pembayaran_lunas_tanggal' => date('Y-m-d', strtotime($value[3]))
+                        ]);
+                    }
+                }
+            }
+            die('<script>window.opener.gridReload();window.close();</script>');
+        } else {
+            return $form->output();
+        }
+    }
     public function import($peng_id)
     {
         $form = new Form();

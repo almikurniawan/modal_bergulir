@@ -34,6 +34,7 @@ class Grid{
             'gridReload'    => "gridReload()",
             'datasouce_name'=> $this->uniq_id,
             'grid_name'     => $this->uniq_id,
+            'scrollable'    => 'false',
             'fields'        => array(
             ),
             'datasouce_url' => '',

@@ -28,7 +28,12 @@ class SurveyHasil extends BaseController
                 survey_tem_id as id,
                 '<a href=\"" . base_url('admin/surveyHasil/form') . "/" . $id . "/'||peng_id||'\" class=\"btn btn-primary btn-xs btn-raised\">Buat Hasil</a> ' as action,
                 case when survey_hasil_lock_is is true then '<button onclick=\"surveyHasil_buka_kunci('||survey_hasil_id||')\" class=\"btn btn-danger bmd-btn-fab-sm bmd-btn-fab\" title=\"Buka Kunci\"><i class=\"k-icon k-i-unlock\"></i> </button>' else '<button onclick=\"surveyHasil_kunci('||survey_hasil_id||')\" class=\"btn btn-success bmd-btn-fab-sm bmd-btn-fab\" title=\"Kunci\"><i class=\"k-icon k-i-lock\"></i> </button>' end as kunci,
-                case when survey_hasil_lock_is is true then '<span class=\"badge badge-success\">Terkunci</span>' when survey_hasil_lock_is is false then '<span class=\"badge badge-danger\">Belum Dikunci</span>' else '<span class=\"badge badge-warning\">-</span>' end as status
+                case 
+                    when survey_hasil_reject_is is true then '<span class=\"badge badge-danger\">Rejected</span>' 
+                    when survey_hasil_approve_is is true then '<span class=\"badge badge-success\">Approved</span>' 
+                    when survey_hasil_lock_is is true then '<span class=\"badge badge-success\">Terkunci</span>' 
+                    when survey_hasil_lock_is is false then '<span class=\"badge badge-danger\">Belum Dikunci</span>' 
+                    else '<span class=\"badge badge-warning\">-</span>' end as status
                 from survey_tempat
                 left join survey_hasil on survey_tem_head_id = survey_hasil_survey_id and survey_tem_peng_id = survey_hasil_peng_id
                 left join pengajuan on peng_id = survey_tem_peng_id
@@ -127,7 +132,7 @@ class SurveyHasil extends BaseController
             $data = $this->db->table("survey_hasil")->getWhere(['survey_hasil_peng_id' => $peng_id])->getRowArray();
         }
         $form = new Form();
-        $form->set_attribute_form('class="form-horizontal"')->set_resume(($data['survey_hasil_lock_is'] == "t" ? true : false))->set_template_column(2)
+        $form->set_attribute_form('class="form-horizontal" enctype="multipart/form-data"')->set_resume(($data['survey_hasil_lock_is'] == "t" ? true : false))->set_template_column(2)
             ->add('survey_hasil_1_perijinan', 'Perijinan yang dimiliki', 'text', FALSE, !empty($data) ? $data['survey_hasil_1_perijinan'] : '', 'style="width:100%;"')
             ->add('survey_hasil_1_nilai_kes_usp', 'Penilaian Kesehatan USP', 'text', FALSE, !empty($data) ? $data['survey_hasil_1_nilai_kes_usp'] : '', 'style="width:100%;"')
             ->add('survey_hasil_1_rat', 'Pelaksanaan RAT', 'text', FALSE, !empty($data) ? $data['survey_hasil_1_rat'] : '', 'style="width:100%;"')
@@ -146,11 +151,19 @@ class SurveyHasil extends BaseController
             ->add('survey_hasil_5_taksiran_harga', 'Taksiran harga', 'number', FALSE, !empty($data) ? $data['survey_hasil_5_taksiran_harga'] : '', 'style="width:100%;"')
             ->add('survey_hasil_5_status_jaminan', 'Status Jaminan', 'text', FALSE, !empty($data) ? $data['survey_hasil_5_status_jaminan'] : '', 'style="width:100%;"')
             ->add('survey_hasil_6_kelangsungan_hidup', 'Aspek kelangsungan hidup', 'text', FALSE, !empty($data) ? $data['survey_hasil_6_kelangsungan_hidup'] : '', 'style="width:100%;"')
-            ->add('survey_hasil_permasalahan', 'PERMASALAHAN', 'text', FALSE, !empty($data) ? $data['survey_hasil_permasalahan'] : '', 'style="width:100%;"');
+            ->add('survey_hasil_permasalahan', 'PERMASALAHAN', 'text', FALSE, !empty($data) ? $data['survey_hasil_permasalahan'] : '', 'style="width:100%;"')
+            ->add('survey_hasil_file', 'File', 'file', FALSE, !empty($data) ? base_url().'/uploads/'.$data['survey_hasil_file'] : base_url().'/uploads/'.$data['survey_hasil_file'], 'style="width:100%;"');
 
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
-            // print_r($data);DIE();
+            $file = $this->request->getFile('survey_hasil_file');
+            if ($file->getName() != '') {
+                $ext = $file->getClientExtension();
+                $name = $file->getRandomName() . "." . $ext;
+                if ($file->move('./uploads/', $name)) {
+                    $dataForm['survey_hasil_file'] = $name;
+                }
+            }
             if (!empty($data)) {
                 $this->db->table("survey_hasil")->where('survey_hasil_peng_id', $peng_id)->update($dataForm);
             }
@@ -166,6 +179,7 @@ class SurveyHasil extends BaseController
             'survey_hasil_lock_is' => 'true',
             'survey_hasil_lock_at' => 'now()',
             'survey_hasil_lock_by' => $this->user['user_id'],
+            'survey_hasil_reject_is' => 'false'
         ]);
         return $this->response->setJSON([
             'status' => true,

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
@@ -16,7 +17,7 @@ class Survey extends BaseController
         $data['title']  = 'Survey';
         $data['url_delete']  = '';
 
-        return view('global/list', $data);
+        return view('admin/survey/list', $data);
     }
 
     public function grid_survey()
@@ -24,14 +25,14 @@ class Survey extends BaseController
         $SQL = "SELECT
                     *,
                     survey_id as id,
-                    '<a href=\"".base_url('admin/surveyHasil/index')."/'||survey_id||'\" class=\"btn btn-primary btn-xs btn-raised\">Hasil Survey </a> <a target=\"_new\" href=\"".base_url('admin/survey/jadwal')."/'||survey_id||'\" class=\"btn btn-raised btn-success\">Surat Tugas</a> <a target=\"_new\" href=\"".base_url('admin/cetakBI/index')."/'||survey_id||'\" class=\"btn btn-raised btn-danger\">Cetak</a>' as action
+                    '<a href=\"" . base_url('admin/surveyHasil/index') . "/'||survey_id||'\" class=\"btn btn-primary btn-xs btn-raised\">Hasil Survey </a> <a target=\"_new\" href=\"" . base_url('admin/survey/jadwal') . "/'||survey_id||'\" class=\"btn btn-raised btn-success\">Surat Tugas</a> <button onclick=\"upload_cetak('||survey_id||')\" class=\"btn btn-success bmd-btn-fab-sm bmd-btn-fab\" title=\"Upload\"><i class=\"k-icon k-i-upload\"></i> </button> <a target=\"_new\" href=\"" . base_url('admin/cetakBI/index') . "/'||survey_id||'\" class=\"btn btn-raised btn-danger\">Cetak</a> <a target=\"_new\" href=\"" . base_url('admin/cetakFormSurvey/cetak') . "/'||survey_id||'\" class=\"btn btn-raised btn-success\">Cetak Form</a>' as action
                 from survey";
-                // die($SQL);
-        $action['detail'] = ['link'=> 'admin/survey/form/'];
+        // die($SQL);
+        $action['detail'] = ['link' => 'admin/survey/form/'];
         $grid = new Grid();
-        return $grid->set_query($SQL,[
+        return $grid->set_query($SQL, [
             ['survey_nomor', $this->request->getGet('nomor')],
-            ['survey_tanggal', $this->request->getGet('tanggal'),'=']
+            ['survey_tanggal', $this->request->getGet('tanggal'), '=']
         ])
             ->set_sort(array('id', 'desc'))
             ->configure(
@@ -53,13 +54,13 @@ class Survey extends BaseController
                         array(
                             'field' => 'survey_tanggal',
                             'title' => 'Tanggal',
-                            'format'=> 'date',
+                            'format' => 'date',
                         ),
                         array(
                             'field' => 'action',
                             'title' => 'Action',
-                            'width' => 200,
-                            'encoded'=> false
+                            'width' => 250,
+                            'encoded' => false
                         ),
                     ),
                     "action"    => $action,
@@ -67,7 +68,7 @@ class Survey extends BaseController
                 )
             )
             ->set_label_add('Buat Jadwal Survey')
-            ->set_sort(['id','desc'])
+            ->set_sort(['id', 'desc'])
             ->output();
     }
 
@@ -106,10 +107,10 @@ class Survey extends BaseController
                     left join ref_jenis_pengajuan on ref_jenis_pengajuan.jns_pengajuan_id = peng_jenis_pengajuan";
 
         $filter = array(
-            ['member_nama_lengkap',$this->request->getGet('member')],
-            ['peng_tanggal',$this->request->getGet('tanggal'),'='],
-            ['peng_verif_is','true','is'],
-            ['peng_surv_is','not true','is']
+            ['member_nama_lengkap', $this->request->getGet('member')],
+            ['peng_tanggal', $this->request->getGet('tanggal'), '='],
+            ['peng_verif_is', 'true', 'is'],
+            ['peng_surv_is', 'not true', 'is']
         );
 
         $grid = new Grid();
@@ -130,54 +131,54 @@ class Survey extends BaseController
                         array(
                             'field' => 'peng_tanggal',
                             'title' => 'Tanggal',
-                            'format'=> 'date'
+                            'format' => 'date'
                         ),
                         array(
                             'field' => 'peng_nominal',
                             'title' => 'Jumlah Pinjaman',
-                            'format'=> 'number',
+                            'format' => 'number',
                             'align' => 'right'
                         ),
                         array(
                             'field' => 'status',
                             'title' => 'Status',
-                            'encoded'=> false
+                            'encoded' => false
                         ),
                         array(
                             'field' => 'action',
                             'title' => 'Aksi',
-                            'encoded'=> false
+                            'encoded' => false
                         )
                     ),
                 )
             )
-            ->set_sort(['status','desc'])
+            ->set_sort(['status', 'desc'])
             ->output();
     }
 
     public function proses()
     {
-        $peng_id = explode(",",$this->request->getGet('id'));
+        $peng_id = explode(",", $this->request->getGet('id'));
         $dataSurvey = array(
-            'survey_created_by'=> $this->user['user_id'],
-            'survey_created_at'=> date("Y-m-d H:i:s")
+            'survey_created_by' => $this->user['user_id'],
+            'survey_created_at' => date("Y-m-d H:i:s")
         );
 
         $this->db->table("survey")->insert($dataSurvey);
         $id = $this->db->insertId();
 
-        foreach($peng_id as $val){
+        foreach ($peng_id as $val) {
             $dataTempat = array(
-                'survey_tem_head_id'=> $id,
-                'survey_tem_peng_id'=> $val
+                'survey_tem_head_id' => $id,
+                'survey_tem_peng_id' => $val
             );
             $this->db->table("survey_tempat")->insert($dataTempat);
             $this->db->table("pengajuan")->where("peng_id", $val)->update([
-                'peng_surv_is'=> true,
-                'peng_surv_id'=> $id
+                'peng_surv_is' => true,
+                'peng_surv_id' => $id
             ]);
         }
-        return redirect()->to(base_url("admin/survey/form/".$id));
+        return redirect()->to(base_url("admin/survey/form/" . $id));
     }
 
     public function form($surv_id)
@@ -194,7 +195,7 @@ class Survey extends BaseController
 
     public function form_survey($surv_id)
     {
-        $data = $this->db->table("survey")->getWhere(['survey_id'=> $surv_id])->getRowArray();
+        $data = $this->db->table("survey")->getWhere(['survey_id' => $surv_id])->getRowArray();
         $form = new Form();
         $form->set_attribute_form('class="form-horizontal"')
             ->set_template_column(2)
@@ -202,22 +203,21 @@ class Survey extends BaseController
             ->add('survey_dasar', 'Dasar', 'text', true, !empty($data) ? $data['survey_dasar'] : '', 'style="width:100%;"')
             ->add('survey_untuk', 'Untuk', 'text', true, !empty($data) ? $data['survey_untuk'] : '', 'style="width:100%;"')
             ->add('survey_keterangan', 'Keterangan', 'textArea', true, !empty($data) ? $data['survey_keterangan'] : '', 'style="width:100%;"')
-            ->add('survey_tanggal', 'Tanggal', 'date', true, !empty($data) ? $data['survey_tanggal'] : '', 'style="width:100%;"')
-            ;
+            ->add('survey_tanggal', 'Tanggal', 'date', true, !empty($data) ? $data['survey_tanggal'] : '', 'style="width:100%;"');
 
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
-            if(!empty($data)){
+            if (!empty($data)) {
                 $this->db->table("survey")->where('survey_id', $surv_id)->update($dataForm);
-            }else{
+            } else {
                 $this->db->table("survey")->insert($dataForm);
             }
             return $form->output();
-        }else{
+        } else {
             return $form->output();
         }
     }
-    
+
     public function grid_tempat($surv_id)
     {
         $SQL = "SELECT
@@ -232,13 +232,13 @@ class Survey extends BaseController
         );
         $grid = new Grid();
         return $grid->set_query($SQL, [
-            ["survey_tem_head_id",$surv_id,'=']
+            ["survey_tem_head_id", $surv_id, '=']
         ])
             ->set_sort(array('id', 'desc'))
             ->configure(
                 array(
-                    'datasouce_url' => base_url("admin/survey/grid_tempat/".$surv_id."?datasource&" . get_query_string()),
-                    'gridReload'=>'gridReloadTempat()',
+                    'datasouce_url' => base_url("admin/survey/grid_tempat/" . $surv_id . "?datasource&" . get_query_string()),
+                    'gridReload' => 'gridReloadTempat()',
                     'grid_columns'  => array(
                         array(
                             'field' => 'peng_prof_nama_usaha',
@@ -252,7 +252,7 @@ class Survey extends BaseController
                     'action'    => $action,
                 )
             )
-            ->set_sort(['id','desc'])
+            ->set_sort(['id', 'desc'])
             ->output();
     }
 
@@ -269,13 +269,13 @@ class Survey extends BaseController
         );
         $grid = new Grid();
         return $grid->set_query($SQL, [
-            ['survey_detail.survey_det_head_id',$surv_id,'=']
+            ['survey_detail.survey_det_head_id', $surv_id, '=']
         ])
             ->set_sort(array('id', 'desc'))
             ->configure(
                 array(
-                    'datasouce_url' => base_url("admin/survey/grid_petugas/".$surv_id."?datasource&" . get_query_string()),
-                    'gridReload'=>'gridReloadPetugas()',
+                    'datasouce_url' => base_url("admin/survey/grid_petugas/" . $surv_id . "?datasource&" . get_query_string()),
+                    'gridReload' => 'gridReloadPetugas()',
                     'grid_columns'  => array(
                         array(
                             'field' => 'kar_nama',
@@ -297,7 +297,7 @@ class Survey extends BaseController
                     'action'    => $action,
                 )
             )
-            ->set_sort(['id','desc'])
+            ->set_sort(['id', 'desc'])
             ->output();
     }
 
@@ -306,8 +306,8 @@ class Survey extends BaseController
         $id = $this->request->getPost('id');
         $this->db->table("survey_tempat")->where('survey_tem_id', $id)->delete();
         return $this->response->setJSON([
-            'status'=>true,
-            'message'=>'Sukses delete lokasi survey'
+            'status' => true,
+            'message' => 'Sukses delete lokasi survey'
         ]);
     }
 
@@ -316,8 +316,8 @@ class Survey extends BaseController
         $id = $this->request->getPost('id');
         $this->db->table("survey_detail")->where('survey_det_id', $id)->delete();
         return $this->response->setJSON([
-            'status'=>true,
-            'message'=>'Sukses delete petugas survey'
+            'status' => true,
+            'message' => 'Sukses delete petugas survey'
         ]);
     }
 
@@ -341,8 +341,8 @@ class Survey extends BaseController
             'peng_surv_id' => $surv_id
         ]);
         return $this->response->setJSON([
-            'status'=> true,
-            'message'=> 'Sukses menambah lokasi'
+            'status' => true,
+            'message' => 'Sukses menambah lokasi'
         ]);
     }
 
@@ -356,14 +356,14 @@ class Survey extends BaseController
                 FROM
                     pengajuan";
         $grid = new Grid();
-        return $grid->set_query($SQL,[
-            ['peng_surv_is','false','is'],
-            ['peng_verif_is','true','is']
+        return $grid->set_query($SQL, [
+            ['peng_surv_is', 'false', 'is'],
+            ['peng_verif_is', 'true', 'is']
         ])
             ->set_sort(array('id', 'desc'))
             ->configure(
                 array(
-                    'datasouce_url' => base_url("admin/survey/grid_lokasi_belum_survey/".$surv_id."?datasource&" . get_query_string()),
+                    'datasouce_url' => base_url("admin/survey/grid_lokasi_belum_survey/" . $surv_id . "?datasource&" . get_query_string()),
                     'grid_columns'  => array(
                         array(
                             'field' => 'peng_prof_nama_usaha',
@@ -377,12 +377,12 @@ class Survey extends BaseController
                             'field' => 'action',
                             'title' => 'Action',
                             'width' => 100,
-                            'encoded'=> false
+                            'encoded' => false
                         ),
                     ),
                 )
             )
-            ->set_sort(['id','desc'])
+            ->set_sort(['id', 'desc'])
             ->output();
     }
 
@@ -402,8 +402,8 @@ class Survey extends BaseController
             'survey_det_kar_id' => $kar_id
         ]);
         return $this->response->setJSON([
-            'status'=> true,
-            'message'=> 'Sukses menambah petugas'
+            'status' => true,
+            'message' => 'Sukses menambah petugas'
         ]);
     }
 
@@ -420,12 +420,12 @@ class Survey extends BaseController
         );
         $grid = new Grid();
         return $grid->set_query($SQL, [
-            ['kar_id','(select survey_det_kar_id from survey_detail where survey_detail.survey_det_head_id='.$surv_id.')','not in']
+            ['kar_id', '(select survey_det_kar_id from survey_detail where survey_detail.survey_det_head_id=' . $surv_id . ')', 'not in']
         ])
             ->set_sort(array('id', 'desc'))
             ->configure(
                 array(
-                    'datasouce_url' => base_url("admin/survey/grid_petugas_belum_survey/".$surv_id."?datasource&" . get_query_string()),
+                    'datasouce_url' => base_url("admin/survey/grid_petugas_belum_survey/" . $surv_id . "?datasource&" . get_query_string()),
                     'grid_columns'  => array(
                         array(
                             'field' => 'kar_nama',
@@ -447,80 +447,80 @@ class Survey extends BaseController
                             'field' => 'action',
                             'title' => 'Action',
                             'width' => 100,
-                            'encoded'=> false
+                            'encoded' => false
                         ),
                     ),
                 )
             )
-            ->set_sort(['id','desc'])
+            ->set_sort(['id', 'desc'])
             ->output();
     }
     public function jadwal($jadwal_id)
     {
         $pdf = new TCPDF('P', PDF_UNIT, 'A4', true, 'UTF-8', false);
-		setlocale(LC_TIME, 'id_ID');
-		$pdf->SetCreator(PDF_CREATOR);
-		$pdf->SetAuthor('DINKOP');
-		$pdf->SetTitle('Profil');
-		$pdf->SetSubject('Profil');
+        setlocale(LC_TIME, 'id_ID');
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('DINKOP');
+        $pdf->SetTitle('Profil');
+        $pdf->SetSubject('Profil');
 
-		$pdf->setPrintHeader(false);
-		$pdf->setPrintFooter(false);
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
 
-		$pdf->SetMargins(10, 10, 10);
-		$pdf->SetAutoPageBreak(TRUE, 5);
+        $pdf->SetMargins(10, 10, 10);
+        $pdf->SetAutoPageBreak(TRUE, 5);
 
-		$pdf->SetFont('times', '', 11, '', 'false');
+        $pdf->SetFont('times', '', 11, '', 'false');
 
-		$pdf->addPage();
+        $pdf->addPage();
         $pdf->writeHTML($this->html_jadwal($jadwal_id), true, false, true, false, '');
-        
+
         $pdf->Output();
         die();
     }
 
     public function html_jadwal($jadwal_id)
     {
-        $data_survey = $this->db->table("survey")->getWhere(['survey_id'=>$jadwal_id])->getRowArray();
-        $data_kepada = $this->db->query("select * from survey_detail left join karyawan on kar_id = survey_det_kar_id where survey_det_head_id=".$jadwal_id)->getResultArray();
+        $data_survey = $this->db->table("survey")->getWhere(['survey_id' => $jadwal_id])->getRowArray();
+        $data_kepada = $this->db->query("select * from survey_detail left join karyawan on kar_id = survey_det_kar_id where survey_det_head_id=" . $jadwal_id)->getResultArray();
 
         $kepada = '';
         $nomor = 1;
         foreach ($data_kepada as $key => $value) {
             $kepada .= '<tr>
-                            <td style="width: 3.45525%;">'.$nomor.'.</td>
+                            <td style="width: 3.45525%;">' . $nomor . '.</td>
                             <td style="width: 29.8781%;">Nama</td>
-                            <td style="width: 66.6666%;">: '.$value['kar_nama'].'</td>
+                            <td style="width: 66.6666%;">: ' . $value['kar_nama'] . '</td>
                             </tr>
                             <tr>
                             <td style="width: 3.45525%;">&nbsp;</td>
                             <td style="width: 29.8781%;">NIP</td>
-                            <td style="width: 66.6666%;">: '.$value['kar_nip'].'</td>
+                            <td style="width: 66.6666%;">: ' . $value['kar_nip'] . '</td>
                             </tr>
                             <tr>
                             <td style="width: 3.45525%;">&nbsp;</td>
                             <td style="width: 29.8781%;">Pangkat / Gol</td>
-                            <td style="width: 66.6666%;">: '.$value['kar_pangkat'].'</td>
+                            <td style="width: 66.6666%;">: ' . $value['kar_pangkat'] . '</td>
                             </tr>
                             <tr>
                             <td style="width: 3.45525%;">&nbsp;</td>
                             <td style="width: 29.8781%;">Jabatan</td>
-                            <td style="width: 66.6666%;">: '.$value['kar_jabatan'].'</td>
+                            <td style="width: 66.6666%;">: ' . $value['kar_jabatan'] . '</td>
                         </tr>';
             $nomor++;
         }
 
-        $data_tempat = $this->db->query("select pengajuan.* from survey_tempat left join pengajuan on survey_tem_peng_id = peng_id where survey_tem_head_id=".$jadwal_id)->getResultArray();
+        $data_tempat = $this->db->query("select pengajuan.* from survey_tempat left join pengajuan on survey_tem_peng_id = peng_id where survey_tem_head_id=" . $jadwal_id)->getResultArray();
         $tempat = '';
         foreach ($data_tempat as $key => $value) {
             $nomor = 1;
             $tempat .= '<tr>
-                            <td style="width: 4.2683%;">'.$nomor.'.</td>
-                            <td style="width: 95.7317%;">'.$value['peng_prof_nama_usaha'].'</td>
+                            <td style="width: 4.2683%;">' . $nomor . '.</td>
+                            <td style="width: 95.7317%;">' . $value['peng_prof_nama_usaha'] . '</td>
                             </tr>
                             <tr>
                             <td style="width: 4.2683%;">&nbsp;</td>
-                            <td style="width: 95.7317%;">'.$value['peng_prof_alamat'].'</td>
+                            <td style="width: 95.7317%;">' . $value['peng_prof_alamat'] . '</td>
                         </tr>';
             $nomor++;
         }
@@ -538,12 +538,12 @@ class Survey extends BaseController
         <tr>
         <td style="width: 50.3929%;">&nbsp;</td>
         <td style="width: 25%;">NOMOR </td>
-        <td>: '.$data_survey['survey_nomor_lengkap'].'</td>
+        <td>: ' . $data_survey['survey_nomor_lengkap'] . '</td>
         </tr>
         <tr>
         <td style="width: 50.3929%;">&nbsp;</td>
         <td style="width: 25%;">Tanggal </td>
-        <td>: '.date_format(date_create($data_survey['survey_created_at']),'d F Y').'</td>
+        <td>: ' . date_format(date_create($data_survey['survey_created_at']), 'd F Y') . '</td>
         </tr>
         </tbody>
         </table>
@@ -602,7 +602,7 @@ class Survey extends BaseController
         </table>
         <table style="border-collapse: collapse; width: 100%;">
         <tbody>
-        '.$kepada.'
+        ' . $kepada . '
         </tbody>
         </table>
         <p>&nbsp;</p>
@@ -610,11 +610,11 @@ class Survey extends BaseController
         <tbody>
         <tr>
         <td style="width: 18.2927%;">Untuk</td>
-        <td style="width: 81.7073%;">: '.$data_survey['survey_untuk'].'</td>
+        <td style="width: 81.7073%;">: ' . $data_survey['survey_untuk'] . '</td>
         </tr>
         <tr>
         <td style="width: 18.2927%;">Waktu</td>
-        <td style="width: 81.7073%;">: '.date_format(date_create($data_survey['survey_tanggal']),'d F Y').'</td>
+        <td style="width: 81.7073%;">: ' . date_format(date_create($data_survey['survey_tanggal']), 'd F Y') . '</td>
         </tr>
         <tr>
         <td style="width: 18.2927%;">Tempat</td>
@@ -624,7 +624,7 @@ class Survey extends BaseController
         </table>
         <table style="border-collapse: collapse; width: 100%;">
         <tbody>
-        '.$tempat.'
+        ' . $tempat . '
         </tbody>
         </table>
         <table style="border-collapse: collapse; width: 100%;">
@@ -649,7 +649,7 @@ class Survey extends BaseController
         <tr style="height: 18px;">
         <td style="width: 53.0487%; height: 18px;">&nbsp;</td>
         <td style="width: 26.2195%; height: 18px;">Pada tanggal</td>
-        <td style="width: 20.7317%; height: 18px;">: '.date_format(date_create($data_survey['survey_created_at']),'d F Y').'</td>
+        <td style="width: 20.7317%; height: 18px;">: ' . date_format(date_create($data_survey['survey_created_at']), 'd F Y') . '</td>
         </tr>
         </tbody>
         </table>
@@ -692,5 +692,46 @@ class Survey extends BaseController
        ';
 
         return $html;
+    }
+    public function upload_cetakan($id)
+    {
+        $data['title']  = 'Upload Bertanda tangan';
+        $data['form']   = $this->form_upload_cetakan($id);
+        $data['url_back'] = base_url('admin');
+        return view('global/form_pop', $data);
+    }
+    public function form_upload_cetakan($id)
+    {
+        $data = $this->db->table('survey')->getWhere(['survey_id' => $id])->getRowArray();
+
+        $form = new Form();
+        $form->set_attribute_form('class="form-horizontal" enctype="multipart/form-data"')
+            ->add('survey_surat_tugas_ttd', 'Surat tugas bertanda tangan', 'file', false, empty($data['survey_surat_tugas_ttd']) ? '' : base_url() . '/uploads/' . $data['survey_surat_tugas_ttd'], 'style="width:100%;"')
+            ->add('survey_cetak_ttd', 'Cetak bertanda tangan', 'file', false, empty($data['survey_cetak_ttd']) ? '' : base_url() . '/uploads/' . $data['survey_cetak_ttd'], 'style="width:100%;"');
+        if ($form->formVerified()) {
+            $dataForm = $form->get_data();
+            $file = $this->request->getFile('survey_surat_tugas_ttd');
+            if ($file->getName() != '') {
+                $ext = $file->getClientExtension();
+                $name = $file->getName();
+                $name = $file->getRandomName() . "." . $ext;
+                if ($file->move('./uploads/', $name)) {
+                    $dataForm['survey_surat_tugas_ttd'] = $name;
+                }
+            }
+            $file = $this->request->getFile('survey_cetak_ttd');
+            if ($file->getName() != '') {
+                $ext = $file->getClientExtension();
+                $name = $file->getName();
+                $name = $file->getRandomName() . "." . $ext;
+                if ($file->move('./uploads/', $name)) {
+                    $dataForm['survey_cetak_ttd'] = $name;
+                }
+            }
+            $this->db->table("survey")->where('survey_id', $id)->update($dataForm);
+            die('<script>window.close();</script>');
+        } else {
+            return $form->output();
+        }
     }
 }

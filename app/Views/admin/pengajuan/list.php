@@ -7,7 +7,7 @@
                 <h1 class="card-title mb-4">
                     <?= $title ?>
                 </h1>
-                <hr/>
+                <hr />
 
                 <?= $search . $grid ?>
             </div>
@@ -29,6 +29,12 @@
             }, 'json');
         }, function() {});
     }
-    
+
+    function upload_cetak(id) {
+        showForm(1000, 600, '_newpop', '<?= base_url('admin/pengajuan/upload_cetakan') ?>/' + id);
+    }
+    function lihat_cetak(id) {
+        showForm(1000, 600, '_newpop', '<?= base_url('admin/pengajuan/lihat_cetakan') ?>/' + id);
+    }
 </script>
 <?= $this->endSection() ?>

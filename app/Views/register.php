@@ -234,7 +234,7 @@
 
 		.card .input-container {
 			position: relative;
-			margin: 0 60px 50px;
+			margin: 0 60px 40px;
 		}
 
 		.card .input-container input  {
@@ -571,6 +571,11 @@
 									<label for="member_nama_lengkap">Nama Lengkap</label>
 									<div class="bar"></div>
 								</div>
+								<div class="input-container">
+									<input type="text" id="member_no_ktp" name="member_no_ktp" value="<?= (isset($member_no_ktp) ? $member_no_ktp : '') ?>" required="required" />
+									<label for="member_no_ktp">No KTP</label>
+									<div class="bar"></div>
+								</div>
 							</div>
 							<div class="col">
 								<div class="input-container">
@@ -584,6 +589,11 @@
 										<?= $opsi ?>
 									</select>
 									<label for="member_kelurahan"></label>
+									<div class="bar"></div>
+								</div>
+								<div class="input-container">
+									<input type="text" id="member_pekerjaan" name="member_pekerjaan" value="<?= (isset($member_pekerjaan) ? $member_pekerjaan : '') ?>" required="required" />
+									<label for="member_pekerjaan">Pekerjaan</label>
 									<div class="bar"></div>
 								</div>
 								<div class="input-container">
