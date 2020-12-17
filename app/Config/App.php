@@ -21,7 +21,11 @@ class App extends BaseConfig
 	| environments.
 	|
 	*/
+<<<<<<< HEAD
 	public $baseURL = 'http://192.168.9.44/apps/dinkop/public/';
+=======
+	public $baseURL = 'http://182.253.31.74:1208/modal_bergulir/public/';
+>>>>>>> e75330ec43d9faf88bf48711b2e1dbbc0603f5b8
 
 	/*
 	|--------------------------------------------------------------------------
