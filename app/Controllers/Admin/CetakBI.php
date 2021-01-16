@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
@@ -9,30 +10,43 @@ class CetakBI extends BaseController
     public function index($survey_id)
     {
         $pdf = new TCPDF('P', PDF_UNIT, 'A4', true, 'UTF-8', false);
-		setlocale(LC_TIME, 'id_ID');
-		$pdf->SetCreator(PDF_CREATOR);
-		$pdf->SetAuthor('DINKOP');
-		$pdf->SetTitle('Profil');
-		$pdf->SetSubject('Profil');
+        setlocale(LC_TIME, 'id_ID');
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('DINKOP');
+        $pdf->SetTitle('Profil');
+        $pdf->SetSubject('Profil');
 
-		$pdf->setPrintHeader(false);
-		$pdf->setPrintFooter(false);
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
 
-		$pdf->SetMargins(10, 10, 10);
-		$pdf->SetAutoPageBreak(TRUE, 5);
+        $pdf->SetMargins(10, 10, 10);
+        $pdf->SetAutoPageBreak(TRUE, 5);
 
-		$pdf->SetFont('times', '', 12, '', 'false');
+        $pdf->SetFont('times', '', 12, '', 'false');
 
-		$pdf->addPage();
+        $pdf->addPage();
         $pdf->writeHTML($this->html_jadwal($survey_id), true, false, true, false, '');
-        
+
         $pdf->Output();
         die();
     }
 
     public function html_jadwal($survey_id)
     {
-        $survey_jadwal = $this->db->table("survey")->getWhere(['survey_id'=> $survey_id])->getRowArray();
+        $survey_jadwal = $this->db->query("SELECT
+        *,
+        kepala.kar_nama as nama_kepala,
+        kepala.kar_nip as nip_kepala,
+        kepala.kar_jabatan as jabatan_kepala,
+        ketua.kar_nama as nama_ketua,
+        ketua.kar_nip as nip_ketua,
+        ketua.kar_jabatan as jabatan_ketua
+    FROM
+        survey s
+        left join karyawan kepala on kepala.kar_id=s.survey_kepala_dinas_ttd
+        left join karyawan ketua on ketua.kar_id=s.survey_ketua_teknis_ttd
+        where survey_id=" . $survey_id)->getRowArray();
+        // dd($survey_jadwal);
         $pengajuan = $this->db->query("SELECT
                                             peng_prof_nama_usaha,
                                             peng_prof_alamat,
@@ -41,26 +55,26 @@ class CetakBI extends BaseController
                                             survey
                                             left join survey_hasil on survey_hasil_survey_id = survey_id
                                             left join pengajuan on peng_id = survey_hasil_peng_id
-                                            where survey_hasil_approve_is is true and survey_id=".$survey_id)->getResultArray();
-        
+                                            where survey_hasil_approve_is is true and survey_id=" . $survey_id)->getResultArray();
+
         $table_pengajuan = '';
         $nomor = 1;
         $total = 0;
         foreach ($pengajuan as $key => $value) {
             $table_pengajuan .= '<tr>
-            <td style="width: 12.3684%;">'.$nomor.'</td>
-            <td style="width: 37.6316%;">'.$value['peng_prof_nama_usaha'].'</td>
-            <td style="width: 25%;">'.$value['peng_prof_alamat'].'</td>
-            <td style="width: 25%; text-align:right;">'.number_format($value['peng_nominal'], 2, ",", ".").'</td>
+            <td style="width: 12.3684%;">' . $nomor . '</td>
+            <td style="width: 37.6316%;">' . $value['peng_prof_nama_usaha'] . '</td>
+            <td style="width: 25%;">' . $value['peng_prof_alamat'] . '</td>
+            <td style="width: 25%; text-align:right;">' . number_format($value['peng_nominal'], 2, ",", ".") . '</td>
             </tr>';
             $nomor++;
-            $total+= $value['peng_nominal'];
+            $total += $value['peng_nominal'];
         }
         $table_pengajuan .= '<tr>
             <td style="width: 12.3684%;"></td>
             <td style="width: 37.6316%;"><strong>JUMLAH</strong></td>
-            <td style="width: 25%;"><strong>'.terbilang($total).'</strong></td>
-            <td style="width: 25%; text-align:right;"><strong>'.number_format($total, 2, ",", ".").'</strong></td>
+            <td style="width: 25%;"><strong>' . terbilang($total) . '</strong></td>
+            <td style="width: 25%; text-align:right;"><strong>' . number_format($total, 2, ",", ".") . '</strong></td>
             </tr>';
 
         $html = '<table style="border-collapse: collapse; width: 100%; height: 108px;">
@@ -88,7 +102,7 @@ class CetakBI extends BaseController
         <tbody>
         <tr>
         <td style="width: 59.7466%;">&nbsp;</td>
-        <td style="width: 40.2534%;">Kediri, '.date('d F Y').'</td>
+        <td style="width: 40.2534%;">Kediri, ' . date('d F Y') . '</td>
         </tr>
         <tr>
         <td style="width: 59.7466%;">&nbsp;</td>
@@ -101,7 +115,7 @@ class CetakBI extends BaseController
         <tr>
         <td style="width: 20%;">Nomor</td>
         <td style="width: 1.94932%;">:</td>
-        <td style="width: 38.0507%;">'.$survey_jadwal['survey_nomor_lengkap'].'</td>
+        <td style="width: 38.0507%;">' . $survey_jadwal['survey_nomor_lengkap'] . '</td>
         <td style="width: 8.10916%;">Yth.</td>
         <td style="width: 31.8909%;">Sdr. Direktur Utama PD. Bank</td>
         </tr>
@@ -147,7 +161,7 @@ class CetakBI extends BaseController
         <td style="width: 25%;"><strong>Alamat / No. Tlp</strong></td>
         <td style="width: 25%;"><strong>Pengajuan (Rp)</strong></td>
         </tr>
-        '.$table_pengajuan.'
+        ' . $table_pengajuan . '
         </tbody>
         </table>
         <br/>
@@ -199,16 +213,16 @@ class CetakBI extends BaseController
         <td style="width: 50%; height: 61px;">&nbsp;</td>
         </tr>
         <tr style="height: 18px;">
-        <td style="width: 50%; height: 18px; text-align: center;"><span style="text-decoration: underline;"><strong>BAMBANG PRIAMBODO, SH., MM</strong></span></td>
-        <td style="width: 50%; height: 18px; text-align: center;"><span style="text-decoration: underline;"><strong>PATRYA HADIWIJAYA, SH</strong></span></td>
+        <td style="width: 50%; height: 18px; text-align: center;"><span style="text-decoration: underline;"><strong>' . $survey_jadwal['nama_kepala'] . '</strong></span></td>
+        <td style="width: 50%; height: 18px; text-align: center;"><span style="text-decoration: underline;"><strong>' . $survey_jadwal['nama_ketua'] . '</strong></span></td>
         </tr>
         <tr style="height: 18px;">
-        <td style="width: 50%; height: 18px; text-align: center;">Pembina Tingkat I</td>
-        <td style="width: 50%; height: 18px; text-align: center;">Penata Muda</td>
+        <td style="width: 50%; height: 18px; text-align: center;">' . $survey_jadwal['jabatan_kepala'] . '</td>
+        <td style="width: 50%; height: 18px; text-align: center;">' . $survey_jadwal['jabatan_ketua'] . '</td>
         </tr>
         <tr style="height: 18px;">
-        <td style="width: 50%; height: 18px; text-align: center;">NIP .19670327 200112 1 001</td>
-        <td style="width: 50%; height: 18px; text-align: center;">NIP. 19820915 200312 1 004</td>
+        <td style="width: 50%; height: 18px; text-align: center;">NIP. ' . $survey_jadwal['nip_kepala'] . '</td>
+        <td style="width: 50%; height: 18px; text-align: center;">NIP. ' . $survey_jadwal['nip_ketua'] . '</td>
         </tr>
         </tbody>
         </table>

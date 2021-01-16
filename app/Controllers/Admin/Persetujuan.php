@@ -127,14 +127,7 @@ class Persetujuan extends BaseController
             ->add('peng_disetujui_nominal', 'Nominal Disetujui', 'number', false, ($data['peng_disetujui_nominal'] != '') ? $data['peng_disetujui_nominal'] : $data['peng_nominal'], 'style="width:100%;"')
             // ->add('peng_disetujui_cicilan', 'Cicilan', 'number', false, !empty($data) ? $data['peng_disetujui_cicilan'] : '', 'style="width:100%;"')
             // ->add('peng_disetujui_jangka_waktu_bln', 'Jangka waktu Bulan', 'number', false, !empty($data) ? $data['peng_disetujui_jangka_waktu_bln'] : '', 'style="width:100%;"')
-            ->add('peng_disetujui_jangka_waktu_bln', 'Pengambilan Waktu', 'select_custom', false, ($data['peng_disetujui_jangka_waktu_bln'] == '') ? 36 : $data['peng_disetujui_jangka_waktu_bln'], 'style="width:100%;" readonly', [
-                'option' => [
-                    [
-                        'id' => 36,
-                        'label' => '3 Tahun'
-                    ],
-                ]
-            ])
+            ->add('peng_disetujui_jangka_waktu_bln', 'Pengambilan Waktu (Bulan)', 'number', false, ($data['peng_disetujui_jangka_waktu_bln'] == '') ? 36 : $data['peng_disetujui_jangka_waktu_bln'], 'style="width:100%;" readonly')
             ->add('peng_disetujui_jangka_waktu_text', 'Jangka waktu keternangan', 'text', false, !empty($data) ? $data['peng_disetujui_jangka_waktu_text'] : '', 'style="width:100%;"')
             ->add('peng_disetujui_bank', 'Bank Pelaksana', 'select', true, !empty($data) ? $data['peng_disetujui_bank'] : '', ' style="width:100%;"', array(
                 'table' => 'ref_bank',
@@ -142,87 +135,76 @@ class Persetujuan extends BaseController
                 'label' => 'ref_bank_label',
             ))
             ->add('peng_disetujui_tanggal_penetapan', 'Tanggal penetapan', 'date', true, !empty($data) ? $data['peng_disetujui_tanggal_penetapan'] : '', 'style="width:100%;"')
-            ->add('peng_disetujui_tanggal_jatuh_tempo', 'Tanggal Jatuh Tempo', 'date', true, !empty($data) ? $data['peng_disetujui_tanggal_jatuh_tempo'] : '', 'style="width:100%;"');
+            ->add('peng_disetujui_tanggal_jatuh_tempo', 'Tanggal Jatuh Tempo', 'date', true, !empty($data) ? $data['peng_disetujui_tanggal_jatuh_tempo'] : '', 'style="width:100%;"')
+            ->add('peng_kepala_dinas_ttd', 'Kepala Dinas', 'select', true, !empty($data) ? $data['peng_kepala_dinas_ttd'] : '', 'style="width:100%;"', [
+                'table'=> 'karyawan',
+                'id'=> 'kar_id',
+                'label'=> 'kar_nama'
+            ]);
+            
 
         if ($form->formVerified()) {
-            $nominal = (float)$data['peng_disetujui_nominal'];
-            $cicilan  = (float)($nominal / 33);
-            $dataForm['peng_disetujui_cicilan'] = $cicilan;
             $dataForm = $form->get_data();
             unset($dataForm['peng_nominal']);
-            $dataForm['peng_disetujui_created_at'] = 'now()';
-            $dataForm['peng_disetujui_created_by'] = $this->user['user_id'];
             if (!empty($data)) {
                 $this->db->table("pengajuan")->where('peng_id', $peng_id)->update($dataForm);
                 $this->db->table("pembayaran")->where('pembayaran_peng_id', $peng_id)->delete();
                 $bunga = !empty($data['peng_srt_bunga']) ? $data['peng_srt_bunga'] : 2;
                 $bulan = $this->request->getPost('peng_disetujui_jangka_waktu_bln');
-                // die($cicilan);
-                for ($i = 0; $i < $bulan; $i++) {
-                    // if ( $i == 12 || $i == 24) {
-                    //     $sisa = (float)$nominal - (($i + 1) * $cicilan);
-                    // } else {
-                    //     $sisa = (float)$nominal - ($i * $cicilan);
-                    // }
-                    $jatuh_tempo = $this->request->getPost('peng_disetujui_tanggal_jatuh_tempo');
-                    $date = date("Y-m-d", strtotime($i . " month", strtotime($jatuh_tempo)));
-                    if ($i == 0) {
-                        $this->db->table("pembayaran")->insert([
-                            'pembayaran_penetapan_no'=> $dataForm['peng_disetujui_no_penetapan'],
-                            'pembayaran_peng_id' => $peng_id,
-                            'pembayaran_ke' => $i + 1,
-                            'pembayaran_bunga' => $nominal * ($bunga / 100),
-                            'pembayaran_tanggal' => $date,
-                            // 'pembayaran_sisa' => $nominal
-                        ]);
-                    } else
-                    if ($i == 12) {
-                        $this->db->table("pembayaran")->insert([
-                            'pembayaran_penetapan_no'=> $dataForm['peng_disetujui_no_penetapan'],
-                            'pembayaran_peng_id' => $peng_id,
-                            'pembayaran_ke' => $i + 1,
-                            'pembayaran_bunga' => ($nominal - ($cicilan * 11)) * ($bunga / 100),
-                            'pembayaran_tanggal' => $date,
-                            // 'pembayaran_sisa' => $sisa
-                        ]);
-                    } else
-                    if ($i == 24) {
-                        $this->db->table("pembayaran")->insert([
-                            'pembayaran_penetapan_no'=> $dataForm['peng_disetujui_no_penetapan'],
-                            'pembayaran_peng_id' => $peng_id,
-                            'pembayaran_ke' => $i + 1,
-                            'pembayaran_bunga' => ($nominal - ($cicilan * 22)) * ($bunga / 100),
-                            'pembayaran_tanggal' => $date,
-                            // 'pembayaran_sisa' => $sisa
-                        ]);
-                    } else {
-                        $this->db->table("pembayaran")->insert([
-                            'pembayaran_penetapan_no'=> $dataForm['peng_disetujui_no_penetapan'],
-                            'pembayaran_peng_id' => $peng_id,
-                            'pembayaran_ke' => $i + 1,
-                            'pembayaran_cicilan' => $cicilan,
-                            'pembayaran_tanggal' => $date,
-                            // 'pembayaran_sisa' => $sisa
-                        ]);
-                    }
-                }
 
-                $query_total = $this->db->query("SELECT 
-                                    SUM( pembayaran_cicilan ) AS total 
-                                FROM
-                                    pembayaran 
-                                WHERE
-                                    pembayaran_peng_id = " . $peng_id)->getRowArray();
-                $total_seluruh = round($query_total['total']);
-                $query_cicilan = $this->db->query("select * from pembayaran where pembayaran_peng_id = " . $peng_id . " order by pembayaran_ke asc")->getResultArray();
-                $bayar_sampai_ke = 0;
-                foreach ($query_cicilan as $key => $value) {
-                    $bayar_sampai_ke += $value['pembayaran_cicilan'];
-                    // echo $total_seluruh ." - ".$bayar_sampai_ke;
-                    $sisa = $total_seluruh - $bayar_sampai_ke;
-                    $this->db->table("pembayaran")->where(['pembayaran_id' => $value['pembayaran_id']])->update([
-                        'pembayaran_sisa' => $sisa
-                    ]);
+                $nominal    = $this->request->getPost('peng_disetujui_nominal');
+                $lama_tahun = floor($bulan / 12);
+                $jumlah_cicilan = ($bulan - $lama_tahun);
+                $cicilan    = $nominal / $jumlah_cicilan;
+                die($cicilan);
+                $sisa_cicilan = $nominal;
+                $result     = array();
+                for ($i = 1; $i <= $bulan; $i++) {
+                    $jatuh_tempo = $this->request->getPost('peng_disetujui_tanggal_jatuh_tempo');
+                    if ($i == 1) {
+                        $date = $jatuh_tempo;
+                    } else {
+                        $date = date("Y-m-d", strtotime(($i-1) . " month", strtotime($jatuh_tempo)));
+                    }
+
+                    $row = array();
+                    $uniq = $i - 1;
+                    if ($uniq % 12 == 0 || $i == 1) {
+                        $row['type'] = "Bunga";
+                        $row['nominal'] = $sisa_cicilan * ($bunga / 100);
+                        try {
+                            //code...
+                            $this->db->table("pembayaran")->insert([
+                                'pembayaran_penetapan_no' => $dataForm['peng_disetujui_no_penetapan'],
+                                'pembayaran_peng_id' => $peng_id,
+                                'pembayaran_ke' => $i,
+                                'pembayaran_bunga' => $sisa_cicilan * ($bunga / 100),
+                                'pembayaran_tanggal' => $date,
+                                'pembayaran_sisa' => $nominal
+                            ]);
+                        } catch (\Exception $e) {
+                            echo $this->db->getLastQuery();
+                            die($e->getMessage());
+                        }
+                    } else {
+                        $row['type'] = "Cicilan";
+                        $row['nominal'] = $cicilan;
+                        try {
+                            //code...
+                            $this->db->table("pembayaran")->insert([
+                                'pembayaran_penetapan_no' => $dataForm['peng_disetujui_no_penetapan'],
+                                'pembayaran_peng_id' => $peng_id,
+                                'pembayaran_ke' => $i,
+                                'pembayaran_cicilan' => $cicilan,
+                                'pembayaran_tanggal' => $date,
+                                'pembayaran_sisa' => $sisa_cicilan
+                            ]);
+                        } catch (\Exception $e) {
+                            echo $this->db->getLastQuery();
+                            die($e->getMessage());
+                        }
+                        $sisa_cicilan -= $cicilan;
+                    }
                 }
                 // die();
             }
@@ -275,6 +257,7 @@ class Persetujuan extends BaseController
             ->configure(
                 array(
                     'datasouce_url' => base_url("admin/pembayaran/grid_angsuran/" . $peng_id . "?datasource&" . get_query_string()),
+                    'pageSize'=> 200,
                     'grid_columns'  => array(
                         array(
                             'field' => 'pembayaran_tanggal',
@@ -304,18 +287,13 @@ class Persetujuan extends BaseController
                             'title' => 'Status',
                             'encoded' => false,
                             'width' => 250
-                        ),
-                        array(
-                            'field' => 'lihat',
-                            'title' => ' ',
-                            'encoded' => false,
-                            'width' => 200
-                        ),
+                        )
                     ),
-                    // "action"    => $action,
-                    // 'head_left' => array('add' => base_url('/admin/survey/start'))
                 )
             )
+            ->set_toolbar(function($tb){
+                $tb->add('download');
+            })
             ->set_sort(['pembayaran_ke', 'asc'])
             ->output();
     }

@@ -82,6 +82,11 @@ class Navigation
                 'icon'          => 'fa-home',
             ),
             array(
+                'label'         => 'Rekap Pengajuan',
+                'controller'    => 'admin/rekapperhari',
+                'icon'          => 'fa-home',
+            ),
+            array(
                 'label'         => 'Verifikasi',
                 'controller'    => 'admin/verifikasi',
                 'icon'          => 'fa-home',

@@ -71,4 +71,19 @@ $(document).ready(function () {
 function jump(step){
     window.location.href = "<?= base_url("admin/pengajuan/detail/".$id."?step=")?>"+step;
 }
+
+function deleteJaminan(jam_id){
+    kendo.confirm("Yakin ingin delete data ini?").then(function() {
+        $.post("<?= base_url("admin/pengajuan/deleteJaminan") ?>", {
+            id: jam_id
+        }, function(result) {
+            if (result.status) {
+                kendo.alert(result.message);
+                gridReload();
+            } else {
+                kendo.alert(result.message);
+            }
+        }, 'json');
+    }, function() {});
+}
 </script>

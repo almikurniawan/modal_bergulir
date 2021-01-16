@@ -106,8 +106,15 @@ class Report
         $row = $this->row_start;
         foreach($this->columns as $key => $value){
             if(isset($value['field'])){
-                $sheet->setCellValue($alphabeth[$key].$row, $value['title']);
-                $sheet->getStyle($alphabeth[$key].$row)->applyFromArray($this->style_header);
+                if(isset($value['encoded'])){
+                    if($value['encoded']){
+                        $sheet->setCellValue($alphabeth[$key].$row, $value['title']);
+                        $sheet->getStyle($alphabeth[$key].$row)->applyFromArray($this->style_header);
+                    }
+                }else{
+                    $sheet->setCellValue($alphabeth[$key].$row, $value['title']);
+                    $sheet->getStyle($alphabeth[$key].$row)->applyFromArray($this->style_header);
+                }
             }
         }
 
@@ -115,7 +122,13 @@ class Report
         foreach($data as $key => $value){
             foreach($this->columns as $k => $v){
                 if(isset($v['field'])){
-                    $sheet->setCellValue($alphabeth[$k].$row, $value[$v['field']]);
+                    if(isset($v['encoded'])){
+                        if($v['encoded']){
+                            $sheet->setCellValue($alphabeth[$k].$row, $value[$v['field']]);
+                        }
+                    }else{
+                        $sheet->setCellValue($alphabeth[$k].$row, $value[$v['field']]);
+                    }
                 }
             }
             $row++;

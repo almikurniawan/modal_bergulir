@@ -118,6 +118,17 @@ class Cetak2 extends BaseController
 				</table>
 		';
 
+		$foto_suami = '';
+		$ext = strtolower(pathinfo('/uploads/' . $data['peng_foto_suami'], PATHINFO_EXTENSION));
+		if (in_array($ext, ['png', 'jpg', 'jpeg'])) {
+			$foto_suami = $data['peng_foto_suami'];
+		}
+		$foto_istri = '';
+		$ext = strtolower(pathinfo('/uploads/' . $data['peng_foto_istri'], PATHINFO_EXTENSION));
+		if (in_array($ext, ['png', 'jpg', 'jpeg'])) {
+			$foto_istri = $data['peng_foto_istri'];
+		}
+
 		$html .= '<p align="justify" style="text-indent: 0.5in;">
 		Dengan hormat, dalam upaya pengembangan dan peningkatan usaha dalam bidang <b>' . ($data['peng_bidang_usaha'] ? $data['peng_bidang_usaha'] : '') . '</b>, maka bersama ini kami mengajukan permohonan dukungan tambahan sarana usaha /modal kerja sebesar Rp <b>' . ($data['peng_nominal'] ? number_format($data['peng_nominal'], 2, ",", ".") : '') . '</b> [' . terbilang($data['peng_nominal']) . ']
 		Tujuan penggunaan dana tersebut untuk <b>' . ($data['peng_tujuan_penggunaan'] ? $data['peng_tujuan_penggunaan'] : '') . '</b>. 
@@ -147,8 +158,8 @@ class Cetak2 extends BaseController
 				<td width="45%">UM.</td>
 			</tr>
 			<tr>
-				<td width="30%"><img src="' . base_url('/uploads') . '/' . $data['peng_foto_suami'] . '" width="200"></td>
-				<td width="25%"><img src="' . base_url('/uploads') . '/' . $data['peng_foto_istri'] . '" width="200"></td>
+				<td width="30%"><img src="' . base_url('/uploads') . '/' . $foto_suami . '" width="200"></td>
+				<td width="25%"><img src="' . base_url('/uploads') . '/' . $foto_istri . '" width="200"></td>
 				<td width="5%"></td>
 				<td width="45%" height="100" align="center"><b>Pemilik Usaha</b></td>
 			</tr>
@@ -164,7 +175,8 @@ class Cetak2 extends BaseController
 
 	public function profil3($id)
 	{
-		$data = $this->db->table('pengajuan')->select('*')->getWhere(['peng_id' => $id])->getRowArray();
+		$data = $this->db->table('pengajuan')->select('*')->join('ref_bidang_usaha', 'ref_bidang_id=peng_prof_jenis_usaha')->getWhere(['peng_id' => $id])->getRowArray();
+
 
 		$html = '
 				<table>
@@ -239,7 +251,7 @@ class Cetak2 extends BaseController
 						<td width="5%"></td>
 						<td width="5%">1.</td>
 						<td width="30%">Jenis usaha</td>
-						<td width="40%">: ' . ($data['peng_prof_jenis_usaha'] ? $data['peng_prof_jenis_usaha'] : '') . '</td>
+						<td width="40%">: ' . ($data['ref_bidang_label'] ? $data['ref_bidang_label'] : '') . '</td>
 					</tr>
 					<tr>
 						<td width="5%"></td>
@@ -352,6 +364,100 @@ class Cetak2 extends BaseController
 	public function profil4($id)
 	{
 		$data = $this->db->table('pengajuan')->select('*')->getWhere(['peng_id' => $id])->getRowArray();
+		$SQL_UNION = "select 
+                    peng_id,
+                    peng_id as id,
+                    'pengajuan' AS TYPE,
+                    ref_jaminan_label AS jenis,
+                    peng_jam_pemegang_ktp_no AS no_ktp,
+                    peng_jam_pekerjaan AS pekerjaan,
+                        case
+                            when peng_jam_jenis = 1 then 
+                                CASE
+                                        WHEN peng_jam_jenis_bpkb = 1 THEN
+                                        'Pribadi' ELSE 'Orang Lain' 
+                                END
+                            when peng_jam_jenis = 2 then 
+                                CASE
+                                        WHEN peng_jam_jenis_tanah = 1 THEN
+                                        'Pribadi' ELSE 'Orang Lain' 
+                                END
+                            when peng_jam_jenis = 3 then 
+                                CASE
+                                        WHEN peng_jam_jenis_emas = 1 THEN
+                                        'Pribadi' ELSE 'Orang Lain' 
+                                END
+                        end AS kepemilikan,
+                    case when peng_jam_jenis = 1 then 
+                        '<tr><td width=\"20%\"><b>Tahun Pembuatan</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_tahun_pembuatan,0)||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. Polisi</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_nopol,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. Mesin</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_mesin,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. Rangka</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_rangka,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Atas Nama</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_atas_nama,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Alamat</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_alamat,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. BPKB</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_no_bpkb,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Type BPKB</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_type_bpkb,'')||'</td></tr>'
+                    when peng_jam_jenis = 2 then 
+                        '<tr><td width=\"20%\"><b>No. Akta</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_no_akta,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Tempat</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_tempat,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Atas Nama</b></td><td width=\"80%\"> :  '||COALESCE(peng_jam_atas_nama_tanah,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Alamat</b></td><td width=\"80%\"> :  '||COALESCE(peng_jam_alamat_tanah,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>SU. Tanggal</b></td><td width=\"80%\"> :  '||COALESCE(peng_jam_su_tanggal::text,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. Surat Ukur</b></td><td width=\"80%\"> :  '||COALESCE(peng_jam_nomor_surat_ukur,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Luas Tanah</b></td><td width=\"80%\"> :  '||COALESCE(peng_jam_luas_tanah,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Harga Perkiraan</b></td><td width=\"80%\"> :  '||COALESCE(peng_jam_harga_perkiraan,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Total Harga Perkiraan</b></td><td width=\"80%\"> :  '||COALESCE(peng_jam_harga_perkiraan_total,'')||'</td></tr>'
+                    else
+                        '<tr><td width=\"20%\"><b>Karat</b></td><td width=\"80%\"> : '||COALESCE(peng_jam_emas_karat,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Gram</b></td><td width=\"80%\"> : '||COALESCE(peng_jam_emas_gram,'')||'</td></tr>'
+                    end as detail_jaminan
+                    
+                    from pengajuan
+					left join ref_jaminan ON ref_jaminan.ref_jaminan_id = peng_jam_jenis ";
+		$SQL = "SELECT
+                    jam_peng_id as peng_id,
+                    jam_id as id,
+                    'jaminan' AS TYPE,
+                    ref_jaminan_label AS jenis,
+                    jam_pemegang_ktp_no AS no_ktp,
+                    jam_pekerjaan AS pekerjaan,
+                    CASE
+                        
+                        WHEN jam_jenis_kepemilikan = 1 THEN
+                        'Pribadi' ELSE'Orang Lain' 
+                    END AS kepemilikan,
+                    case when jam_jenis = 1 then 
+                        '<tr><td width=\"20%\"><b>Tahun Pembuatan</b></td><td width=\"80%\"> :  '||coalesce(jam_tahun_pembuatan,0)||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. Polisi</b></td><td width=\"80%\"> :  '||coalesce(jam_nopol,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. Mesin</b></td><td width=\"80%\"> :  '||coalesce(jam_mesin,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. Rangka</b></td><td width=\"80%\"> :  '||coalesce(jam_rangka,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Atas Nama</b></td><td width=\"80%\"> :  '||coalesce(jam_atas_nama,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Alamat</b></td><td width=\"80%\"> :  '||coalesce(jam_alamat,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. BPKB</b></td><td width=\"80%\"> :  '||coalesce(jam_no_bpkb,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Type BPKB</b></td><td width=\"80%\"> :  '||coalesce(jam_type_bpkb,'')||'</td></tr>'
+                    when jam_jenis = 2 then 
+                        '<tr><td width=\"20%\"><b>No. Akta</b></td><td width=\"80%\"> :  '||coalesce(jam_no_akta,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Tempat</b></td><td width=\"80%\"> :  '||coalesce(jam_tempat,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Atas Nama</b></td><td width=\"80%\"> :  '||COALESCE(jam_atas_nama_tanah,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Alamat</b></td><td width=\"80%\"> :  '||COALESCE(jam_alamat_tanah,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>SU. Tanggal</b></td><td width=\"80%\"> :  '||COALESCE(jam_su_tanggal::text,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. Surat Ukur</b></td><td width=\"80%\"> :  '||COALESCE(jam_nomor_surat_ukur,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Luas Tanah</b></td><td width=\"80%\"> :  '||COALESCE(jam_luas_tanah,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Harga Perkiraan</b></td><td width=\"80%\"> :  '||COALESCE(jam_harga_perkiraan,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Total Harga Perkiraan</b></td><td width=\"80%\"> :  '||COALESCE(jam_harga_perkiraan_total,'')||'</td></tr>'
+                    else
+                        '<tr><td width=\"20%\"><b>Karat</b></td><td width=\"80%\"> : '||COALESCE(jam_emas_karat,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Gram</b></td><td width=\"80%\"> : '||COALESCE(jam_emas_gram,'')||'</td></tr>'
+                    end as detail_jaminan
+                    
+                FROM
+                    pengajuan_jaminan
+					LEFT JOIN ref_jaminan ON ref_jaminan.ref_jaminan_id = jam_jenis";
+		if ($data['peng_jam_jenis'] != '') {
+			$SQL .= " UNION " . $SQL_UNION;
+		}
+		$SQL .= " where peng_id=" . $id;
+		$jaminan = $this->db->query($SQL)->getResultArray();
 		$html = '
 				<table>
 					<tr>
@@ -403,56 +509,16 @@ class Cetak2 extends BaseController
 		Bersedia menyerahkan jaminan atas pinjaman yang disetujui selama pinjaman berlangsung berupa:
 		BPKB Kendaraan roda dua atau empat;
 		</p>
-		<table>
+		<table>';
+		foreach ($jaminan as $key => $value) {
+			$html .= '
 			<tr>
-				<td width="50%">Yang bertanda tangan dibawah ini kami:</td>
+				<td width="50%"><b>' . $value['jenis'] . '</b></td>
 				<td width="50%"></td>
 			</tr>
-			<tr>
-				<td width="20%">Tahun Pembuatan</td>
-				<td width="80%">: ' . $data['peng_jam_tahun_pembuatan'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">No Pol</td>
-				<td width="80%">: ' . $data['peng_jam_nopol'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">No Mesin</td>
-				<td width="80%">: ' . $data['peng_jam_mesin'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">No Rangka</td>
-				<td width="80%">: ' . $data['peng_jam_rangka'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">Atas Nama</td>
-				<td width="80%">: ' . $data['peng_jam_atas_nama'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">Alamat</td>
-				<td width="80%">: ' . $data['peng_jam_alamat'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">Sertifikat Tanah</td>
-				<td width="80%"></td>
-			</tr>
-			<tr>
-				<td width="20%">No Akta</td>
-				<td width="80%">: ' . $data['peng_jam_no_akta'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">Tempat</td>
-				<td width="80%">: ' . $data['peng_jam_tempat'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">Atas Nama</td>
-				<td width="80%">: ' . $data['peng_jam_atas_nama_tanah'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">Alamat</td>
-				<td width="80%">: ' . $data['peng_jam_alamat_tanah'] . '</td>
-			</tr>
-		</table>
+			' . $value['detail_jaminan'];
+		}
+		$html .= '</table>
 		<p align="justify">
 		Demikian pernyataan ini kami buat agar dapat digunakan sebagaimana perlunya.
 		</p>
@@ -481,6 +547,101 @@ class Cetak2 extends BaseController
 	public function profil5($id)
 	{
 		$data = $this->db->table('pengajuan')->select('*')->getWhere(['peng_id' => $id])->getRowArray();
+		$SQL_UNION = "select 
+                    peng_id,
+                    peng_id as id,
+                    'pengajuan' AS TYPE,
+                    ref_jaminan_label AS jenis,
+                    peng_jam_pemegang_ktp_no AS no_ktp,
+                    peng_jam_pekerjaan AS pekerjaan,
+                        case
+                            when peng_jam_jenis = 1 then 
+                                CASE
+                                        WHEN peng_jam_jenis_bpkb = 1 THEN
+                                        'Pribadi' ELSE 'Orang Lain' 
+                                END
+                            when peng_jam_jenis = 2 then 
+                                CASE
+                                        WHEN peng_jam_jenis_tanah = 1 THEN
+                                        'Pribadi' ELSE 'Orang Lain' 
+                                END
+                            when peng_jam_jenis = 3 then 
+                                CASE
+                                        WHEN peng_jam_jenis_emas = 1 THEN
+                                        'Pribadi' ELSE 'Orang Lain' 
+                                END
+                        end AS kepemilikan,
+                    case when peng_jam_jenis = 1 then 
+                        '<tr><td width=\"20%\"><b>Tahun Pembuatan</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_tahun_pembuatan,0)||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. Polisi</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_nopol,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. Mesin</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_mesin,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. Rangka</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_rangka,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Atas Nama</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_atas_nama,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Alamat</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_alamat,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. BPKB</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_no_bpkb,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Type BPKB</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_type_bpkb,'')||'</td></tr>'
+                    when peng_jam_jenis = 2 then 
+                        '<tr><td width=\"20%\"><b>No. Akta</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_no_akta,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Tempat</b></td><td width=\"80%\"> :  '||coalesce(peng_jam_tempat,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Atas Nama</b></td><td width=\"80%\"> :  '||COALESCE(peng_jam_atas_nama_tanah,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Alamat</b></td><td width=\"80%\"> :  '||COALESCE(peng_jam_alamat_tanah,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>SU. Tanggal</b></td><td width=\"80%\"> :  '||COALESCE(peng_jam_su_tanggal::text,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. Surat Ukur</b></td><td width=\"80%\"> :  '||COALESCE(peng_jam_nomor_surat_ukur,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Luas Tanah</b></td><td width=\"80%\"> :  '||COALESCE(peng_jam_luas_tanah,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Harga Perkiraan</b></td><td width=\"80%\"> :  '||COALESCE(peng_jam_harga_perkiraan,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Total Harga Perkiraan</b></td><td width=\"80%\"> :  '||COALESCE(peng_jam_harga_perkiraan_total,'')||'</td></tr>'
+                    else
+                        '<tr><td width=\"20%\"><b>Karat</b></td><td width=\"80%\"> : '||COALESCE(peng_jam_emas_karat,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Gram</b></td><td width=\"80%\"> : '||COALESCE(peng_jam_emas_gram,'')||'</td></tr>'
+                    end as detail_jaminan
+                    
+                    from pengajuan
+					left join ref_jaminan ON ref_jaminan.ref_jaminan_id = peng_jam_jenis ";
+		$SQL = "SELECT
+                    jam_peng_id as peng_id,
+                    jam_id as id,
+                    'jaminan' AS TYPE,
+                    ref_jaminan_label AS jenis,
+                    jam_pemegang_ktp_no AS no_ktp,
+                    jam_pekerjaan AS pekerjaan,
+                    CASE
+                        
+                        WHEN jam_jenis_kepemilikan = 1 THEN
+                        'Pribadi' ELSE'Orang Lain' 
+                    END AS kepemilikan,
+                    case when jam_jenis = 1 then 
+                        '<tr><td width=\"20%\"><b>Tahun Pembuatan</b></td><td width=\"80%\"> :  '||coalesce(jam_tahun_pembuatan,0)||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. Polisi</b></td><td width=\"80%\"> :  '||coalesce(jam_nopol,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. Mesin</b></td><td width=\"80%\"> :  '||coalesce(jam_mesin,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. Rangka</b></td><td width=\"80%\"> :  '||coalesce(jam_rangka,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Atas Nama</b></td><td width=\"80%\"> :  '||coalesce(jam_atas_nama,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Alamat</b></td><td width=\"80%\"> :  '||coalesce(jam_alamat,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. BPKB</b></td><td width=\"80%\"> :  '||coalesce(jam_no_bpkb,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Type BPKB</b></td><td width=\"80%\"> :  '||coalesce(jam_type_bpkb,'')||'</td></tr>'
+                    when jam_jenis = 2 then 
+                        '<tr><td width=\"20%\"><b>No. Akta</b></td><td width=\"80%\"> :  '||coalesce(jam_no_akta,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Tempat</b></td><td width=\"80%\"> :  '||coalesce(jam_tempat,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Atas Nama</b></td><td width=\"80%\"> :  '||COALESCE(jam_atas_nama_tanah,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Alamat</b></td><td width=\"80%\"> :  '||COALESCE(jam_alamat_tanah,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>SU. Tanggal</b></td><td width=\"80%\"> :  '||COALESCE(jam_su_tanggal::text,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>No. Surat Ukur</b></td><td width=\"80%\"> :  '||COALESCE(jam_nomor_surat_ukur,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Luas Tanah</b></td><td width=\"80%\"> :  '||COALESCE(jam_luas_tanah,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Harga Perkiraan</b></td><td width=\"80%\"> :  '||COALESCE(jam_harga_perkiraan,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Total Harga Perkiraan</b></td><td width=\"80%\"> :  '||COALESCE(jam_harga_perkiraan_total,'')||'</td></tr>'
+                    else
+                        '<tr><td width=\"20%\"><b>Karat</b></td><td width=\"80%\"> : '||COALESCE(jam_emas_karat,'')||'</td></tr>'||
+                        '<tr><td width=\"20%\"><b>Gram</b></td><td width=\"80%\"> : '||COALESCE(jam_emas_gram,'')||'</td></tr>'
+                    end as detail_jaminan
+                    
+                FROM
+                    pengajuan_jaminan
+					LEFT JOIN ref_jaminan ON ref_jaminan.ref_jaminan_id = jam_jenis";
+		if ($data['peng_jam_jenis'] != '') {
+			$SQL .= " UNION " . $SQL_UNION;
+		}
+		$SQL .= " where peng_id=" . $id;
+		$jaminan = $this->db->query($SQL)->getResultArray();
+		// dd($jaminan);
 		$html = '
 				<table>
 					<tr>
@@ -531,56 +692,16 @@ class Cetak2 extends BaseController
 		<p align="justify">
 		Bersedia menyerahkan jaminan atas pinjaman yang disetujui selama pinjaman berlangsung berupa  :
 		</p>
-		<table>
+		<table>';
+		foreach ($jaminan as $key => $value) {
+			$html .= '
 			<tr>
-				<td width="50%">BPKB Kendaraan roda dua / roda empat</td>
+				<td width="50%"><b>' . $value['jenis'] . '</b></td>
 				<td width="50%"></td>
 			</tr>
-			<tr>
-				<td width="20%">Tahun Pembuatan</td>
-				<td width="80%">: ' . $data['peng_jam_tahun_pembuatan'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">No Pol</td>
-				<td width="80%">: ' . $data['peng_jam_nopol'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">No Mesin</td>
-				<td width="80%">: ' . $data['peng_jam_mesin'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">No Rangka</td>
-				<td width="80%">: ' . $data['peng_jam_rangka'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">Atas Nama</td>
-				<td width="80%">: ' . $data['peng_jam_atas_nama'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">Alamat</td>
-				<td width="80%">: ' . $data['peng_jam_alamat'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">Sertifikat Tanah</td>
-				<td width="80%"></td>
-			</tr>
-			<tr>
-				<td width="20%">No Akta</td>
-				<td width="80%">: ' . $data['peng_jam_no_akta'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">Tempat</td>
-				<td width="80%">: ' . $data['peng_jam_tempat'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">Atas Nama</td>
-				<td width="80%">: ' . $data['peng_jam_atas_nama_tanah'] . '</td>
-			</tr>
-			<tr>
-				<td width="20%">Alamat</td>
-				<td width="80%">: ' . $data['peng_jam_alamat_tanah'] . '</td>
-			</tr>
-		</table>
+			' . $value['detail_jaminan'];
+		}
+		$html .= '</table>
 		<p align="justify">
 		Demikian pernyataan ini kami buat, agar dapat digunakan sebagaimana perlunya.
 		</p>
@@ -881,7 +1002,7 @@ class Cetak2 extends BaseController
 	}
 	public function profil8_($id)
 	{
-		$data = $this->db->table('pengajuan')->select('*')->join('pengajuan_foto', 'peng_foto_peng_id = peng_id')->getWhere(['peng_foto_jenis' => 2,'peng_id' => $id])->getResultArray();
+		$data = $this->db->table('pengajuan')->select('*')->join('pengajuan_foto', 'peng_foto_peng_id = peng_id')->getWhere(['peng_foto_jenis' => 2, 'peng_id' => $id])->getResultArray();
 		// print_r($data);die();
 		$html = '
 				<table>
@@ -892,13 +1013,16 @@ class Cetak2 extends BaseController
 				<br/>
 				<hr/>
 				<table>';
-				foreach ($data as $key => $value) {
-					$html.='
-						<tr>
-							<td width="100%" align="center"><img src="./uploads/foto_kegiatan/'.$value['peng_foto_file'].'" height="150"></td>
-						</tr>';
-				}
-				$html.='
+		foreach ($data as $key => $value) {
+			$ext = strtolower(pathinfo('/uploads/foto_kegiatan/' . $value['peng_foto_file'], PATHINFO_EXTENSION));
+			if (in_array($ext, ['png', 'jpg', 'jpeg'])) {
+				$html .= '
+							<tr>
+								<td width="100%" align="center"><img src="./uploads/foto_kegiatan/' . $value['peng_foto_file'] . '" height="150"></td>
+							</tr>';
+			}
+		}
+		$html .= '
 				</table>
 		';
 		return $html;
@@ -1135,7 +1259,7 @@ class Cetak2 extends BaseController
 
 		$pdf->addPage();
 		$pdf->writeHTML($this->profil8_($id), true, false, true, false, '');
-		
+
 		// $pdf->addPage();
 		// $pdf->writeHTML($this->profil6($id), true, false, true, false, '');
 

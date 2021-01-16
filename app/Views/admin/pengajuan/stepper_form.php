@@ -22,6 +22,13 @@ $request = service('request');
                 <div onclick="jump(3)" class="step <?= ($request->getGet('step')>=3 ? 'active' : '')?>" data-target="#logins-part2">
                     <button type="button" class="step-trigger" role="tab" aria-controls="logins-part2" id="logins-part2-trigger">
                         <span class="bs-stepper-circle">3</span>
+                        <span class="bs-stepper-label">Dokumen Jaminan</span>
+                    </button>
+                </div>
+                <div class="line"></div>
+                <div onclick="jump(4)" class="step <?= ($request->getGet('step')>=4 ? 'active' : '')?>" data-target="#logins-part2">
+                    <button type="button" class="step-trigger" role="tab" aria-controls="logins-part2" id="logins-part2-trigger">
+                        <span class="bs-stepper-circle">4</span>
                         <span class="bs-stepper-label">Surat Keterangan</span>
                     </button>
                 </div>

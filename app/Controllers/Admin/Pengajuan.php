@@ -19,6 +19,19 @@ class Pengajuan extends BaseController
         return view('admin/pengajuan/list', $data);
     }
 
+    public function delete()
+    {
+        $id = $this->request->getPost('id');
+
+        $this->db->table('pengajuan')->where(['peng_id' => $id])->delete();
+        return $this->response->setJSON(
+            array(
+                'status' => true,
+                'message' => 'Success delete data'
+            )
+        );
+    }
+
     public function grid()
     {
         $SQL = "SELECT
@@ -45,6 +58,7 @@ class Pengajuan extends BaseController
                                     '<span class=\"badge badge-primary\">Not Submitted</span>'
                             end
                     END AS status,
+                    peng_verif_is,
                     '<button onclick=\"upload_cetak('||peng_id||')\" class=\"btn btn-success bmd-btn-fab-sm bmd-btn-fab\" title=\"Upload\"><i class=\"k-icon k-i-upload\"></i> </button>' as btn_upload,
                     peng_id AS ID 
                 FROM
@@ -63,6 +77,9 @@ class Pengajuan extends BaseController
 
         $action['detail']     = array(
             'link'          => 'admin/pengajuan/detail/'
+        );
+        $action['delete']     = array(
+            'jsf'          => '_delete'
         );
 
         $grid = new Grid();
@@ -108,6 +125,12 @@ class Pengajuan extends BaseController
                     'head_left'        => array('add' => base_url('/admin/pengajuan/pilihPaket'))
                 )
             )
+            ->set_snippet(function($id, $value){
+                if($value['peng_verif_is']=='t'){
+                    $value['delete'] = '';
+                }
+                return $value;
+            })
             ->set_label_add('Buat Pengajuan')
             ->output();
     }
@@ -194,7 +217,12 @@ class Pengajuan extends BaseController
                 'label' => 'jns_pengajuan_label',
             ));
         if ($form->formVerified()) {
-            die(forceRedirect(base_url('/admin/pengajuan/pengajuan/' . $this->request->getPost('peng_jenis_pengajuan') . '/' . $this->request->getPost('peng_member_id'))));
+            if($this->request->getPost('peng_member_id')>0){
+                die(forceRedirect(base_url('/admin/pengajuan/pengajuan/' . $this->request->getPost('peng_jenis_pengajuan') . '/' . $this->request->getPost('peng_member_id'))));
+            }else{
+                $alert = '<script>alert("Pemohon belum terdaftar. silahkan daftarkan member di menu data master > pemohon.");</script>';
+                return $alert . $form->output();    
+            }
         } else {
             return $form->output();
         }
@@ -593,7 +621,7 @@ class Pengajuan extends BaseController
         $form->set_attribute_form('class="form-horizontal" enctype="multipart/form-data"')
             ->set_template('admin/pengajuan/sf_step1')
             ->set_resume($resume)
-            ->add('peng_member_id', 'Nama Pengaju', 'select', false, $data['peng_member_id'], ' style="width:100%;" readonly="readonly"', array(
+            ->add('peng_member_id', 'Nama Pengaju', 'select', false, $data['peng_member_id'], ' style="width:100%;"', array(
                 'table' => 'member',
                 'id' => 'member_id',
                 'label' => 'member_nama_lengkap',
@@ -702,7 +730,7 @@ class Pengajuan extends BaseController
         $form->set_attribute_form('class="form-horizontal" enctype="multipart/form-data"')
             ->set_template('admin/pengajuan/sf_step1')
             ->set_resume($resume)
-            ->add('peng_member_id', 'Nama Pengaju', 'select', false, $data['peng_member_id'], ' style="width:100%;" readonly="readonly"', array(
+            ->add('peng_member_id', 'Nama Pengaju', 'select', false, $data['peng_member_id'], ' style="width:100%;"', array(
                 'table' => 'member',
                 'id' => 'member_id',
                 'label' => 'member_nama_lengkap',
@@ -811,7 +839,7 @@ class Pengajuan extends BaseController
         $form->set_attribute_form('class="form-horizontal" enctype="multipart/form-data"')
             ->set_template('admin/pengajuan/sf_step1_jenis3')
             ->set_resume($resume)
-            ->add('peng_member_id', 'Nama Pengaju', 'select', false, $data['peng_member_id'], ' style="width:100%;" readonly="readonly"', array(
+            ->add('peng_member_id', 'Nama Pengaju', 'select', false, $data['peng_member_id'], ' style="width:100%;"', array(
                 'table' => 'member',
                 'id' => 'member_id',
                 'label' => 'member_nama_lengkap',
@@ -1100,15 +1128,181 @@ class Pengajuan extends BaseController
     {
         $pengajuan = $this->db->table("pengajuan")->getWhere(['peng_id' => $id])->getRowArray();
         if ($pengajuan['peng_jenis_pengajuan'] == 1) {
-            return $this->formStep3Jenis1($id);
+            return $this->formFilterJaminan($id) . $this->formStep3Jenis1($id);
         } else if ($pengajuan['peng_jenis_pengajuan'] == 2) {
-            return $this->formFilterJaminan($id) . $this->formStep3Jenis2($id);
+            return $this->formFilterJaminan($id) . $this->formStep3Jenis2($id) . $this->gridJaminan($id);
         } else {
-            return $this->formFilterJaminan($id) . $this->formStep3Jenis3($id);
+            return $this->formFilterJaminan($id) . $this->formStep3Jenis3($id) . $this->gridJaminan($id);
         }
     }
 
+    public function gridJaminan($peng_id)
+    {
+        $pengajuan = $this->db->query("select peng_jam_jenis from pengajuan where peng_id=".$peng_id)->getRowArray();
+        $SQL_UNION = "select 
+                    peng_id,
+                    peng_id as id,
+                    'pengajuan' AS TYPE,
+                    ref_jaminan_label AS jenis,
+                    peng_jam_pemegang_ktp_no AS no_ktp,
+                    peng_jam_pekerjaan AS pekerjaan,
+                        case
+                            when peng_jam_jenis = 1 then 
+                                CASE
+                                        WHEN peng_jam_jenis_bpkb = 1 THEN
+                                        'Pribadi' ELSE 'Orang Lain' 
+                                END
+                            when peng_jam_jenis = 2 then 
+                                CASE
+                                        WHEN peng_jam_jenis_tanah = 1 THEN
+                                        'Pribadi' ELSE 'Orang Lain' 
+                                END
+                            when peng_jam_jenis = 3 then 
+                                CASE
+                                        WHEN peng_jam_jenis_emas = 1 THEN
+                                        'Pribadi' ELSE 'Orang Lain' 
+                                END
+                        end AS kepemilikan,
+                    case when peng_jam_jenis = 1 then 
+                        '<b>Tahun Pembuatan : </b> '||coalesce(peng_jam_tahun_pembuatan,0)||'<br/>'||
+                        '<b>No. Polisi : </b> '||coalesce(peng_jam_nopol,'')||'<br/>'||
+                        '<b>No. Mesin : </b> '||coalesce(peng_jam_mesin,'')||'<br/>'||
+                        '<b>No. Rangka : </b> '||coalesce(peng_jam_rangka,'')||'<br/>'||
+                        '<b>Atas Nama : </b> '||coalesce(peng_jam_atas_nama,'')||'<br/>'||
+                        '<b>Alamat : </b> '||coalesce(peng_jam_alamat,'')||'<br/>'||
+                        '<b>No. BPKB : </b> '||coalesce(peng_jam_no_bpkb,'')||'<br/>'||
+                        '<b>Type BPKB : </b> '||coalesce(peng_jam_type_bpkb,'')
+                    when peng_jam_jenis = 2 then 
+                        '<b>No. Akta : </b> '||coalesce(peng_jam_no_akta,'')||'<br/>'||
+                        '<b>Tempat : </b> '||coalesce(peng_jam_tempat,'')||'<br/>'||
+                        '<b>Atas Nama : </b> '||COALESCE(peng_jam_atas_nama_tanah,'')||'<br/>'||
+                        '<b>Alamat : </b> '||COALESCE(peng_jam_alamat_tanah,'')||'<br/>'||
+                        '<b>SU. Tanggal : </b> '||COALESCE(peng_jam_su_tanggal::text,'')||'<br/>'||
+                        '<b>No. Surat Ukur : </b> '||COALESCE(peng_jam_nomor_surat_ukur,'')||'<br/>'||
+                        '<b>Luas Tanah : </b> '||COALESCE(peng_jam_luas_tanah,'')||'<br/>'||
+                        '<b>Harga Perkiraan : </b> '||COALESCE(peng_jam_harga_perkiraan,'')||'<br/>'||
+                        '<b>Total Harga Perkiraan : </b> '||COALESCE(peng_jam_harga_perkiraan_total,'')
+                    else
+                        '<b>Karat : </b>'||COALESCE(peng_jam_emas_karat,'')||'<br/>'||
+                        '<b>Gram : </b>'||COALESCE(peng_jam_emas_gram,'')
+                    end as detail_jaminan
+                    
+                    from pengajuan
+                    left join ref_jaminan ON ref_jaminan.ref_jaminan_id = peng_jam_jenis ";
+        $SQL = "SELECT
+                    jam_peng_id as peng_id,
+                    jam_id as id,
+                    'jaminan' AS TYPE,
+                    ref_jaminan_label AS jenis,
+                    jam_pemegang_ktp_no AS no_ktp,
+                    jam_pekerjaan AS pekerjaan,
+                    CASE
+                        
+                        WHEN jam_jenis_kepemilikan = 1 THEN
+                        'Pribadi' ELSE'Orang Lain' 
+                    END AS kepemilikan,
+                    case when jam_jenis = 1 then 
+                        '<b>Tahun Pembuatan : </b> '||coalesce(jam_tahun_pembuatan,0)||'<br/>'||
+                        '<b>No. Polisi : </b> '||coalesce(jam_nopol,'')||'<br/>'||
+                        '<b>No. Mesin : </b> '||coalesce(jam_mesin,'')||'<br/>'||
+                        '<b>No. Rangka : </b> '||coalesce(jam_rangka,'')||'<br/>'||
+                        '<b>Atas Nama : </b> '||coalesce(jam_atas_nama,'')||'<br/>'||
+                        '<b>Alamat : </b> '||coalesce(jam_alamat,'')||'<br/>'||
+                        '<b>No. BPKB : </b> '||coalesce(jam_no_bpkb,'')||'<br/>'||
+                        '<b>Type BPKB : </b> '||coalesce(jam_type_bpkb,'')
+                    when jam_jenis = 2 then 
+                        '<b>No. Akta : </b> '||coalesce(jam_no_akta,'')||'<br/>'||
+                        '<b>Tempat : </b> '||coalesce(jam_tempat,'')||'<br/>'||
+                        '<b>Atas Nama : </b> '||COALESCE(jam_atas_nama_tanah,'')||'<br/>'||
+                        '<b>Alamat : </b> '||COALESCE(jam_alamat_tanah,'')||'<br/>'||
+                        '<b>SU. Tanggal : </b> '||COALESCE(jam_su_tanggal::text,'')||'<br/>'||
+                        '<b>No. Surat Ukur : </b> '||COALESCE(jam_nomor_surat_ukur,'')||'<br/>'||
+                        '<b>Luas Tanah : </b> '||COALESCE(jam_luas_tanah,'')||'<br/>'||
+                        '<b>Harga Perkiraan : </b> '||COALESCE(jam_harga_perkiraan,'')||'<br/>'||
+                        '<b>Total Harga Perkiraan : </b> '||COALESCE(jam_harga_perkiraan_total,'')
+                    else
+                        '<b>Karat : </b>'||COALESCE(jam_emas_karat,'')||'<br/>'||
+                        '<b>Gram : </b>'||COALESCE(jam_emas_gram,'')
+                    end as detail_jaminan
+                    
+                FROM
+                    pengajuan_jaminan
+                    LEFT JOIN ref_jaminan ON ref_jaminan.ref_jaminan_id = jam_jenis";
+        if($pengajuan['peng_jam_jenis']!=''){
+            $SQL .= " UNION ".$SQL_UNION;
+        }
+        // die($SQL);
+        $action['delete']     = array(
+            'jsf'          => 'deleteJaminan'
+        );
+
+        $grid = new Grid();
+        return $grid->set_query($SQL,[
+            ['peng_id', $peng_id, '=']
+        ])
+            ->configure(
+                array(
+                    'datasouce_url' => base_url("admin/pengajuan/gridJaminan/".$peng_id."?datasource&" . get_query_string()),
+                    'grid_columns'  => array(
+                        array(
+                            'field' => 'jenis',
+                            'title' => 'Jenis Jaminan',
+                        ),
+                        array(
+                            'field' => 'no_ktp',
+                            'title' => 'Nomor KTP',
+                        ),
+                        array(
+                            'field' => 'pekerjaan',
+                            'title' => 'Pekerjaan',
+                        ),
+                        array(
+                            'field' => 'kepemilikan',
+                            'title' => 'Kepemilikan',
+                        ),
+                        array(
+                            'field' => 'detail_jaminan',
+                            'title' => 'Detail',
+                            'encoded'=> false
+                        ),
+                    ),
+                    'action'    => $action,
+                )
+            )
+            ->set_snippet(function($id, $value)
+            {
+                if($value['type']=='pengajuan'){
+                    $value['delete'] = '';
+                }
+                return $value;
+            })
+            ->output();
+    }
+
+    public function deleteJaminan()
+    {
+        $jam_id = $this->request->getPost('id');
+        $this->db->table("pengajuan_jaminan")->where(['jam_id'=> $jam_id])->delete();
+        return $this->response->setJSON([
+            'status'=> true,
+            'message'=> 'Sukses delete jaminan'
+        ]);
+    }
+
     public function formStep3Jenis1($id)
+    {
+        $data = $this->db->table('pengajuan')->getWhere(['peng_id' => $id])->getRowArray();
+        $jenis_jaminan = ($data['peng_jam_jenis'] == '' ? $this->request->getGet('jenis_jaminan') : $data['peng_jam_jenis']);
+        if ($jenis_jaminan == 3) {
+            return $this->formEmas($id);
+        } else if($jenis_jaminan == 2) {
+            return $this->formSertifikat($id);
+        }else{
+            return $this->formBpkb($id);
+        }
+    }
+
+    public function formStep4Jenis1($id)
     {
         $data = $this->db->table('pengajuan')->getWhere(['peng_id' => $id])->getRowArray();
         $resume = false;
@@ -1121,33 +1315,34 @@ class Pengajuan extends BaseController
             ->set_resume($resume)
             ->add('peng_uji_kel_no_ktp', 'NO. KTP', 'text', false, empty($data) ? '' : $data['peng_uji_kel_no_ktp'], 'style="width:100%;"')
             ->add('peng_uji_kel_pekerjaan', 'Pekerjaan', 'text', false, empty($data) ? '' : $data['peng_uji_kel_pekerjaan'], 'style="width:100%;"')
-            ->add('peng_sk_kepala_kelurahan', 'Kepala Kelurahan', 'text', false, empty($data) ? '' : $data['peng_sk_kepala_kelurahan'], 'style="width:100%;"')
-            ->add('peng_sk_kecamatan', 'Kecamatan', 'select', false, empty($data) ? '' : $data['peng_sk_kecamatan'], ' style="width:100%;"', array(
-                'table' => 'ref_kecamatan',
-                'id' => 'ref_kec_id',
-                'label' => 'ref_kec_label',
-            ))
-            ->add('peng_sk_kota', 'Kota', 'text', false, 'KEDIRI', 'style="width:100%;" readonly="readonly"')
-            ->add('peng_sk_tanah_luas', 'Luas Tanah (M2)', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_luas'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_desa', 'Di Desa / Kelurahan', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_desa'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_kecamatan', 'Kecamatan', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_kecamatan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_no_shm', 'No. SHM', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_no_shm'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_tanggal_shm', 'Tanggal SHM', 'date', false, empty($data) ? '' : $data['peng_sk_tanah_tanggal_shm'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_atas_nama', 'Atas Nama', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_atas_nama'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_harga_ru', 'Harga Tanah per - RU', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_ru'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_harga_meter', 'Harga Tanah per meter', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_meter'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_luas_bangunan', 'Luas Bangunan', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_luas_bangunan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_harga_bangunan', 'Harga Bangunan', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_bangunan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_harga_bangunan', 'Harga Bangunan', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_bangunan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_letak_utara', 'Letak Sebelah Utara', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_utara'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_letak_selatan', 'Letak Sebelah Selatan', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_selatan'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_letak_timur', 'Letak Sebelah Timur', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_timur'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_letak_barat', 'Letak Sebelah Barat', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_barat'], 'style="width:100%;"')
-            ->add('peng_sk_tanah_penggunaan', 'Penggunaan tanah saat ini', 'textArea', false, empty($data) ? '' : $data['peng_sk_tanah_penggunaan'], 'style="width:100%;" rows="5"');
+            // ->add('peng_sk_kepala_kelurahan', 'Kepala Kelurahan', 'text', false, empty($data) ? '' : $data['peng_sk_kepala_kelurahan'], 'style="width:100%;"')
+            // ->add('peng_sk_kecamatan', 'Kecamatan', 'select', false, empty($data) ? '' : $data['peng_sk_kecamatan'], ' style="width:100%;"', array(
+            //     'table' => 'ref_kecamatan',
+            //     'id' => 'ref_kec_id',
+            //     'label' => 'ref_kec_label',
+            // ))
+            // ->add('peng_sk_kota', 'Kota', 'text', false, 'KEDIRI', 'style="width:100%;" readonly="readonly"')
+            // ->add('peng_sk_tanah_luas', 'Luas Tanah (M2)', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_luas'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_desa', 'Di Desa / Kelurahan', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_desa'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_kecamatan', 'Kecamatan', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_kecamatan'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_no_shm', 'No. SHM', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_no_shm'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_tanggal_shm', 'Tanggal SHM', 'date', false, empty($data) ? '' : $data['peng_sk_tanah_tanggal_shm'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_atas_nama', 'Atas Nama', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_atas_nama'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_harga_ru', 'Harga Tanah per - RU', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_ru'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_harga_meter', 'Harga Tanah per meter', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_meter'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_luas_bangunan', 'Luas Bangunan', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_luas_bangunan'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_harga_bangunan', 'Harga Bangunan', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_bangunan'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_harga_bangunan', 'Harga Bangunan', 'number', false, empty($data) ? '' : $data['peng_sk_tanah_harga_bangunan'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_letak_utara', 'Letak Sebelah Utara', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_utara'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_letak_selatan', 'Letak Sebelah Selatan', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_selatan'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_letak_timur', 'Letak Sebelah Timur', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_timur'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_letak_barat', 'Letak Sebelah Barat', 'text', false, empty($data) ? '' : $data['peng_sk_tanah_letak_barat'], 'style="width:100%;"')
+            // ->add('peng_sk_tanah_penggunaan', 'Penggunaan tanah saat ini', 'textArea', false, empty($data) ? '' : $data['peng_sk_tanah_penggunaan'], 'style="width:100%;" rows="5"')
+            ;
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
             $this->db->table("pengajuan")->where('peng_id', $id)->update($dataForm);
-            die(forceRedirect(base_url('/admin/pengajuan/detail/' . $id . '?step=3')));
+            die(forceRedirect(base_url('/admin/pengajuan/detail/' . $id . '?step=4')));
         } else {
             return $form->output();
         }
@@ -1163,7 +1358,7 @@ class Pengajuan extends BaseController
             ->set_form_method('GET')
             ->set_submit_label('Pilih')
             ->add('step', '', 'hidden', false, $this->request->getGet('step'))
-            ->add('jenis_jaminan', 'Jenis Jaminan', 'select_custom', true, ($data['peng_jam_jenis'] == '') ? $this->request->getGet('jenis_jaminan') : $data['peng_jam_jenis'], ' style="width:100%;"', array(
+            ->add('jenis_jaminan', 'Jenis Jaminan', 'select_custom', true, ($data['peng_jam_jenis'] == '') ? $this->request->getGet('jenis_jaminan') : 1, ' style="width:100%;"', array(
                 'option' => [
                     [
                         'id' => 1,
@@ -1172,19 +1367,24 @@ class Pengajuan extends BaseController
                     [
                         'id' => 2,
                         'label' => 'SERTIFIKAT'
+                    ],
+                    [
+                        'id' => 3,
+                        'label' => 'EMAS'
                     ]
                 ]
             ));
         if ($form->formVerified()) {
-            $this->db->table("pengajuan")->where("peng_id=" . $id)->update([
-                'peng_jam_jenis' => $this->request->getGet('jenis_jaminan')
-            ]);
+            // $this->db->table("pengajuan")->where("peng_id=" . $id)->update([
+            //     'peng_jam_jenis' => $this->request->getGet('jenis_jaminan')
+            // ]);
         }
         return $form->output();
     }
 
     public function formSertifikat($id)
     {
+        $step = ($this->request->getGet('step'));
         $data = $this->db->table('pengajuan')->getWhere(['peng_id' => $id])->getRowArray();
         $resume = false;
         if ($data['peng_lock_is'] == 't') {
@@ -1194,21 +1394,28 @@ class Pengajuan extends BaseController
         $form->set_attribute_form('class="form-horizontal"')
             ->set_template("admin/pengajuan/sf_step3_jenis2_sertifikat")
             ->set_resume($resume)
-            ->add('peng_jam_jenis_tanah', 'Jenis Jaminan', 'select', true, empty($data) ? '' : $data['peng_jam_jenis_tanah'], ' style="width:100%;"', array(
+            ->add('jam_jenis_kepemilikan', 'Jenis Jaminan', 'select', true, '', ' style="width:100%;"', array(
                 'table' => 'ref_jenis_jaminan',
                 'id' => 'jns_jam_id',
                 'label' => 'jns_jam_label',
             ))
-            ->add('peng_jam_pemegang_ktp_no', 'Pemegang KTP No', 'text', false, empty($data) ? '' : $data['peng_jam_pemegang_ktp_no'], 'style="width:100%;"')
-            ->add('peng_jam_pekerjaan', 'Pekerjaan', 'text', false, empty($data) ? '' : $data['peng_jam_pekerjaan'], 'style="width:100%;"')
-            ->add('peng_jam_no_akta', 'Nomor Akta', 'text', false, empty($data) ? '' : $data['peng_jam_no_akta'], 'style="width:100%;"')
-            ->add('peng_jam_tempat', 'Tempat', 'text', false, empty($data) ? '' : $data['peng_jam_tempat'], 'style="width:100%;"')
-            ->add('peng_jam_atas_nama_tanah', 'Atas Nama', 'text', false, empty($data) ? '' : $data['peng_jam_atas_nama_tanah'], 'style="width:100%;"')
-            ->add('peng_jam_alamat_tanah', 'Alamat', 'text', false, empty($data) ? '' : $data['peng_jam_alamat_tanah'], 'style="width:100%;"');
+            ->add('jam_jenis','','hidden', false, ($this->request->getGet('jenis_jaminan') ? $this->request->getGet('jenis_jaminan') : 1 ))
+            ->add('jam_pemegang_ktp_no', 'Pemegang KTP No', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_pekerjaan', 'Pekerjaan', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_no_akta', 'Nomor Akta', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_su_tanggal', 'SU. Tanggal', 'date', false, '', 'style="width:100%;"')
+            ->add('jam_nomor_surat_ukur', 'No.Surat Ukur', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_luas_tanah', 'Luas Tanah', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_harga_perkiraan', 'Harga Perkiraan', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_harga_perkiraan_total', 'Total Harga Perkiraan', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_tempat', 'Tempat', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_atas_nama_tanah', 'Atas Nama', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_alamat_tanah', 'Alamat', 'text', false, '', 'style="width:100%;"');
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
-            $this->db->table("pengajuan")->where('peng_id', $id)->update($dataForm);
-            die(forceRedirect(base_url('/admin/pengajuan/detail/' . $id . '?step=5')));
+            $dataForm['jam_peng_id'] = $id;
+            $this->db->table("pengajuan_jaminan")->insert($dataForm);
+            die(forceRedirect(base_url('/admin/pengajuan/detail/' . $id . '?step='.$step)));
         } else {
             return $form->output();
         }
@@ -1216,6 +1423,7 @@ class Pengajuan extends BaseController
 
     public function formBpkb($id)
     {
+        $step = ($this->request->getGet('step'));
         $data = $this->db->table('pengajuan')->getWhere(['peng_id' => $id])->getRowArray();
         $resume = false;
         if ($data['peng_lock_is'] == 't') {
@@ -1225,23 +1433,60 @@ class Pengajuan extends BaseController
         $form->set_attribute_form('class="form-horizontal"')
             ->set_template("admin/pengajuan/sf_step3_jenis2_bpkb")
             ->set_resume($resume)
-            ->add('peng_jam_jenis_bpkb', 'Jenis Jaminan', 'select', true, empty($data) ? '' : $data['peng_jam_jenis_bpkb'], ' style="width:100%;"', array(
+            ->add('jam_jenis_kepemilikan', 'Jenis Jaminan', 'select', true, '', ' style="width:100%;"', array(
                 'table' => 'ref_jenis_jaminan',
                 'id' => 'jns_jam_id',
                 'label' => 'jns_jam_label',
             ))
-            ->add('peng_jam_pemegang_ktp_no', 'Pemegang KTP No', 'text', false, empty($data) ? '' : $data['peng_jam_pemegang_ktp_no'], 'style="width:100%;"')
-            ->add('peng_jam_pekerjaan', 'Pekerjaan', 'text', false, empty($data) ? '' : $data['peng_jam_pekerjaan'], 'style="width:100%;"')
-            ->add('peng_jam_tahun_pembuatan', 'Tahun Pembuatan', 'text', false, empty($data) ? '' : $data['peng_jam_tahun_pembuatan'], 'style="width:100%;"')
-            ->add('peng_jam_nopol', 'Nomor Polisi', 'text', false, empty($data) ? '' : $data['peng_jam_nopol'], 'style="width:100%;"')
-            ->add('peng_jam_mesin', 'Nomor Mesin', 'text', false, empty($data) ? '' : $data['peng_jam_mesin'], 'style="width:100%;"')
-            ->add('peng_jam_rangka', 'Nomor Rangka', 'text', false, empty($data) ? '' : $data['peng_jam_rangka'], 'style="width:100%;"')
-            ->add('peng_jam_atas_nama', 'Atas Nama', 'text', false, empty($data) ? '' : $data['peng_jam_atas_nama'], 'style="width:100%;"')
-            ->add('peng_jam_alamat', 'Alamat', 'text', false, empty($data) ? '' : $data['peng_jam_alamat'], 'style="width:100%;"');
+            ->add('jam_jenis','','hidden', false, ($this->request->getGet('jenis_jaminan') ? $this->request->getGet('jenis_jaminan') : 1 ))
+            ->add('jam_pemegang_ktp_no', 'Pemegang KTP No', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_pekerjaan', 'Pekerjaan', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_tahun_pembuatan', 'Tahun Pembuatan', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_no_bpkb', 'Nomor BPKB', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_nopol', 'Nomor Polisi', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_mesin', 'Nomor Mesin', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_rangka', 'Nomor Rangka', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_atas_nama', 'Atas Nama', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_alamat', 'Alamat', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_type_bpkb', 'BPKB Type', 'text', false, '', 'style="width:100%;"');
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
-            $this->db->table("pengajuan")->where('peng_id', $id)->update($dataForm);
-            die(forceRedirect(base_url('/admin/pengajuan/detail/' . $id . '?step=5')));
+            $dataForm['jam_peng_id'] = $id;
+            $this->db->table("pengajuan_jaminan")->insert($dataForm);
+            die(forceRedirect(base_url('/admin/pengajuan/detail/' . $id . '?step='.$step)));
+        } else {
+            return $form->output();
+        }
+    }
+
+    public function formEmas($id)
+    {
+        $step = ($this->request->getGet('step'));
+        $data = $this->db->table('pengajuan')->getWhere(['peng_id' => $id])->getRowArray();
+        $resume = false;
+        if ($data['peng_lock_is'] == 't') {
+            $resume = true;
+        }
+        $form = new Form();
+        $form->set_attribute_form('class="form-horizontal"')
+            ->set_template("admin/pengajuan/sf_step3_jenis2_emas")
+            ->set_resume($resume)
+            ->add('jam_jenis_kepemilikan', 'Jenis Jaminan', 'select', true, '', ' style="width:100%;"', array(
+                'table' => 'ref_jenis_jaminan',
+                'id' => 'jns_jam_id',
+                'label' => 'jns_jam_label',
+            ))
+            ->add('jam_jenis','','hidden', false, ($this->request->getGet('jenis_jaminan') ? $this->request->getGet('jenis_jaminan') : 1 ))
+            ->add('jam_pemegang_ktp_no', 'Pemegang KTP No', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_pekerjaan', 'Pekerjaan', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_emas_karat', 'Karat', 'text', false, '', 'style="width:100%;"')
+            ->add('jam_emas_gram', 'Gram', 'text', false, '', 'style="width:100%;"')
+            ;
+        if ($form->formVerified()) {
+            $dataForm = $form->get_data();
+            $dataForm['jam_peng_id'] = $id;
+            $this->db->table("pengajuan_jaminan")->insert($dataForm);
+            die(forceRedirect(base_url('/admin/pengajuan/detail/' . $id . '?step='.$step)));
         } else {
             return $form->output();
         }
@@ -1250,29 +1495,35 @@ class Pengajuan extends BaseController
     public function formStep3Jenis2($id)
     {
         $data = $this->db->table('pengajuan')->getWhere(['peng_id' => $id])->getRowArray();
-        $jenis_jaminan = ($data['peng_jam_jenis'] == '' ? $this->request->getGet('jenis_jaminan') : $data['peng_jam_jenis']);
-        if ($jenis_jaminan == 1) {
-            return $this->formBpkb($id);
-        } else {
+        $jenis_jaminan = ( $this->request->getGet('jenis_jaminan') ? $this->request->getGet('jenis_jaminan') : 1);
+        if ($jenis_jaminan == 3) {
+            return $this->formEmas($id);
+        } else if($jenis_jaminan == 2) {
             return $this->formSertifikat($id);
+        }else{
+            return $this->formBpkb($id);
         }
     }
 
     public function formStep3Jenis3($id)
     {
         $data = $this->db->table('pengajuan')->getWhere(['peng_id' => $id])->getRowArray();
-        $jenis_jaminan = ($data['peng_jam_jenis'] == '' ? $this->request->getGet('jenis_jaminan') : $data['peng_jam_jenis']);
-        if ($jenis_jaminan == 1) {
-            return $this->formBpkb($id);
-        } else {
+        $jenis_jaminan = ( $this->request->getGet('jenis_jaminan') ? $this->request->getGet('jenis_jaminan') : 1);
+        if ($jenis_jaminan == 3) {
+            return $this->formEmas($id);
+        } else if($jenis_jaminan == 2) {
             return $this->formSertifikat($id);
+        }else{
+            return $this->formBpkb($id);
         }
     }
 
     public function formStep4($id)
     {
         $pengajuan = $this->db->table("pengajuan")->getWhere(['peng_id' => $id])->getRowArray();
-        if ($pengajuan['peng_jenis_pengajuan'] == 2) {
+        if ($pengajuan['peng_jenis_pengajuan'] == 1) {
+            return $this->formStep4Jenis1($id);
+        } else if ($pengajuan['peng_jenis_pengajuan'] == 2) {
             return $this->formStep4Jenis2($id);
         } else if ($pengajuan['peng_jenis_pengajuan'] == 3) {
             return $this->formStep4Jenis3($id);

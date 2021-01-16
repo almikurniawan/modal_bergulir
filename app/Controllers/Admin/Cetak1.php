@@ -117,8 +117,19 @@ class Cetak1 extends BaseController
 				</table>
 		';
 
+		$foto_suami = '';
+		$ext = strtolower(pathinfo('/uploads/'.$data['peng_foto_suami'], PATHINFO_EXTENSION));
+		if(in_array($ext, ['png','jpg','jpeg'])){
+			$foto_suami = $data['peng_foto_suami'];
+		}
+		$foto_istri = '';
+		$ext = strtolower(pathinfo('/uploads/'.$data['peng_foto_istri'], PATHINFO_EXTENSION));
+		if(in_array($ext, ['png','jpg','jpeg'])){
+			$foto_istri = $data['peng_foto_istri'];
+		}
+
 		$html .= '<p align="justify" style="text-indent: 0.5in;">
-		Dengan hormat, dalam upaya pengembangan dan peningkatan usaha dalam bidang <b>' . ($data['peng_bidang_usaha'] ? $data['peng_bidang_usaha'] : '') . '</b>, maka bersama ini kami mengajukan permohonan dukungan tambahan sarana usaha /modal kerja sebesar Rp <b>' . ($data['peng_nominal'] ? number_format($data['peng_nominal'], 2, ",", ".") : '') . '</b> ['.terbilang($data['peng_nominal']).']
+		Dengan hormat, dalam upaya pengembangan dan peningkatan usaha dalam bidang <b>' . ($data['peng_bidang_usaha'] ? $data['peng_bidang_usaha'] : '') . '</b>, maka bersama ini kami mengajukan permohonan dukungan tambahan sarana usaha /modal kerja sebesar Rp <b>' . ($data['peng_nominal'] ? number_format($data['peng_nominal'], 2, ",", ".") : '') . '</b> [' . terbilang($data['peng_nominal']) . ']
 		Tujuan penggunaan dana tersebut untuk <b>' . ($data['peng_tujuan_penggunaan'] ? $data['peng_tujuan_penggunaan'] : '') . '</b>. 
 		Untuk melengkapi permohonan tersebut, kami sertakan lampiran sebagai berikut;<br/>
 		1.	Profil usaha Usaha Mikro;<br/>
@@ -142,8 +153,8 @@ class Cetak1 extends BaseController
 				<td width="45%">UM.</td>
 			</tr>
 			<tr>
-				<td width="30%"><img src="'.base_url('/uploads').'/'.$data['peng_foto_suami'].'" width="200"></td>
-				<td width="25%"><img src="'.base_url('/uploads').'/'.$data['peng_foto_istri'].'" width="200"></td>
+				<td width="30%"><img src="' . base_url('/uploads') . '/' . $foto_suami . '" width="200"></td>
+				<td width="25%"><img src="' . base_url('/uploads') . '/' . $foto_istri . '" width="200"></td>
 				<td width="5%"></td>
 				<td width="45%" height="100" align="center"><b>Pemilik Usaha</b></td>
 			</tr>
@@ -159,7 +170,7 @@ class Cetak1 extends BaseController
 
 	public function profil3($id)
 	{
-		$data = $this->db->table('pengajuan')->select('*')->getWhere(['peng_id' => $id])->getRowArray();
+		$data = $this->db->table('pengajuan')->select('*')->join('ref_bidang_usaha', 'ref_bidang_id=peng_prof_jenis_usaha')->getWhere(['peng_id' => $id])->getRowArray();
 
 		$html = '
 				<table>
@@ -234,7 +245,7 @@ class Cetak1 extends BaseController
 						<td width="5%"></td>
 						<td width="5%">1.</td>
 						<td width="30%">Jenis usaha</td>
-						<td width="40%">: ' . ($data['peng_prof_jenis_usaha'] ? $data['peng_prof_jenis_usaha'] : '') . '</td>
+						<td width="40%">: ' . ($data['ref_bidang_label'] ? $data['ref_bidang_label'] : '') . '</td>
 					</tr>
 					<tr>
 						<td width="5%"></td>
@@ -402,7 +413,7 @@ class Cetak1 extends BaseController
 						<td width="10%"></td>
 						<td width="45%"></td>
 						<td width="5%"></td>
-						<td width="45%" align="center"><b>Kediri, '.date('d-m-Y', strtotime($data['peng_tanggal'])).'</b></td>
+						<td width="45%" align="center"><b>Kediri, ' . date('d-m-Y', strtotime($data['peng_tanggal'])) . '</b></td>
 					</tr>
 					<tr>
 						<td width="10%"></td>
@@ -421,7 +432,7 @@ class Cetak1 extends BaseController
 	}
 	public function profil5($id)
 	{
-		$data = $this->db->query("select * from pengajuan left join ref_kecamatan on peng_sk_kecamatan = ref_kec_id where peng_id=".$id)->getRowArray();
+		$data = $this->db->query("select * from pengajuan left join ref_kecamatan on peng_sk_kecamatan = ref_kec_id where peng_id=" . $id)->getRowArray();
 
 		$html = '
 				<table>
@@ -618,7 +629,7 @@ class Cetak1 extends BaseController
 	}
 	public function profil8_($id)
 	{
-		$data = $this->db->table('pengajuan')->select('*')->join('pengajuan_foto', 'peng_foto_peng_id = peng_id')->getWhere(['peng_foto_jenis' => 2,'peng_id' => $id])->getResultArray();
+		$data = $this->db->table('pengajuan')->select('*')->join('pengajuan_foto', 'peng_foto_peng_id = peng_id')->getWhere(['peng_foto_jenis' => 2, 'peng_id' => $id])->getResultArray();
 		// print_r($data);die();
 		$html = '
 				<table>
@@ -629,13 +640,16 @@ class Cetak1 extends BaseController
 				<br/>
 				<hr/>
 				<table>';
-				foreach ($data as $key => $value) {
-					$html.='
-						<tr>
-							<td width="100%" align="center"><img src="./uploads/foto_kegiatan/'.$value['peng_foto_file'].'" height="150"></td>
-						</tr>';
-				}
-				$html.='
+		foreach ($data as $key => $value) {
+			$ext = strtolower(pathinfo('/uploads/foto_kegiatan/'.$value['peng_foto_file'], PATHINFO_EXTENSION));
+			if(in_array($ext, ['png','jpg','jpeg'])){
+				$html .= '
+							<tr>
+								<td width="100%" align="center"><img src="./uploads/foto_kegiatan/' . $value['peng_foto_file'] . '" height="150"></td>
+							</tr>';
+			}
+		}
+		$html .= '
 				</table>
 		';
 		return $html;
@@ -643,7 +657,7 @@ class Cetak1 extends BaseController
 	public function profil($id)
 	{
 		$pdf = new TCPDF('P', PDF_UNIT, 'A4', true, 'UTF-8', false);
-		setlocale (LC_TIME, 'id_ID');
+		setlocale(LC_TIME, 'id_ID');
 		$pdf->SetCreator(PDF_CREATOR);
 		$pdf->SetAuthor('DINKOP');
 		$pdf->SetTitle('Profil');
@@ -656,13 +670,13 @@ class Cetak1 extends BaseController
 		$pdf->SetAutoPageBreak(TRUE, 10);
 
 		$pdf->SetFont('times', '', 12, '', 'false');
-		
+
 		$pdf->addPage();
 		$pdf->writeHTML($this->profil1($id), true, false, true, false, '');
-		
+
 		$pdf->addPage();
 		$pdf->writeHTML($this->profil2($id), true, false, true, false, '');
-		
+
 		$pdf->addPage();
 		$pdf->writeHTML($this->profil3($id), true, false, true, false, '');
 
@@ -671,7 +685,7 @@ class Cetak1 extends BaseController
 
 		// $pdf->addPage();
 		// $pdf->writeHTML($this->profil5($id), true, false, true, false, '');
-		
+
 		// $pdf->addPage();
 		// $pdf->writeHTML($this->profil8($id), true, false, true, false, '');
 
@@ -684,4 +698,3 @@ class Cetak1 extends BaseController
 		die();
 	}
 }
-

@@ -39,9 +39,11 @@ class CetakSPPK extends BaseController
                                         peng_disetujui_nominal as nominal,
                                         peng_disetujui_jangka_waktu_bln as jangka_waktu,
                                         peng_disetujui_jangka_waktu_text as jangka_waktu_text,
+                                        kar_nama as ttd,
                                         *
                                     FROM
                                         pengajuan
+                                        left join karyawan on kar_id = peng_kepala_dinas_ttd
                                     WHERE
                                         peng_id = ".$peng_id)->getRowArray();
 
@@ -52,13 +54,13 @@ class CetakSPPK extends BaseController
             <td style="width: 5.71217%; height: 18px;">1</td>
             <td style="width: 35.3857%; height: 18px;">BPKB No</td>
             <td style="width: 3.56079%; height: 18px;">:</td>
-            <td style="width: 55.3412%; height: 18px;"></td>
+            <td style="width: 55.3412%; height: 18px;">'.$pengajuan['peng_jam_no_bpkb'].'</td>
             </tr>
             <tr style="height: 18px;">
             <td style="width: 5.71217%; height: 18px;">&nbsp;</td>
             <td style="width: 35.3857%; height: 18px;">Type</td>
             <td style="width: 3.56079%; height: 18px;">:</td>
-            <td style="width: 55.3412%; height: 18px;"></td>
+            <td style="width: 55.3412%; height: 18px;">'.$pengajuan['peng_jam_type_bpkb'].'</td>
             </tr>
             <tr style="height: 18px;">
             <td style="width: 5.71217%; height: 18px;">&nbsp;</td>
@@ -92,7 +94,7 @@ class CetakSPPK extends BaseController
             </tr>
             <tr style="height: 18px;">
             <td style="width: 5.71217%; height: 18px;">&nbsp;</td>
-            <td style="width: 35.3857%; height: 18px;">Lokasi</td>
+            <td style="width: 35.3857%; height: 18px;">Alamat</td>
             <td style="width: 3.56079%; height: 18px;">:</td>
             <td style="width: 55.3412%; height: 18px;">&nbsp;</td>
             </tr>
@@ -103,27 +105,51 @@ class CetakSPPK extends BaseController
             <tbody>
             <tr style="height: 18px;">
             <td style="width: 5.71217%; height: 18px;">1</td>
-            <td style="width: 35.3857%; height: 18px;">Sertifikat NO Akta</td>
+            <td style="width: 35.3857%; height: 18px;">SHM No.</td>
             <td style="width: 3.56079%; height: 18px;">:</td>
             <td style="width: 55.3412%; height: 18px;">'.$pengajuan['peng_jam_no_akta'].'</td>
             </tr>
             <tr style="height: 18px;">
             <td style="width: 5.71217%; height: 18px;">&nbsp;</td>
-            <td style="width: 35.3857%; height: 18px;">Atas Nama</td>
+            <td style="width: 35.3857%; height: 18px;">An.SHM</td>
             <td style="width: 3.56079%; height: 18px;">:</td>
             <td style="width: 55.3412%; height: 18px;">'.$pengajuan['peng_jam_atas_nama'].'</td>
             </tr>
             <tr style="height: 18px;">
             <td style="width: 5.71217%; height: 18px;">&nbsp;</td>
-            <td style="width: 35.3857%; height: 18px;">Tempat</td>
+            <td style="width: 35.3857%; height: 18px;">SU Tgl</td>
+            <td style="width: 3.56079%; height: 18px;">:</td>
+            <td style="width: 55.3412%; height: 18px;">'.date('d-m-Y',strtotime($pengajuan['peng_jam_su_tanggal'])).'</td>
+            </tr>
+            <tr style="height: 18px;">
+            <td style="width: 5.71217%; height: 18px;">&nbsp;</td>
+            <td style="width: 35.3857%; height: 18px;">No. Surat Ukur</td>
+            <td style="width: 3.56079%; height: 18px;">:</td>
+            <td style="width: 55.3412%; height: 18px;">'.$pengajuan['peng_jam_nomor_surat_ukur'].'</td>
+            </tr>
+            <tr style="height: 18px;">
+            <td style="width: 5.71217%; height: 18px;">&nbsp;</td>
+            <td style="width: 35.3857%; height: 18px;">Luas</td>
+            <td style="width: 3.56079%; height: 18px;">:</td>
+            <td style="width: 55.3412%; height: 18px;">'.$pengajuan['peng_jam_luas_tanah'].'</td>
+            </tr>
+            <tr style="height: 18px;">
+            <td style="width: 5.71217%; height: 18px;">&nbsp;</td>
+            <td style="width: 35.3857%; height: 18px;">Lokasi</td>
             <td style="width: 3.56079%; height: 18px;">:</td>
             <td style="width: 55.3412%; height: 18px;">'.$pengajuan['peng_jam_tempat'].'</td>
             </tr>
             <tr style="height: 18px;">
             <td style="width: 5.71217%; height: 18px;">&nbsp;</td>
-            <td style="width: 35.3857%; height: 18px;">Alamat</td>
+            <td style="width: 35.3857%; height: 18px;">Harga Perkiraan</td>
             <td style="width: 3.56079%; height: 18px;">:</td>
-            <td style="width: 55.3412%; height: 18px;">'.$pengajuan['peng_jam_alamat'].'</td>
+            <td style="width: 55.3412%; height: 18px;">Rp. '.number_format($pengajuan['peng_jam_harga_perkiraan'], 2, ',', '.').'</td>
+            </tr>
+            <tr style="height: 18px;">
+            <td style="width: 5.71217%; height: 18px;">&nbsp;</td>
+            <td style="width: 35.3857%; height: 18px;">Total Harga Perkiraan</td>
+            <td style="width: 3.56079%; height: 18px;">:</td>
+            <td style="width: 55.3412%; height: 18px;">( Rp. '.number_format($pengajuan['peng_jam_harga_perkiraan_total'], 2, ',', '.').')</td>
             </tr>
             </tbody>
             </table>';
@@ -252,7 +278,7 @@ class CetakSPPK extends BaseController
         </tr>
         <tr>
         <td style="width: 4.83871%;">10.</td>
-        <td style="width: 95%;">Pencairan kredit melalui PD.Bank Perkreditan Rakyat, Kota Kediri; Demikian Surat Persetujuan Pemberitahuan Kredit ini dibuat untuk dilaksanakan, dan apabila dalam batas waktu sampai dengan tanggal 13 JUNI 2019 belum dapat dilaksanakan,maka dinyatakan batal dengan sendirinya.</td>
+        <td style="width: 95%;">Pencairan kredit melalui PD.Bank Perkreditan Rakyat, Kota Kediri;<br/>Demikian Surat Persetujuan Pemberitahuan Kredit ini dibuat untuk dilaksanakan, dan apabila dalam batas waktu sampai dengan tanggal 13 JUNI 2019 belum dapat dilaksanakan,maka dinyatakan batal dengan sendirinya.</td>
         </tr>
         </tbody>
         </table>
@@ -285,15 +311,15 @@ class CetakSPPK extends BaseController
         </tr>
         <tr style="height: 18px;">
         <td style="width: 50%; height: 18px; text-align: center;">'.$pengajuan['peng_prof_pimpinan'].'</td>
-        <td style="width: 50%; height: 18px; text-align: center;"><span style="text-decoration: underline;"><strong>BAMBANG PRIAMBODO, SH., MM</strong></span></td>
+        <td style="width: 50%; height: 18px; text-align: center;"><span style="text-decoration: underline;"><strong>'.$pengajuan['ttd'].'</strong></span></td>
         </tr>
         <tr style="height: 18px;">
         <td style="width: 50%; height: 18px; text-align: center;">&nbsp;</td>
-        <td style="width: 50%; height: 18px; text-align: center;">Pembina Tingkat I</td>
+        <td style="width: 50%; height: 18px; text-align: center;">'.$pengajuan['kar_pangkat'].'</td>
         </tr>
         <tr style="height: 18px;">
         <td style="width: 50%; height: 18px; text-align: center;">&nbsp;</td>
-        <td style="width: 50%; height: 18px; text-align: center;">NIP .19670327 200112 1 001</td>
+        <td style="width: 50%; height: 18px; text-align: center;">'.$pengajuan['kar_nip'].'</td>
         </tr>
         </tbody>
         </table>

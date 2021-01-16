@@ -172,12 +172,6 @@ class Grid{
         $datasource->set_sort($this->sort);
         $data = $datasource->run();
 
-        if(isset($this->snippet_function)){
-            foreach ($data['result'] as $key => $value) {
-                $data['result'][$key] = call_user_func_array($this->snippet_function, [$value['id'], $value]);
-            }
-        }
-
         if(!empty($this->config['action'])){
             foreach($this->config['action'] as $key => $value){
                 foreach($data['result'] as $k => $v){
@@ -190,7 +184,13 @@ class Grid{
                 }
             }
         }
-        
+       
+        if(isset($this->snippet_function)){
+            foreach ($data['result'] as $key => $value) {
+                $data['result'][$key] = call_user_func_array($this->snippet_function, [$value['id'], $value]);
+            }
+        }
+
         return $this->response->setJSON($data);
     }
 

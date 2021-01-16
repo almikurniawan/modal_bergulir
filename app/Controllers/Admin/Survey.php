@@ -203,12 +203,27 @@ class Survey extends BaseController
             ->add('survey_dasar', 'Dasar', 'text', true, !empty($data) ? $data['survey_dasar'] : '', 'style="width:100%;"')
             ->add('survey_untuk', 'Untuk', 'text', true, !empty($data) ? $data['survey_untuk'] : '', 'style="width:100%;"')
             ->add('survey_keterangan', 'Keterangan', 'textArea', true, !empty($data) ? $data['survey_keterangan'] : '', 'style="width:100%;"')
-            ->add('survey_tanggal', 'Tanggal', 'date', true, !empty($data) ? $data['survey_tanggal'] : '', 'style="width:100%;"');
+            ->add('survey_tanggal', 'Tanggal', 'date', true, !empty($data) ? $data['survey_tanggal'] : '', 'style="width:100%;"')
+            ->add('survey_kepala_dinas_ttd', 'Kepala Dinas', 'select', true, !empty($data) ? $data['survey_kepala_dinas_ttd'] : '', 'style="width:100%;"', [
+                'table' => 'karyawan',
+                'id' => 'kar_id',
+                'label' => 'kar_nama'
+            ])
+            ->add('survey_ketua_teknis_ttd', 'Ketua Tim Teknis', 'select', true, !empty($data) ? $data['survey_ketua_teknis_ttd'] : '', 'style="width:100%;"', [
+                'table' => 'karyawan',
+                'id' => 'kar_id',
+                'label' => 'kar_nama'
+            ]);
 
         if ($form->formVerified()) {
             $dataForm = $form->get_data();
             if (!empty($data)) {
-                $this->db->table("survey")->where('survey_id', $surv_id)->update($dataForm);
+                try {
+                    $this->db->table("survey")->where('survey_id', $surv_id)->update($dataForm);
+                } catch (\Exception $e) {
+                    echo $this->db->getLastQuery();
+                    die($e->getMessage());
+                }
             } else {
                 $this->db->table("survey")->insert($dataForm);
             }
@@ -481,7 +496,7 @@ class Survey extends BaseController
 
     public function html_jadwal($jadwal_id)
     {
-        $data_survey = $this->db->table("survey")->getWhere(['survey_id' => $jadwal_id])->getRowArray();
+        $data_survey = $this->db->table("survey")->join("karyawan", "kar_id=survey_kepala_dinas_ttd")->getWhere(['survey_id' => $jadwal_id])->getRowArray();
         $data_kepada = $this->db->query("select * from survey_detail left join karyawan on kar_id = survey_det_kar_id where survey_det_head_id=" . $jadwal_id)->getResultArray();
 
         $kepada = '';
@@ -671,16 +686,16 @@ class Survey extends BaseController
         </tr>
         <tr>
         <td style="width: 50%;">&nbsp;</td>
-        <td style="width: 50%; text-align: center;"><u>Drs.KRISTIANTO</u></td>
+        <td style="width: 50%; text-align: center;"><u>'.$data_survey['kar_nama'].'</u></td>
         </tr>
         <tr>
         <td style="width: 50%;">&nbsp;</td>
-        <td style="width: 50%; text-align: center;">Pembina Utama Muda
+        <td style="width: 50%; text-align: center;">'.$data_survey['kar_pangkat'].'
         </td>
         </tr>
         <tr>
         <td style="width: 50%;">&nbsp;</td>
-        <td style="width: 50%; text-align: center;">NIP.19600301 199003 2 012
+        <td style="width: 50%; text-align: center;">NIP.'.$data_survey['kar_nip'].'
         </td>
         </tr>
         </tbody>

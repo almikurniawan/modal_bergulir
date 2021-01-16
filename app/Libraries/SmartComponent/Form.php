@@ -152,7 +152,7 @@ class Form{
             if(isset($attribute_select['autofocus'])){
                 $extraJS = '$("#'.$name.'").data("kendoNumericTextBox").focus();';
             }
-            $field = '<input id="'.$name.'" name="'.$name.'" value="'.$value.'" type="number" '.$extraAttribute.' /><script type="text/javascript">$(document).ready(function(){$("#'.$name.'").kendoNumericTextBox({decimals:0,format:"n0"}); '.$extraJS.'});</script>';
+            $field = '<input id="'.$name.'" name="'.$name.'" value="'.$value.'" type="number" '.$extraAttribute.' /><script type="text/javascript">$(document).ready(function(){$("#'.$name.'").kendoNumericTextBox({decimals:0,format:"n0",min:0}); '.$extraJS.'});</script>';
         }else if($type=='date'){
             $field = '<input name="'.$name.'" id="'.$name.'" value="'.$value.'" '.$extraAttribute.' />
             <script type="text/javascript">$(document).ready(function(){$("#'.$name.'").kendoDatePicker({format:"yyyy-MM-dd", parseFormat:["yyyy-mm-dd", "d m yyyy", "d m y", "dd/mm/yyyy", "dd MM yyyy", "dd-MM-yyyy", "d MM yyyy", "dd MMM yyyy"]  });});</script>
