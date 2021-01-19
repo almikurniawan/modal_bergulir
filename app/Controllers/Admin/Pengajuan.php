@@ -1231,14 +1231,14 @@ class Pengajuan extends BaseController
         if($pengajuan['peng_jam_jenis']!=''){
             $SQL .= " UNION ".$SQL_UNION;
         }
-        // die($SQL);
+        $SQL = "select ab.* from (".$SQL.") ab ";
         $action['delete']     = array(
             'jsf'          => 'deleteJaminan'
         );
 
         $grid = new Grid();
         return $grid->set_query($SQL,[
-            ['peng_id', $peng_id, '=']
+            ['ab.peng_id', $peng_id, '=']
         ])
             ->configure(
                 array(
