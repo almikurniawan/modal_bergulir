@@ -139,8 +139,10 @@ class CetakSPPK extends BaseController
         if ($pengajuan['peng_jam_jenis'] != '') {
             $SQL .= " UNION " . $SQL_UNION;
         }
-        $SQL .= " where peng_id=" . $peng_id;
+        // $SQL .= " where peng_id=" . $peng_id;
+        $SQL = "select ab.* from (".$SQL.") ab where ab.peng_id=" . $peng_id;
         $jaminan = $this->db->query($SQL)->getResultArray();
+        // dd($jaminan);
         // if($pengajuan['peng_jam_jenis']==1){
         //     $jaminan = '<table style="border-collapse: collapse; width: 100%; height: 144px;">
         //     <tbody>
@@ -366,7 +368,7 @@ class CetakSPPK extends BaseController
 			' . $value['detail_jaminan'];
         }
         $html .= '</table>';
-        $html = '</td>
+        $html .= '</td>
         </tr>
         <tr>
         <td style="width: 4.83871%;">7.</td>

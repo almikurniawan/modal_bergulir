@@ -456,7 +456,7 @@ class Cetak2 extends BaseController
 		if ($data['peng_jam_jenis'] != '') {
 			$SQL .= " UNION " . $SQL_UNION;
 		}
-		$SQL .= " where peng_id=" . $id;
+		$SQL = "select ab.* from (".$SQL.") ab where ab.peng_id=" . $id;
 		$jaminan = $this->db->query($SQL)->getResultArray();
 		$html = '
 				<table>
