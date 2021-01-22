@@ -553,7 +553,7 @@ class Survey extends BaseController
         <tr>
         <td style="width: 50.3929%;">&nbsp;</td>
         <td style="width: 25%;">NOMOR </td>
-        <td>: ' . $data_survey['survey_nomor_lengkap'] . '</td>
+        <td>: </td>
         </tr>
         <tr>
         <td style="width: 50.3929%;">&nbsp;</td>
@@ -592,7 +592,7 @@ class Survey extends BaseController
         <td style="width: 100%; text-align: center;"><strong>SURAT PERINTAH TUGAS</strong></td>
         </tr>
         <tr>
-        <td style="width: 100%; text-align: center;"><strong>NOMOR : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/SPPD-P3KUM/419.106/2018</strong></td>
+        <td style="width: 100%; text-align: center;"><strong>NOMOR : ' . $data_survey['survey_nomor_lengkap'] . '</strong></td>
         </tr>
         </tbody>
         </table>
@@ -601,7 +601,7 @@ class Survey extends BaseController
         <tbody>
         <tr>
         <td style="width: 13.6542%;">Dasar</td>
-        <td style="width: 86.3458%;">1. DPA Tahun 2018</td>
+        <td style="width: 86.3458%;"> : ' . $data_survey['survey_dasar'] . '</td>
         </tr>
         </tbody>
         </table>
